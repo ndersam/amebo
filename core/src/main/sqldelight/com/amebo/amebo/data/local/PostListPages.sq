@@ -1,0 +1,34 @@
+import java.lang.Integer;
+
+CREATE TABLE postListPages (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    topic_id TEXT NOT NULL,
+    page INTEGER as Integer NOT NULL,
+    data TEXT NOT NULL,
+    timestamp INTEGER NOT NULL,
+    user_slug TEXT,
+    FOREIGN KEY(topic_id) REFERENCES topic(topic_id) ON DELETE CASCADE,
+    FOREIGN KEY(user_slug) REFERENCES userAccount(slug) ON DELETE CASCADE,
+    UNIQUE(topic_id, page, user_slug)
+);
+
+
+findData:
+SELECT postListPages.data  FROM postListPages
+JOIN topic ON topic.topic_id = postListPages.topic_id
+LEFT JOIN userAccount ON userAccount.slug = postListPages.user_slug
+WHERE postListPages.topic_id = ? AND page = ?
+AND ((:user_slug IS NULL AND postListPages.user_slug IS NULL) OR (:user_slug = postListPages.user_slug));
+
+findId:
+SELECT postListPages.id  FROM postListPages
+JOIN topic ON topic.topic_id = postListPages.topic_id
+LEFT JOIN userAccount ON userAccount.slug = postListPages.user_slug
+WHERE postListPages.topic_id = ? AND page = ?
+AND ((:user_slug IS NULL AND postListPages.user_slug IS NULL) OR (:user_slug = postListPages.user_slug));
+
+insert:
+INSERT INTO postListPages(user_slug, topic_id, page, data, timestamp) VALUES(?, ?, ?, ?, ?);
+
+update:
+UPDATE postListPages SET  data = ?, timestamp = ? WHERE id = ?;

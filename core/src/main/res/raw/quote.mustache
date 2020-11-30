@@ -1,0 +1,18 @@
+{{#post}}
+    {{#author}}
+        <blockquote><a
+                href="https://www.nairaland.com/post/{{post}}"><b>{{author}}</b></a>:<br/>{{body}}
+        </blockquote>
+    {{/author}}
+    {{^author}}
+        [quote post={{post}}] {{body}}[/quote]
+    {{/author}}
+{{/post}}
+{{^post}}
+    {{#author}}
+        [quote author={{author}}] {{body}}[/quote]
+    {{/author}}
+    {{^author}}
+        <blockquote>{{body}}</blockquote>
+    {{/author}}
+{{/post}}

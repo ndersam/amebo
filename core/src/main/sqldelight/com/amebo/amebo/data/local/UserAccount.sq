@@ -1,0 +1,28 @@
+import java.lang.Boolean;
+
+CREATE TABLE userAccount(
+    id INTEGER NOT NULL PRIMARY KEY  AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE,
+    slug TEXT NOT NULL UNIQUE,
+    isLoggedIn INTEGER AS Boolean NOT NULL DEFAULT 0
+);
+
+CREATE INDEX account_slug ON userAccount(slug);
+
+selectAll:
+SELECT * FROM userAccount;
+
+select:
+SELECT * FROM userAccount WHERE slug = ?;
+
+deleteThis:
+DELETE FROM userAccount WHERE slug = ?;
+
+insert:
+REPLACE INTO userAccount(name, slug, isLoggedIn) VALUES(?, ?, ?);
+
+logout:
+UPDATE userAccount SET isLoggedIn = 0 WHERE slug = ?;
+
+login:
+UPDATE userAccount SET isLoggedIn = 1 WHERE slug = ?;

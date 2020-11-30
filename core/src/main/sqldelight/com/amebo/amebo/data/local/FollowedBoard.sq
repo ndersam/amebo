@@ -1,0 +1,25 @@
+import java.lang.Integer;
+
+CREATE TABLE followedBoard (
+    board_slug TEXT NOT NULL,
+    user_slug TEXT NOT NULL,
+    isFavourite INTEGER AS Integer NOT NULL DEFAULT 0,
+    FOREIGN KEY(board_slug) REFERENCES board(slug),
+    FOREIGN KEY(user_slug) REFERENCES userAccount(slug),
+    PRIMARY KEY (board_slug, user_slug)
+);
+
+select:
+SELECT * FROM  followedBoard WHERE user_slug = ?  AND board_slug = ?;
+
+selectAll:
+SELECT board.*, isFavourite FROM board JOIN followedBoard  ON board.slug = followedBoard.board_slug AND followedBoard.user_slug = ? ORDER BY board.name;
+
+insert:
+REPLACE INTO followedBoard(board_slug, user_slug, isFavourite) VALUES(?, ?, ?);
+
+deleteAllByAccount:
+DELETE FROM followedBoard WHERE user_slug = ?;
+
+deleteThis:
+DELETE FROM followedBoard WHERE user_slug = ? AND board_slug = ?;

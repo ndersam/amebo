@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="BaseTheme.Light" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="windowNoTitle">true</item>
+
+        <item name="colorSecondary">@color/default_colorSecondary</item>
+        <item name="popupMenuStyle">@style/PopupMenu</item>
+
+        <item name="colorBackground">@color/white</item>
+        <item name="colorOnBackground">@color/black_opacity_87</item>
+
+
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorOnSurface">@color/black</item>
+
+        <!-- text -->
+        <item name="android:textColorPrimary">@color/black_opacity_87</item>
+        <item name="android:textColorSecondary">@color/black_opacity_60</item>
+        <item name="android:textColorTertiary">@color/black_opacity_38</item>
+
+        <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
+        <item name="toolbarStyle">@style/Widget.MaterialComponents.Toolbar.Primary</item>
+        <item name="toolbarNavigationButtonStyle">@style/ToolbarNavigationButtonStyle</item>
+        <item name="actionOverflowButtonStyle">@style/Style.OverFlow.Default</item>
+
+        <!-- Amebo -->
+        <item name="postAuthorColor">@color/blue_gray_A750</item>
+        <item name="toolbarBackgroundColor">?colorPrimary</item>
+        <item name="colorOnPrimaryDisabled">@color/white_opacity_60</item>
+        <item name="postCardElevation">0dp</item>
+    </style>
+
+    <style name="BaseTheme.Dark" parent="Theme.MaterialComponents.NoActionBar" tools:ignore="UnusedResources">
+        <item name="colorAccent">@color/colorAccent</item>
+
+        <item name="colorBackground">@color/window_background</item>
+        <item name="colorOnBackground">@color/white_opacity_87</item>
+
+        <item name="colorOnSurface">@color/white_opacity_87</item>
+        <item name="colorOnPrimary">@color/white_opacity_87</item>
+
+        <item name="android:textColorPrimary">@color/white_opacity_87</item>
+        <item name="android:textColorSecondary">@color/white_opacity_60</item>
+        <item name="android:textColorTertiary">@color/white_opacity_38</item>
+
+        <item name="toolbarNavigationButtonStyle">@style/ToolbarNavigationButtonStyle.Dark</item>
+        <item name="actionOverflowButtonStyle">@style/Style.OverFlow.Default</item>
+
+
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorOnPrimaryDisabled">?android:textColorTertiary</item>
+
+        <!-- Amebo -->
+        <item name="postAuthorColor">@color/blue_gray_300</item>
+        <item name="toolbarBackgroundColor">?colorSurface</item>
+        <item name="postCardElevation">1dp</item>
+    </style>
+
+    <style name="AppTheme.Default" parent="BaseTheme.Light">
+        <item name="colorPrimary">@color/brand_color</item>
+        <item name="colorPrimaryDark">@color/brand_color_dark</item>
+        <item name="bottomSheetDialogTheme">@style/BottomSheetDialogTheme.Default</item>
+    </style>
+
+
+    <style name="AppTheme.Default.Dark" parent="BaseTheme.Dark">
+        <item name="colorPrimary">@color/brand_color</item>
+        <item name="colorPrimaryDark">@color/brand_color_dark</item>
+        <!--        <item name="bottomSheetDialogTheme">@style/BottomSheetDialogTheme.Default.Dark</item>-->
+    </style>
+
+    <style name="AppTheme.Nairaland" parent="BaseTheme.Light">
+        <item name="colorPrimary">@color/green_500</item>
+        <item name="colorPrimaryDark">@color/green_700</item>
+        <item name="bottomSheetDialogTheme">@style/BottomSheetDialogTheme.Nairaland</item>
+    </style>
+
+    <style name="AppTheme.Nairaland.Dark" parent="BaseTheme.Dark">
+        <item name="colorPrimary">@color/green_500</item>
+        <item name="colorPrimaryDark">@color/green_700</item>
+        <item name="bottomSheetDialogTheme">@style/BottomSheetDialogTheme.Nairaland.Dark</item>
+    </style>
+
+
+    <style name="SplashTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowBackground">@drawable/background_splash</item>
+    </style>
+
+
+</resources>

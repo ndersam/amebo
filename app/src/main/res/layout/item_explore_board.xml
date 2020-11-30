@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root"
+    android:layout_margin="@dimen/small"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="?selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="@dimen/large"
+    android:paddingEnd="@dimen/large"
+    app:cardCornerRadius="@dimen/large"
+    app:cardElevation="2dp"
+    app:contentPadding="@dimen/large">
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/topicList"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:textColor="?android:textColorPrimary"
+        tools:text="Agriculture" />
+</com.google.android.material.card.MaterialCardView>
+

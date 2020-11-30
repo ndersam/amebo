@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardUseCompatPadding="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/medium">
+
+            <TextView
+                android:id="@+id/topicTitle"
+                style="@style/TextStyle.Heading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="Should I Confess That I Poured Hot Water On My Neighbor's Goat? " />
+
+            <TextView
+                android:id="@+id/board"
+                style="@style/TextAppearance.MaterialComponents.Overline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/small"
+                android:layout_marginBottom="4dp"
+                android:background="?selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:fontFamily="@font/muli"
+                android:textColor="?colorOnBackground"
+                tools:text="education" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <TextView
+        android:id="@+id/relatedTopicsTitle"
+        android:layout_width="match_parent"
+        android:layout_height="?listPreferredItemHeightSmall"
+        android:background="?colorBackground"
+        android:gravity="center_vertical"
+        android:padding="@dimen/large"
+        android:text="@string/related_topics"
+        android:textAllCaps="true"
+        android:textColor="?colorOnBackground"
+        android:textSize="14sp"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/small"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+</LinearLayout>

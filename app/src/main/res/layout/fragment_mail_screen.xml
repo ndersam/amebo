@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?colorBackground"
+    android:orientation="vertical">
+
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="?android:attr/actionBarSize">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize"
+            android:background="?colorPrimary"
+            app:contentInsetStartWithNavigation="0dp"
+            app:menu="@menu/menu_new_mail"
+            app:navigationIcon="@drawable/ic_arrow_back_24dp"
+            app:titleTextColor="?colorOnPrimary" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:orientation="vertical"
+        android:padding="4dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <com.amebo.amebo.common.widgets.StateLayout
+            android:id="@+id/stateLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:stateLayout_content="@id/content"
+            app:stateLayout_failure="@id/ouchView"
+            app:stateLayout_initialState="progress"
+            app:stateLayout_progress="@id/progress">
+
+            <LinearLayout
+                android:id="@+id/content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layoutSubject"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/large"
+                    android:hint="@string/subject"
+                    app:boxBackgroundColor="?colorBackground"
+                    app:boxBackgroundMode="none">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edit_subject"
+                        style="@style/Widget.MaterialComponents.TextInputEditText.FilledBox.Dense"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@null"
+                        android:imeOptions="actionNext"
+                        android:inputType="textShortMessage"
+                        android:textColor="?colorOnBackground"
+                        android:textColorHint="?android:textColorTertiary"
+                        tools:text="sdfs" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginStart="@dimen/medium"
+                    android:layout_marginEnd="@dimen/medium"
+                    android:alpha="0.2"
+                    android:background="@color/default_drawable_tint" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginTop="@dimen/medium"
+                    android:layout_weight="1"
+                    android:hint="@string/body"
+                    app:boxBackgroundColor="?colorBackground"
+                    app:boxBackgroundMode="none"
+                    app:boxStrokeWidth="0dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edit_message"
+                        style="@style/Widget.MaterialComponents.TextInputEditText.FilledBox.Dense"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@null"
+                        android:fillViewport="true"
+                        android:gravity="start"
+                        android:inputType="textMultiLine"
+                        android:nestedScrollingEnabled="false"
+                        android:scrollbars="vertical"
+                        android:textColor="?colorOnBackground"
+                        android:textColorHint="?android:textColorTertiary"
+                        tools:text="dfsdfdfd" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+
+            <com.amebo.amebo.common.widgets.OuchView
+                android:id="@+id/ouchView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <ProgressBar
+                android:id="@+id/progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center" />
+        </com.amebo.amebo.common.widgets.StateLayout>
+
+    </ScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

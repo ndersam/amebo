@@ -1,0 +1,400 @@
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Amebo</string>
+    <string name="explore">Explore</string>
+    <string name="profile">Profile</string>
+
+    <string name="log_in">Log in</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="login_to_nairaland">Login to Nairaland</string>
+    <string name="login_message">Log in to customize your boards, share your interests, and more!!</string>
+    <string name="add_account">Add account</string>
+    <string name="remove_account">Remove account</string>
+    <string name="more">More</string>
+    <string name="bullet">•</string>
+    <string name="search_nairaland">Search Nairaland</string>
+    <string name="sort">Sort</string>
+    <string name="updated">Updated</string>
+    <string name="new_sort">New</string>
+    <string name="posts">Posts</string>
+    <string name="views">Views</string>
+    <string name="page">Page</string>
+    <string name="creation">Creation</string>
+    <string name="update">Update</string>
+    <string name="go">Go</string>
+    <string name="new_topic">New topic</string>
+    <string name="follow_board">Follow board</string>
+    <string name="posted_by">Posted by</string>
+    <string name="deleted">[Deleted]</string>
+    <string name="navigation_drawer_close">Close drawer</string>
+    <string name="navigation_drawer_open">Open drawer</string>
+    <string name="settings">Settings</string>
+    <string name="search_options">Search options</string>
+    <string name="only_show_topic_posts">Only show topic posts</string>
+    <string name="only_show_posts_with_images">Only show posts with images</string>
+    <string name="all_boards">All boards</string>
+    <string name="followed_boards">Followed boards</string>
+    <string name="recent_boards">Recent Boards</string>
+    <string name="multi_boards">Multi-Boards</string>
+    <string name="results_for">Results for \"%s\"…</string>
+    <string name="search_boards">Search Boards</string>
+    <string name="information">Information</string>
+    <string name="find_in_page">Find in Page</string>
+    <string name="view_mods">View mods</string>
+    <string name="mail_mods">Mail mods</string>
+    <string name="related_boards">Related boards</string>
+    <string name="mail_super_mods">Mail SuperMods</string>
+
+    <plurals name="users">
+        <item quantity="one">user</item>
+        <item quantity="other">users</item>
+    </plurals>
+
+    <plurals name="guests">
+        <item quantity="one">guest</item>
+        <item quantity="other">guests</item>
+    </plurals>
+    <string name="online">online</string>
+    <string name="mentions">Mentions</string>
+    <string name="likes_and_shares">Likes and Shares</string>
+    <string name="recent_posts">Recent Posts</string>
+    <string name="topics">Topics</string>
+    <string name="following">Following</string>
+    <string name="shared_with_me">Shared with me</string>
+    <string name="reply">Reply</string>
+    <string name="history">History</string>
+    <string name="appearance">Appearance</string>
+    <string name="general">General</string>
+    <string name="theme">Theme</string>
+    <string name="report_post">Report post</string>
+    <string name="view_author">View author</string>
+    <string name="modify">Modify</string>
+    <string name="view_in_browser">View in browser</string>
+    <string name="follow_topic">Follow</string>
+    <string name="post">Post</string>
+    <string name="collapse_all_posts">Collapse all posts</string>
+    <string name="expand_all_posts">Expand all posts</string>
+    <string name="share_link">Share link</string>
+    <string name="photo_transition">image</string>
+    <string name="select_text">Select text</string>
+    <string name="share">Share</string>
+    <string name="copy_link">Copy Link</string>
+    <string name="accounts">Accounts</string>
+    <string name="saved_to_gallery">Saved to gallery</string>
+    <string name="download_failed">Download failed</string>
+
+    <plurals name="shares">
+        <item quantity="one">%d share</item>
+        <item quantity="other">%d shares</item>
+    </plurals>
+    <plurals name="likes">
+        <item quantity="one">%d like</item>
+        <item quantity="other">%d likes</item>
+    </plurals>
+    <plurals name="old_likes">
+        <item quantity="one">%d old like</item>
+        <item quantity="other">%d old likes</item>
+    </plurals>
+    <plurals name="views">
+        <item quantity="one">%s view</item>
+        <item quantity="other">%s views</item>
+    </plurals>
+
+    <string-array name="themes">
+        <item>Lime (Default)</item>
+        <item>Nairaland</item>
+    </string-array>
+
+
+    <string-array name="topicLists_anonymous">
+        <item>Featured</item>
+        <item>Trending</item>
+        <item>New</item>
+    </string-array>
+
+    <string-array name="topicLists">
+        <item>Featured</item>
+        <item>Trending</item>
+        <item>New</item>
+        <item>Followed boards</item>
+        <item>Followed topics</item>
+    </string-array>
+    <string-array name="board_sorts">
+        <item>Updated</item>
+        <item>New</item>
+        <item>Posts</item>
+        <item>Views</item>
+    </string-array>
+    <string-array name="followed_board_sorts">
+        <item>Creation</item>
+        <item>Update</item>
+    </string-array>
+
+    <string name="key_topiclist_anonymous">key_topiclist_anonymous</string>
+    <string name="key_mark_topics_as_read">mark_topics_as_read</string>
+    <string name="key_use_device_emojis">use_device_emojis</string>
+    <string name="key_clear_read_topics">clear_read_topics</string>
+    <string name="key_topiclist">key_topiclist</string>
+    <string name="key_board_sort">key_board_sort</string>
+    <string name="key_confirm_exit">confirm_exit</string>
+    <string name="key_privacy">key_privacy</string>
+    <string name="key_licences">key_licences</string>
+    <string name="key_current_theme">current_theme</string>
+    <string name="key_clear_search_history">clear_search_history</string>
+    <string name="key_general">key_general</string>
+    <string name="key_rate_app">rate_app</string>
+    <string name="key_edit_actions">edit_actions</string>
+    <string name="key_dark_mode">dark_mode</string>
+
+    <string name="fileprovider">com.amebo.amebo.fileprovider</string>
+    <string name="image_url">Image url</string>
+    <string name="link_copied">Link copied to clipboard</string>
+    <string name="share_image">Share image</string>
+    <string name="share_failed">Image sharing failed</string>
+    <string name="default_topiclist">Home page</string>
+    <string name="topic_list">Topic lists</string>
+    <string name="default_board_sort">Default board sort</string>
+    <string name="mark_topics_as_read">Mark topics as read</string>
+    <string name="use_device_emojis">Use device emojis</string>
+    <string name="clear_search_history">Clear search history</string>
+    <string name="clear_read_topics">Clear read topics</string>
+    <string name="clear_recent_boards">Clear recent boards</string>
+    <string name="about">About</string>
+    <string name="privacy_policy">Privacy policy</string>
+    <string name="licences">Licences</string>
+    <string name="search_results_for">Results for "%s"</string>
+    <string name="login_failed">Bad login</string>
+    <string name="network_error">Network error! Unable to complete request!</string>
+    <string name="unknown_error">Error unknown</string>
+    <string name="login_success">Welcome %s</string>
+    <string name="close">close</string>
+    <string name="show_search_options">show search options</string>
+    <string name="previous_page">Previous page</string>
+    <string name="next_page">Next page</string>
+    <string name="refresh">refresh</string>
+    <string name="view_count">%s views</string>
+    <string name="jump_to_page">Jump to page</string>
+    <string name="view_post">View post</string>
+    <string name="transition_profile">profile</string>
+    <string name="retry">retry</string>
+    <string name="follow">follow</string>
+    <string name="mail">mail</string>
+    <string name="view_twitter_profile">view twitter profile</string>
+    <string name="edit">edit</string>
+    <string name="delete_user">Delete %s?</string>
+    <string name="view_latest_topics">View latest topics</string>
+    <string name="moderates_in">Moderates in</string>
+    <string name="boards_most_active_in">Boards most active in</string>
+    <string name="following_x">Following %d</string>
+    <string name="posts_by_people_you_are_following">From People You\'re Following</string>
+    <string name="logged_out">Logged out. Please login again</string>
+    <string name="access_denied">Access denied</string>
+    <string name="not_found">Page not found.</string>
+    <string name="liked">Liked</string>
+    <string name="you_have_likes_and_shares">You have %1$d like(s) and %2$d share(s).</string>
+    <string name="insert_emoticon">Insert emoticon</string>
+    <string name="edit_action">edit action</string>
+    <string name="emoticon">emoticon</string>
+    <string name="write_your_post_here">Write your post here</string>
+    <string name="strikethrough">Strikethrough</string>
+    <string name="bold">Bold</string>
+    <string name="italic">Italic</string>
+    <string name="preview">Preview</string>
+    <string name="align_left">Align left</string>
+    <string name="align_right">Align right</string>
+    <string name="align_center">Align center</string>
+    <string name="quote">Quote</string>
+    <string name="text_color">Text color</string>
+    <string name="insert_link">Insert link</string>
+    <string name="insert_image">Insert image</string>
+    <string name="superscript">Superscript</string>
+    <string name="subscript">Subscript</string>
+    <string name="font">Font family</string>
+    <string name="text_size">Text size</string>
+    <string name="code">Code</string>
+    <string name="horizontal_rule">Horizontal rule</string>
+    <string name="attach_file">Attach file</string>
+
+    <string name="pick_color">Pick color</string>
+    <string name="new_post">New post</string>
+    <string name="parse_error">Oops! error parsing</string>
+    <string name="network_error_subtitle">Please check your internet\n connection and try again</string>
+    <string name="something_went_wrong">Oops… Something went wrong!</string>
+    <string name="quiet_here">It\'s still quiet here</string>
+    <string name="follow_topic_replied">Follow this topic</string>
+    <string name="submit">Submit</string>
+    <string name="show_rules">Show rules</string>
+    <string name="submitting">Submitting…</string>
+    <string name="select_post_images">Select post images</string>
+    <string name="image_deleted">Image deleted</string>
+    <string name="undo">Undo</string>
+    <string name="add_image">Add image</string>
+    <string name="error_adding_images">Error adding images from</string>
+    <string name="error_big_file">Image above 4MB size limit</string>
+    <string name="add_images">Add image(s)</string>
+    <string name="you_can_only_attach_4_files">You can only attach 4 files</string>
+    <string name="modify_post">Modify post</string>
+    <string name="nairaland_rules">Nairaland rules</string>
+    <string name="which_rules_were_broken">Which Rules Were Broken?</string>
+    <string name="closed_topic">This topic is closed for new posts</string>
+    <string name="title">Title</string>
+    <string name="select_board">Select board</string>
+    <string name="users_followed_by_x">%s\'s friends</string>
+    <string name="error_storage_permission">Amebo needs permission to access external storage</string>
+    <string name="featured">Featured</string>
+    <string name="trending">Trending</string>
+    <string name="new_topics">New topics</string>
+    <string name="users_topics">%s topics</string>
+    <string name="followed_topics">Followed topics</string>
+    <string name="users_posts">%s\'s posts</string>
+    <string name="key_current_user">current_user</string>
+    <string name="x_board_moderators">%s\'s moderators</string>
+    <string name="recently_viewed">Recently viewed</string>
+    <string name="unfollow">Unfollow</string>
+    <string name="anonymous">Anonymous</string>
+    <string name="redo">Redo</string>
+    <string name="monospace">Monospace</string>
+    <string name="serif">Serif</string>
+    <string name="sans_serif">Sans Serif</string>
+    <string name="pick_font">Pick font</string>
+    <string name="red">Red</string>
+    <string name="black">Black</string>
+    <string name="tomato">Tomato</string>
+    <string name="forest_green">Forest green</string>
+    <string name="brown">Brown</string>
+    <string name="gold">Gold</string>
+    <string name="deep_sky_blue">Deep sky blue</string>
+    <string name="orchid">Orchid</string>
+    <string name="view_recent_topics">View recent topics</string>
+    <string name="edit_actions">Edit actions</string>
+    <string name="shared_by">Shared by</string>
+    <string name="related_topics">Related topics</string>
+    <string name="now_following">Following %s</string>
+    <string name="unfollowed_x">Unfollowed %s</string>
+    <string name="simple_fragment_transition">simple_fragment_transition</string>
+    <string name="search_results">Search results</string>
+    <string name="show_options">Show options</string>
+    <string name="end_of_posts">End of posts</string>
+    <string name="topic_information">Topic info</string>
+    <string name="this_topic">This topic</string>
+    <string name="recent">Recent</string>
+    <string name="collapse_post">Collapse post</string>
+    <string name="key_switch_accounts">key_switch_accounts</string>
+    <string name="read_topics_cleared">Read topics cleared!</string>
+    <string name="search_history_cleared">Search history cleared!</string>
+    <string name="end_of_topics">End of topics</string>
+    <string name="error_removing_image">Error removing image</string>
+    <string name="time_uploaded">Time uploaded: %s ago</string>
+    <string name="latest_topics_by">Latest topics by %s</string>
+    <string name="subject">Subject</string>
+    <string name="message_x">Message %s</string>
+    <string name="body">Body</string>
+    <string name="error_too_many_mails">Too many Anonymous Mails. Please wait.</string>
+    <string name="error_insufficient_mailing_permissions">Insufficient Mailing Permissions</string>
+    <string name="mail_sent">Mail sent!</string>
+    <string name="display_photo">Display photo</string>
+    <string name="personal_text">Personal text</string>
+    <string name="signature">Signature</string>
+    <string name="location">Location</string>
+    <string name="twitter">Twitter</string>
+    <string name="gender">Gender</string>
+    <string name="edit_profile">Edit profile</string>
+    <string name="select_gender">Select gender</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="double_dash" translatable="false">--</string>
+    <string name="yim">YIM</string>
+    <string name="birthday">Birthday</string>
+    <string name="select_birthdate">Select birthdate</string>
+    <string name="clear_birth_date">Clear</string>
+    <string name="january">Jan</string>
+    <string name="february">Feb</string>
+    <string name="march">Mar</string>
+    <string name="april">Apr</string>
+    <string name="may">May</string>
+    <string name="june">June</string>
+    <string name="july">July</string>
+    <string name="august">Aug</string>
+    <string name="september">Sept</string>
+    <string name="october">Oct</string>
+    <string name="november">Nov</string>
+    <string name="december">Dec</string>
+    <string name="save">Save</string>
+    <string name="remove_display_photo_question">Remove display photo?</string>
+    <string name="explain_display_photo_removal">Your display photo will be removed when you submit</string>
+    <string name="restore_old_display_photo_question">Restore old display photo?</string>
+    <string name="explain_restore_old_display_photo">Your old display photo will remain your current photo.</string>
+    <string name="no_display_photo">No display photo</string>
+    <string name="unselected">Unselected</string>
+    <string name="my_likes">My Likes</string>
+    <string name="my_shared_posts">My Shared Posts</string>
+    <string name="view_topics">View topics</string>
+    <string name="view_posts">View posts</string>
+    <string name="channel_name">Amebo</string>
+    <string name="channel_description">Amebo</string>
+    <string name="featured_topic">Featured Topic</string>
+    <string name="profile_updated">Profile updated</string>
+    <string name="post_being_reported">Post being reported</string>
+    <string name="football">Football</string>
+    <string name="matches">Matches</string>
+    <string name="fan_threads">Fan Threads</string>
+    <string name="unauthorized_access">Unauthorized access</string>
+    <string name="search_web">Search web</string>
+    <string name="are_you_a_muslim_question">Are you a Muslim?</string>
+    <string name="yes_i_m_muslim_and_believe_of_all_the_above">Yes, I\'m muslim and believe of all the above</string>
+    <string name="no">No</string>
+    <string name="only_muslims_allowed">Only muslims allowed</string>
+    <string name="go_to_profile">Go to Profile</string>
+    <string name="followers">Followers</string>
+    <string name="inbox">Inbox</string>
+    <string name="new_emails">New Emails</string>
+    <string name="you_have_no_new_email_notifications">You have no new email notifications</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="check_mail">Check mail</string>
+    <string name="you_have_no_followers">You have no followers</string>
+    <string name="last_seen_x_ago">Last seen %s ago</string>
+    <string name="registered_x_ago">Registered: %s ago</string>
+    <string name="time_spent_online">Time spent online: %s</string>
+    <string name="nairaland_picks">Nairaland picks</string>
+    <string name="remove_image">Remove Image</string>
+    <string name="change_image">Change Image</string>
+    <string name="registered">Registered</string>
+    <string name="last_seen">Last seen</string>
+    <string name="x_ago">%s ago</string>
+    <string name="page_x_of_x">Page %s of %s</string>
+    <string name="page_x">Page %d</string>
+    <string name="privacy_policy_web_page">https://ndersam.github.io/amebo/privacy.html</string>
+    <string name="licences_web_page">https://ndersam.github.io/amebo/licences.html</string>
+    <string name="accept">Accept</string>
+    <string name="spent_online">Spent Online</string>
+    <string name="joined_x_date">Joined %s</string>
+    <string name="x_time_spent_online">%s online</string>
+    <string name="message_super_mods">Message Super Mods</string>
+    <string name="message_x_mods">Message %s Mods</string>
+    <string name="please_wait_for_5_mins">Please go back and try again in about 5 minutes</string>
+    <string name="topic_hidden">This topic has been removed or hidden</string>
+    <string name="recent_search">Recent search</string>
+    <string name="topic_history">Viewed topics</string>
+    <string name="misc">Miscellaneous</string>
+    <string name="key_enable_crashlytics">enable_crashlytics</string>
+    <string name="crash_report">Crash Reports</string>
+    <string name="confirm_exit">Confirm exit</string>
+    <string name="quote_post">Quote post</string>
+    <string name="boards_you_follow_will_appear_here">Boards you follow will appear here.</string>
+    <string name="xx_by">%s by</string>
+    <string name="rate_app">Rate app</string>
+    <string name="crash_report_explanation">Help diagnose issues within the app</string>
+    <string name="clear_search_history_explanation">Delete entire search history</string>
+    <string name="clear_read_topics_explanation">Delete all read topics data</string>
+    <string name="enjoying_amebo_question">Enjoying Amebo?</string>
+    <string name="not_really">Not really</string>
+    <string name="yes">Yes!</string>
+    <string name="no_thanks">Nope</string>
+    <string name="ok_sure">Sure!</string>
+    <string name="mind_giving_us_feedback">Would you mind giving us some feedback?</string>
+    <string name="how_about_a_rating">How about a rating on the Play Store, then?</string>
+    <string name="view_original_topic">View original topic</string>
+    <string name="view_this_comment_in_thread">View this comment in thread</string>
+    <string name="dark_mode">Dark mode</string>
+    <string name="no_related_topics_found">No related topics found</string>
+</resources>

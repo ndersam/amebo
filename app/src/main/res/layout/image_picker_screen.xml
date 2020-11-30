@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".screens.imagepicker.ImagePickerScreen">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            app:navigationIcon="@drawable/ic_arrow_back_24dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:title="@string/select_post_images"
+            app:menu="@menu/menu_image_picker"
+            app:titleTextColor="?colorOnPrimary" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <com.amebo.amebo.common.widgets.StateLayout
+        android:id="@+id/stateLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:stateLayout_content="@id/recyclerView"
+        app:stateLayout_empty="@id/emptyView"
+        app:stateLayout_initialState="empty"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/emptyView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:drawableTop="@drawable/ic_add_to_photos_black_24dp"
+            android:fontFamily="@font/muli"
+            android:gravity="center"
+            android:padding="@dimen/medium"
+            android:text="@string/add_image"
+            android:textSize="20sp" />
+
+    </com.amebo.amebo.common.widgets.StateLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

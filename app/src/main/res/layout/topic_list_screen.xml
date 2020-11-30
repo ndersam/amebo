@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/baseTopicList"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/coordinatorLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="?toolbarBackgroundColor"
+                android:elevation="@dimen/large"
+                app:contentInsetLeft="0dp"
+                app:contentInsetStart="0dp"
+                app:menu="@menu/topic_list_menu"
+                app:navigationIcon="@drawable/ic_arrow_back_24dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/title"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="?colorOnPrimary"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        tools:text="Politics" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/txtPageInfo"
+                        style="@style/TextAppearance.MaterialComponents.Overline"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:background="?selectableItemBackground"
+                        android:gravity="center"
+                        android:textColor="?android:textColorSecondary"
+                        android:textSize="12sp"
+                        app:drawableEndCompat="@drawable/ic_arrow_drop_down_24dp"
+                        app:drawableTint="?android:textColorSecondary"
+                        tools:text="1 of 20" />
+
+                </LinearLayout>
+            </com.google.android.material.appbar.MaterialToolbar>
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipeRefreshLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+
+
+            <com.amebo.amebo.common.widgets.HackyRecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_board_topic" />
+
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+        <com.google.android.material.bottomappbar.BottomAppBar
+            android:id="@+id/bottomBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:background="?toolbarBackgroundColor"
+            android:backgroundTint="?toolbarBackgroundColor"
+            app:contentInsetLeft="0dp"
+            app:contentInsetStart="0dp"
+            app:elevation="@dimen/medium"
+            app:hideOnScroll="true"
+            app:layout_behavior="com.google.android.material.bottomappbar.BottomAppBar$Behavior"
+            app:layout_scrollFlags="scroll|enterAlways">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageButton
+                    android:id="@+id/btnPrevPage"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/bottom_sheet_action_size"
+                    android:background="?selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/previous_page"
+                    android:enabled="false"
+                    android:src="@drawable/ic_keyboard_arrow_left_24dp"
+                    android:tint="@color/button_bg_selector"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/btnNextPage"
+                    app:layout_constraintHorizontal_chainStyle="packed"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+
+                <ImageButton
+                    android:id="@+id/btnNextPage"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:background="?selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/next_page"
+                    android:src="@drawable/ic_keyboard_arrow_right_24dp"
+                    android:tint="@color/button_bg_selector"
+                    app:layout_constraintBottom_toBottomOf="@id/btnPrevPage"
+                    app:layout_constraintEnd_toStartOf="@+id/btnRefreshPage"
+                    app:layout_constraintHorizontal_chainStyle="packed"
+                    app:layout_constraintStart_toEndOf="@+id/btnPrevPage"
+                    app:layout_constraintTop_toTopOf="@id/btnPrevPage" />
+
+                <ImageButton
+                    android:id="@+id/btnRefreshPage"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:background="?selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/refresh"
+                    android:src="@drawable/ic_refresh_24dp"
+                    app:layout_constraintBottom_toBottomOf="@id/btnPrevPage"
+                    app:layout_constraintEnd_toStartOf="@+id/btnNewTopic"
+                    app:layout_constraintHorizontal_chainStyle="packed"
+                    app:layout_constraintStart_toEndOf="@+id/btnNextPage"
+                    app:layout_constraintTop_toTopOf="@id/btnPrevPage" />
+
+                <ImageButton
+                    android:id="@+id/btnNewTopic"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:background="?selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/new_topic"
+                    android:src="@drawable/ic_edit_24dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/btnPrevPage"
+                    app:layout_constraintEnd_toStartOf="@+id/btnMore"
+                    app:layout_constraintHorizontal_chainStyle="packed"
+                    app:layout_constraintStart_toEndOf="@+id/btnRefreshPage"
+                    app:layout_constraintTop_toTopOf="@id/btnPrevPage"
+                    app:tint="?colorOnPrimary" />
+
+
+                <ImageButton
+                    android:id="@+id/btnMore"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:background="?selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/explore"
+                    android:src="@drawable/ic_explore_24dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/btnPrevPage"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_chainStyle="packed"
+                    app:layout_constraintStart_toEndOf="@+id/btnNewTopic"
+                    app:layout_constraintTop_toTopOf="@id/btnPrevPage" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.bottomappbar.BottomAppBar>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/rightDrawer"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="end"
+        android:fillViewport="true">
+
+        <ViewStub
+            android:id="@+id/drawer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout="@layout/fragment_topic_list_drawer" />
+    </com.google.android.material.navigation.NavigationView>
+
+
+</androidx.drawerlayout.widget.DrawerLayout>
+

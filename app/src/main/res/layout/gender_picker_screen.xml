@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@drawable/bottom_sheet_dialog_background"
+    android:orientation="vertical"
+    android:padding="12dp">
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="24dp"
+        android:text="@string/select_gender"
+        android:textAllCaps="true"
+        android:textSize="12sp"
+        android:textStyle="bold" />
+
+    <include layout="@layout/layout_divider" />
+
+    <TextView
+        android:id="@+id/male"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:height="?listPreferredItemHeightSmall"
+        android:background="?selectableItemBackground"
+        android:clickable="true"
+        android:drawableStart="@drawable/ic_gender_male"
+        android:drawablePadding="12dp"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:paddingStart="0dp"
+        android:paddingEnd="@dimen/medium"
+        tools:drawableEnd="@drawable/ic_done_24dp"
+        android:text="@string/male" />
+
+    <TextView
+        android:id="@+id/female"
+        android:paddingStart="0dp"
+        android:paddingEnd="@dimen/medium"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:height="?listPreferredItemHeightSmall"
+        android:background="?selectableItemBackground"
+        android:clickable="true"
+        android:drawableStart="@drawable/ic_gender_female"
+        android:drawablePadding="12dp"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:text="@string/female" />
+
+    <TextView
+        android:id="@+id/unSelected"
+        android:paddingStart="0dp"
+        android:paddingEnd="@dimen/medium"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:height="?listPreferredItemHeightSmall"
+        android:background="?selectableItemBackground"
+        android:clickable="true"
+        android:drawableStart="@drawable/ic_unknown"
+        android:drawablePadding="12dp"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:text="@string/unselected" />
+</LinearLayout>

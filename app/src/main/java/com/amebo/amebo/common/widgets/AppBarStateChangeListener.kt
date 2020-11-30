@@ -1,0 +1,53 @@
+package com.amebo.amebo.common.widgets
+
+import com.google.android.material.appbar.AppBarLayout
+import kotlin.math.abs
+
+abstract class AppBarStateChangeListener : AppBarLayout.OnOffsetChangedListener {
+
+    private var mCurrentState = State.IDLE
+
+
+    enum class State {
+        /**
+         * [AppBarLayout] is fully expanded ... contents are fully shown
+         */
+        EXPANDED,
+        /**
+         * [AppBarLayout] is content is fully collapsed
+         */
+        COLLAPSED,
+
+        /**
+         * [AppBarLayout] is partially expanded
+         */
+        IDLE
+    }
+
+    override fun onOffsetChanged(appBarLayout: AppBarLayout, i: Int) {
+        when {
+            i == 0 -> {
+                if (mCurrentState != State.EXPANDED) {
+                    onStateChanged(appBarLayout, State.EXPANDED)
+                }
+                mCurrentState = State.EXPANDED
+            }
+            abs(i) >= appBarLayout.totalScrollRange -> {
+                if (mCurrentState != State.COLLAPSED) {
+                    onStateChanged(appBarLayout, State.COLLAPSED)
+                }
+                mCurrentState = State.COLLAPSED
+            }
+            else -> {
+                if (mCurrentState != State.IDLE) {
+                    onStateChanged(appBarLayout, State.IDLE)
+                }
+                mCurrentState = State.IDLE
+            }
+        }
+
+    }
+
+    abstract fun onStateChanged(appBarLayout: AppBarLayout, state: State)
+
+}

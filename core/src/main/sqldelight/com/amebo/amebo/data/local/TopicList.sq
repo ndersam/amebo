@@ -1,0 +1,19 @@
+import java.lang.Integer;
+
+CREATE TABLE topicListIds (
+    id INTEGER as Integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+    type_id INTEGER as Integer NOT NULL,
+    board_id INTEGER as Integer,
+    FOREIGN KEY(board_id) REFERENCES board(id),
+    UNIQUE(type_id, board_id)
+);
+
+
+findTopicListIdBy:
+SELECT id FROM topicListIds WHERE type_id = ? AND board_id = ?;
+
+findTopicListIdFromBoard:
+SELECT * FROM topicListIds WHERE board_id = ?;
+
+insertTopicListId:
+INSERT INTO topicListIds(type_id, board_id) VALUES(?, ?);

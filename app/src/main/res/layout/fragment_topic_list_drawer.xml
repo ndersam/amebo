@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:orientation="vertical"
+    tools:context=".application.MainActivity">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/medium">
+
+        <androidx.constraintlayout.widget.Constraints
+            android:id="@+id/mid_guide"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintGuide_percent="0.50"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- board basic info -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/_board_summary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/medium"
+            app:cardCornerRadius="4dp"
+            app:cardElevation="@dimen/small"
+            app:contentPadding="4dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="4dp">
+
+                <TextView
+                    android:id="@+id/topic_list_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="?android:textColorPrimary"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="/politics" />
+
+                <TextView
+                    android:id="@+id/followedBoard"
+                    android:layout_width="match_parent"
+                    android:layout_height="?listPreferredItemHeightSmall"
+                    android:gravity="center_vertical"
+                    android:text="@string/followed_boards"
+                    android:textColor="?android:textColorPrimary"
+                    android:textSize="18sp"
+                    android:visibility="gone"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/boardStat"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:textColor="?android:textColorSecondary"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/topic_list_name"
+                    tools:text="16,748,096 readers - 557 online" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+
+        <!-- mail mods -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/mailMods"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="@dimen/medium"
+            android:layout_marginEnd="2dp"
+            android:background="?selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            app:cardCornerRadius="4dp"
+            app:cardElevation="@dimen/small"
+            app:layout_constraintEnd_toEndOf="@id/mid_guide"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/_board_summary">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:drawableStart="@drawable/ic_email_24dp"
+                android:drawablePadding="8dp"
+                android:gravity="center_vertical|start"
+                android:padding="@dimen/medium"
+                android:text="@string/mail_mods"
+                android:textColor="?android:textColorPrimary"
+                app:drawableTint="?android:textColorPrimary" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- view mods -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/viewMods"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginTop="@dimen/medium"
+            android:background="?selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            app:cardCornerRadius="4dp"
+            app:cardElevation="@dimen/small"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/mid_guide"
+            app:layout_constraintTop_toBottomOf="@id/_board_summary">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:drawableStart="@drawable/ic_remove_red_eye_24dp"
+                android:drawablePadding="8dp"
+                android:gravity="center_vertical|start"
+                android:padding="@dimen/medium"
+                android:text="@string/view_mods"
+                android:textColor="?android:textColorPrimary"
+                app:drawableTint="?android:textColorPrimary" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- mail super mods -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/mailSuperMods"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="@dimen/medium"
+            app:contentPadding="4dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/viewMods">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableStart="@drawable/ic_email_24dp"
+                android:drawablePadding="8dp"
+                android:gravity="center_vertical|start"
+                android:padding="@dimen/medium"
+                android:text="@string/mail_super_mods"
+                android:textColor="?android:textColorPrimary"
+                app:drawableTint="?android:textColorPrimary" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- board details -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/boardInfoCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/medium"
+            android:layout_marginBottom="@dimen/medium"
+            android:visibility="gone"
+            app:cardElevation="@dimen/small"
+            app:layout_constraintTop_toBottomOf="@id/mailSuperMods"
+            tools:visibility="visible">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/boardInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:linksClickable="true"
+                    android:padding="@dimen/small"
+                    android:textColor="?android:textColorPrimary"
+                    android:textIsSelectable="true"
+                    app:drawableTint="?android:textColorPrimary"
+                    tools:text="Our country Nigeria is the giant of Africa!" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    app:layout_constraintTop_toBottomOf="@id/mailSuperMods"
+                    tools:listitem="@layout/item_followed_board" />
+            </FrameLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</ScrollView>

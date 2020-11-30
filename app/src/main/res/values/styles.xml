@@ -1,0 +1,192 @@
+<resources>
+
+    <!--===================
+    BOTTOM SHEET
+    ====================-->
+
+    <style name="BaseBottomSheetDialogTheme.Light" parent="@style/Theme.MaterialComponents.Light.BottomSheetDialog">
+        <!-- main -->
+        <item name="colorPrimary">@color/brand_color</item>
+        <item name="colorPrimaryDark">@color/brand_color_dark</item>
+
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowIsFloating">false</item>
+
+        <!-- text -->
+        <item name="android:textColorPrimary">@color/black_opacity_87</item>
+        <item name="android:textColorSecondary">@color/black_opacity_60</item>
+        <item name="android:textColorTertiary">@color/black_opacity_38</item>
+    </style>
+
+    <style name="BottomSheetDialogTheme.Default" parent="BaseBottomSheetDialogTheme.Light" />
+
+    <style name="BottomSheetDialogTheme.Nairaland" parent="BaseBottomSheetDialogTheme.Light">
+        <item name="colorPrimary">@color/green_500</item>
+        <item name="colorPrimaryDark">@color/green_700</item>
+    </style>
+
+    <style name="BaseBottomSheetDialogTheme.Dark" parent="@style/Theme.MaterialComponents.BottomSheetDialog">
+        <item name="colorPrimary">@color/brand_color</item>
+        <item name="colorPrimaryDark">@color/brand_color_dark</item>
+
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:backgroundDimEnabled">true</item>
+
+        <!-- text -->
+        <item name="android:textColorPrimary">@color/white_opacity_87</item>
+        <item name="android:textColorSecondary">@color/white_opacity_60</item>
+        <item name="android:textColorTertiary">@color/white_opacity_38</item>
+    </style>
+
+    <style name="BottomSheetDialogTheme.Default.Dark" parent="BaseBottomSheetDialogTheme.Dark" />
+
+    <style name="BottomSheetDialogTheme.Nairaland.Dark" parent="BaseBottomSheetDialogTheme.Dark">
+        <item name="colorPrimary">@color/green_500</item>
+        <item name="colorPrimaryDark">@color/green_700</item>
+    </style>
+
+    <!--===================
+   EXPLORE SCREEN BOTTOM SHEET
+   ====================-->
+
+    <style name="BottomDialogTheme.Default" parent="BottomDialogTheme">
+        <item name="bottom_sheet_extra_padding">4dp</item>
+        <item name="should_draw_under_status_bar">true</item>
+        <item name="bottom_drawer_background">@color/white</item>
+    </style>
+
+    <style name="BottomDialogTheme.Dark" parent="BottomDialogTheme">
+        <item name="bottom_sheet_extra_padding">4dp</item>
+        <item name="should_draw_under_status_bar">true</item>
+        <item name="bottom_drawer_background">?colorSurface</item>
+    </style>
+
+    <!--================
+    DIALOG
+    =================-->
+
+    <style name="ShapeAppearanceOverlay" parent="">
+        <item name="cornerSize">16dp</item>
+        <item name="cornerFamily">rounded</item>
+    </style>
+
+    <style name="AppBottomSheetDialogTheme" parent="Theme.MaterialComponents.Light.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/AppModalStyle</item>
+    </style>
+
+    <style name="AppModalStyle" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@drawable/rounded_corners_shape</item>
+    </style>
+
+    <!--===================
+   TOOLBAR
+   ====================-->
+    <style name="ToolbarStyle" parent="Widget.MaterialComponents.ActionBar.Primary">
+        <item name="background">?toolbarBackgroundColor</item>
+        <item name="titleTextColor">?colorOnPrimary</item>
+        <item name="elevation">@dimen/medium</item>
+    </style>
+
+    <style name="ToolbarStyle.Dark" parent="Widget.MaterialComponents.ActionBar.Surface">
+        <item name="background">?toolbarBackgroundColor</item>
+        <item name="titleTextColor">?colorOnPrimary</item>
+        <item name="elevation">@dimen/medium</item>
+    </style>
+
+    <style name="ToolbarNavigationButtonStyle" parent="Widget.AppCompat.Toolbar.Button.Navigation">
+        <item name="tint">?colorOnPrimary</item>
+    </style>
+
+    <style name="ToolbarNavigationButtonStyle.Dark" parent="Widget.AppCompat.Toolbar.Button.Navigation">
+        <item name="tint">?android:textColorPrimary</item>
+    </style>
+
+    <style name="TextAppearance" parent="android:TextAppearance">
+
+    </style>
+
+    <style name="TextStyle.Body" parent="TextAppearance.MaterialComponents.Body2">
+        <item name="android:fontFamily">@font/muli</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="TextStyle.Body.Light" parent="TextAppearance">
+        <item name="android:fontFamily">@font/muli</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="TextStyle.Heading" parent="TextAppearance">
+        <item name="android:fontFamily">@font/muli</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="TextStyle.Heading.Light" parent="TextAppearance">
+        <item name="android:fontFamily">@font/muli</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="TextStyle.Subtitle" parent="TextAppearance">
+        <item name="android:fontFamily">@font/muli</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="TextStyle.Subtitle.Light" parent="TextAppearance">
+        <item name="android:fontFamily">@font/muli</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="TextStyle.SubSubtitle" parent="TextAppearance">
+        <item name="android:fontFamily">@font/muli</item>
+        <item name="android:textSize">10sp</item>
+    </style>
+
+    <style name="TextStyle.Overline" parent="TextAppearance.MaterialComponents.Overline">
+        <item name="android:fontFamily">@font/muli</item>
+    </style>
+
+    <style name="TextStyle.SubSubtitle.Light" parent="TextAppearance">
+        <item name="android:fontFamily">@font/muli</item>
+        <item name="android:textSize">10sp</item>
+    </style>
+
+    <style name="DialogStyle" parent="Theme.MaterialComponents.BottomSheetDialog">
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
+    </style>
+
+    <style name="PopupMenuOverlapAnchor" parent="@style/Theme.AppCompat.Light">
+        <item name="android:overlapAnchor">true</item>
+        <item name="android:dropDownVerticalOffset">0dp</item>
+        <item name="android:dropDownHorizontalOffset">0dp</item>
+        <item name="android:dropDownItemStyle">@style/PopupMenu</item>
+    </style>
+
+    <style name="EditActionMenuStyle">
+        <item name="android:background">@color/cream</item>
+    </style>
+
+    <style name="PopupMenu" parent="Widget.AppCompat.PopupMenu">
+        <item name="itemBackground">?colorBackground</item>
+        <item name="android:textColor">?android:textColorPrimary</item>
+    </style>
+
+    <style name="PopupMenu.Large" parent="TextAppearance.AppCompat.Light.Widget.PopupMenu.Large">
+
+    </style>
+
+    <style name="PopupMenu.Small" parent="TextAppearance.AppCompat.Light.Widget.PopupMenu.Small">
+
+    </style>
+
+
+    <style name="Style.OverFlow.Default" parent="Widget.AppCompat.ActionButton.Overflow">
+        <item name="android:tint">?colorOnPrimary</item>
+        <item name="android:textColor">?android:textColor</item>
+    </style>
+</resources>

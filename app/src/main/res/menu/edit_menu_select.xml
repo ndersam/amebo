@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <item
+        android:id="@+id/italic"
+        android:icon="@drawable/ic_format_italic"
+        android:title="@string/italic"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction" />
+    <item
+        android:id="@+id/bold"
+        android:icon="@drawable/ic_format_bold"
+        android:title="@string/bold"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/strike_through"
+        android:icon="@drawable/ic_format_strikethrough"
+        android:title="@string/strikethrough"
+        app:showAsAction="always" />
+</menu>

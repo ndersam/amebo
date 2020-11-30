@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.amebo.amebo.common.widgets.StateLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/stateLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="200dp"
+    app:stateLayout_content="@id/content"
+    app:stateLayout_failure="@id/failure"
+    app:stateLayout_initialState="content"
+    tools:stateLayout_initialState="content">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="200dp"
+        android:padding="@dimen/large">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/displayPhoto"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginTop="@dimen/large"
+            android:contentDescription="@string/profile"
+            android:elevation="1dp"
+            android:transitionName="@string/transition_profile"
+            android:visibility="gone"
+            app:civ_border_color="@color/clear"
+            app:civ_border_width="0dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@color/red"
+            tools:visibility="visible" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/txtName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/medium"
+            android:textColor="?android:textColorPrimary"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/displayPhoto"
+            tools:text="Lalasticlala" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/txtTimeRegistered"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/medium"
+            android:textColor="?android:textColorPrimary"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toStartOf="@id/guideline"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/txtName"
+            tools:text="Oct 10, 2010" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/_txtTitlePostCount"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/registered"
+            android:textColor="?android:textColorSecondary"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toStartOf="@id/guideline"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/txtTimeRegistered" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/txtLastSeen"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="?android:textColorPrimary"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/guideline"
+            app:layout_constraintTop_toTopOf="@id/txtTimeRegistered"
+            tools:text="12 seconds ago" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/_txtTitleLastSeen"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/last_seen"
+            android:textColor="?android:textColorSecondary"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/guideline"
+            app:layout_constraintTop_toBottomOf="@id/txtLastSeen" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <FrameLayout
+        android:id="@+id/failure"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:elevation="1dp"
+        android:minHeight="200dp">
+
+        <ImageButton
+            android:id="@+id/btnRetry"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center"
+            android:background="?selectableItemBackgroundBorderless"
+            android:scaleType="fitXY"
+            android:src="@drawable/ic_replay_24dp" />
+    </FrameLayout>
+</com.amebo.amebo.common.widgets.StateLayout>

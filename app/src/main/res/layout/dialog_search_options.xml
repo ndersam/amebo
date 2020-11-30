@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="@dimen/large">
+
+    <TextView
+        style="@style/TextStyle.Heading"
+        android:layout_width="match_parent"
+        android:layout_height="?listPreferredItemHeightSmall"
+        android:gravity="center_vertical"
+        android:text="@string/search_options" />
+
+    <include layout="@layout/layout_divider" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/btnSelectBoard"
+        android:layout_width="match_parent"
+        android:layout_height="?listPreferredItemHeightSmall"
+        android:background="?selectableItemBackground"
+        android:clickable="true"
+        android:drawableEnd="@drawable/ic_arrow_drop_down_24dp"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:textColor="?colorOnBackground"
+        app:drawableTint="?colorOnBackground"
+        tools:text="@string/all_boards" />
+
+    <CheckBox
+        android:id="@+id/chbxOnlyTopicPosts"
+        android:layout_width="match_parent"
+        android:layout_height="?listPreferredItemHeightSmall"
+        android:button="@null"
+        android:drawableEnd="?android:attr/listChoiceIndicatorMultiple"
+        android:text="@string/only_show_topic_posts" />
+
+
+    <CheckBox
+        android:id="@+id/chbxOnlyImagePosts"
+        android:layout_width="match_parent"
+        android:layout_height="?listPreferredItemHeightSmall"
+        android:button="@null"
+        android:drawableEnd="?android:attr/listChoiceIndicatorMultiple"
+        android:text="@string/only_show_posts_with_images" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancel"
+            style="@style/Widget.MaterialComponents.Button.TextButton.Dialog"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@android:string/cancel" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnOkay"
+            style="@style/Widget.MaterialComponents.Button.TextButton.Dialog"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@android:string/ok" />
+    </LinearLayout>
+
+</LinearLayout>

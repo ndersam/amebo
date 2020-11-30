@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="bottom_sheet_corner_radius">8dp</dimen>
+    <dimen name="bottom_sheet_top_padding">8dp</dimen>
+    <dimen name="post_view_image_height">240dp</dimen>
+    <dimen name="medium">8dp</dimen>
+    <dimen name="small">4dp</dimen>
+    <dimen name="large">16dp</dimen>
+    <dimen name="dim_edit_action">56dp</dimen>
+
+
+    <dimen name="bottom_sheet_action_size">48dp</dimen>
+</resources>

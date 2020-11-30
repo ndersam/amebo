@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="?listPreferredItemHeightSmall"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="12dp"
+    android:paddingEnd="12dp">
+
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <CheckBox
+            android:id="@+id/chbxLike"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="@drawable/ic_like"
+            android:button="@null"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <TextView
+            android:id="@+id/likeCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:textColor="?android:textColorSecondary"
+            tools:text="11" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <CheckBox
+            android:id="@+id/chbxShare"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="@drawable/ic_share"
+            android:button="@null"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <TextView
+            android:id="@+id/shareCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/small"
+            android:textColor="?android:textColorSecondary"
+            tools:text="111" />
+    </LinearLayout>
+
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
+
+        <ImageButton
+            android:id="@+id/reply_post"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="?selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:contentDescription="@string/reply"
+            android:focusable="true"
+            android:tint="?android:textColorSecondary"
+            android:gravity="start|center_vertical"
+            android:src="@drawable/ic_icons8_reply_arrow" />
+    </FrameLayout>
+
+    <ImageButton
+        android:id="@+id/more_actions"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:background="?selectableItemBackgroundBorderless"
+        android:contentDescription="@string/more"
+        android:tint="?android:textColorSecondary"
+        android:foregroundGravity="center_vertical|right"
+        android:src="@drawable/ic_more" />
+</LinearLayout>

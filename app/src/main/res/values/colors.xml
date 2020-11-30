@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- COMMON -->
+    <color name="clear">#00000000</color>
+    <color name="dark_white">#efeeec</color>
+
+    <color name="window_background">#292929</color>
+
+
+    <!--<color name="colorPrimaryDark">#000000</color>-->
+    <!--<color name="colorAccent">#484848</color>-->
+
+    <!--<color name="placeholder_color">#dddddd</color>-->
+
+    <!--<color name="textColor">#FFFFFF</color>-->
+    <!--<color name="background">#D4D4D4</color>-->
+    <!--<color name="lightGreen">#9ECC81</color>-->
+
+<!--    <color name="white">#ffffff</color>-->
+    <!--<color name="orange">#ffd27f</color>-->
+    <color name="dark_orange">#ffb732</color>
+    <!--<color name="text_color">#272928</color>-->
+    <!--<color name="text_color">#292f33</color>-->
+<!--    <color name="black">#000000</color>-->
+    <!--<color name="light_text">#c3c4c4</color>-->
+    <color name="medium_text">#7e7e7e</color>
+<!--    <color name="dimgray">#696969</color>-->
+
+    <!--<color name="medium_text">#898989</color>-->
+    <!--<color name="light_grey">#ECEFF1</color>-->
+<!--    <color name="transparent">#80000000</color>-->
+    <!--<color name="green">#3f7600</color>-->
+
+    <!--<color name="divider_light">#B0B0B0</color>-->
+
+    <!--<color name="light_white">#d5d5d5</color>-->
+<!--    <color name="dull_white">#F5F5F5</color>-->
+    <!--    <color name="dirty_white">#E0E0E0</color>-->
+
+    <!--<color name="bottom_bar_text_color">#6b6d7b</color>-->
+    <color name="red">#b71c1c</color>
+    <!--<color name="disabled_text">#5f5f5f</color>-->
+
+    <!--<color name="cyan_light">#eaf6fb</color>-->
+    <!--<color name="cyan_medium">#96d4e9</color>-->
+    <!--<color name="yellow">#FFC107</color>-->
+    <!--<color name="light_blue">#d7effe</color>-->
+    <!--<color name="dark_blue">#28a7fc</color>-->
+    <!--<color name="selected_tab_color">#0096ff</color>-->
+    <!--    <color name="unselected_tab">#acacac</color>-->
+    <!--<color name="dark_text">#4d4d4d</color>-->
+    <!--<color name="seafoam">#ffc6f9e5</color>-->
+    <!--<color name="chartreuse">#ffb6e9b5</color>-->
+    <!--<color name="emerald">#ffa6d9b5</color>-->
+    <!--<color name="bluegrass">#ff96c9b5</color>-->
+    <!--<color name="turquoise">#ff86b9b5</color>-->
+    <!--<color name="slate">#ff76a9b5</color>-->
+
+<!--    <color name="default_colorOnBackgroundSecondary">#AEAEAE</color>-->
+    <color name="default_colorOnBackgroundSecondary">#444444</color>
+    <color name="default_drawable_tint">#808080</color>
+    <!--    <color name="default_text_color">#808080</color>-->
+    <!--<color name="pinColor">#FF4081</color>-->
+    <color name="cream">#FFF6D5</color>
+    <!--<color name="deepSkyBlue">#00BFFF</color>-->
+
+    <color name="darkChocolate">#301E08</color>
+    <!--<color name="yellowBrown">#E5A83E</color>-->
+
+    <!-- Dot Colors -->
+    <!--<color name="dot_violet">#8E5DAA</color>-->
+    <!--<color name="dot_red">#FF505B</color>-->
+    <!--<color name="dot_orange">#FF7B06</color>-->
+    <!--    <color name="dot_green">#78C26A</color>-->
+    <!--<color name="dot_yellow">#FFD935</color>-->
+    <!--<color name="dot_blue">#81b3ff</color>-->
+    <!--<color name="dot_indigo">#324056</color>-->
+
+    <!--<color name="black_overlay">#E0000000</color>-->
+    <!--<color name="dark_background">#202020</color>-->
+
+    <!--<color name="ltgray">#ffcccccc</color>-->
+
+    <!--<color name="material_drawer_primary">#2196F3</color>-->
+    <!--<color name="material_drawer_primary_dark">#1976D2</color>-->
+    <!--<color name="material_drawer_primary_light">#BBDEFB</color>-->
+    <!--<color name="material_drawer_accent">#FF4081</color>-->
+
+    <!-- Night Theme -->
+    <!--    <color name="dark_colorPrimary">#202020</color>-->
+    <!--    <color name="dark_colorPrimaryDark">#1b1b1b</color>-->
+    <!--    <color name="dark_colorPrimaryLight">#303030</color>-->
+    <!--    <color name="dark_backgroundColor">#272727</color>-->
+    <!--    <color name="dark_colorAccent">@color/colorAccent</color>-->
+    <!--    <color name="dark_colorSecondary">@color/default_colorSecondary</color>-->
+    <!--    <color name="dark_colorSecondaryDark">@color/default_colorSecondaryDark</color>-->
+    <!--    <color name="dark_colorOnBackgroundDisabled">#5f5f5f</color>-->
+
+    <!--    <color name="primaryText">#000000</color>-->
+    <!--    <color name="icon">#5d1049</color>-->
+    <!--    <color name="buttonNormal">#e30425</color>-->
+    <!--    <color name="buttonHighlight">#ff554f</color>-->
+    <!--    <color name="buttonText">#FFFFFF</color>-->
+    <!--    <color name="lilacTitleBarText">#FFFFFF</color>-->
+    <!--    <color name="lilacSpinnerTextColor">#FFFFFF</color>-->
+    <!--    <color name="lilacMainPostPrimary">@color/primaryText</color>-->
+    <!--    <color name="lilacMainPostSecondary">#424242</color>-->
+    <!--    <color name="dark_textMarked">#FF888888</color>-->
+
+
+    <!-- Default Theme -->
+    <color name="brand_color">#8EC559</color>
+    <color name="brand_color_dark">#578E33</color>
+    <!--    <color name="default_colorPrimaryLight">#ddeecd</color>-->
+    <color name="default_colorSecondary">#f9a825</color>
+    <!--    <color name="default_colorSecondaryDark">#c17900</color>-->
+    <!--    <color name="default_colorSecondaryLight">#ffd95a</color>-->
+    <!--    <color name="default_backgroundColor">#ffffffff</color>-->
+    <!--    <color name="default_primaryTextColor">#1a1a1a</color>-->
+    <!--    <color name="default_onPrimaryLight">#aeaeae</color>-->
+    <!--    <color name="default_colorOnBackgroundVariant">#888888</color>-->
+    <color name="colorAccent">#f9a825</color>
+    <!--    <color name="default_textMarked">#FF888888</color>-->
+    <!--    <color name="default_colorOnBackgroundDisabled">#bebebe</color>-->
+
+    <!-- Nairaland post text colors-->
+    <!--    <color name="site_red">#990000</color>-->
+    <!--    <color name="site_green">#006600</color>-->
+    <!--    <color name="site_blue">#000099</color>-->
+    <!--    <color name="site_purple">#770077</color>-->
+    <!--    <color name="site_brown">#550000</color>-->
+    <!--    <color name="site_black">#000000</color>-->
+
+    <!--    <color name="colorError">#B00020</color>-->
+    <color name="app_red">#FF3D00</color>
+    <!--    <color name="blackT12">#1F000000</color>-->
+
+
+    <!-- http://ethanschoonover.com/solarized -->
+    <!--    <color name="solarizedBase01">#586e75</color>-->
+    <!--    <color name="solarizedBase02">#073642</color>-->
+    <!--    <color name="solarizedBase03">#002b36</color>-->
+    <!--    <color name="solarizedOrange">#cb4b16</color>-->
+    <!--    <color name="solarizedBase1">#93a1a1</color>-->
+    <!--    <color name="solarizedBase2">#eee8d5</color>-->
+    <!--    <color name="solarizedBase3">#fdf6e3</color>-->
+
+    <color name="green">#185617</color>
+    <color name="light_green">#488341</color>
+    <color name="dark_green">#002c00</color>
+    <color name="green_white">#C3DEBB</color>
+
+
+    <!--<color name="white">#FFFFFF</color>-->
+    <!--    <color name="whiteT70">#B3FFFFFF</color>-->
+    <!--    <color name="whiteT50">#80FFFFFF</color>-->
+    <!--    <color name="blackT87">#DE000000</color>-->
+    <!--    <color name="blackT50">#80000000</color>-->
+    <!--<color name="blackT12">#1F000000</color>-->
+    <!--    <color name="grey100">#F5F5F5</color>-->
+    <!--    <color name="grey800">#424242</color>-->
+    <!--    <color name="grey900">#212121</color>-->
+
+    <!--    <color name="red500">#F44336</color>-->
+    <!--    <color name="redA100">#FF8A80</color>-->
+    <!--    <color name="redA200">#FF5252</color>-->
+    <!--    <color name="purpleA400">#D500F9</color>-->
+    <!--    <color name="indigoA700">#304FFE</color>-->
+    <!--    <color name="lightBlue700">#0288D1</color>-->
+    <!--    <color name="lightBlueA700">#0091EA</color>-->
+    <!--    <color name="teal50">#E0F2F1</color>-->
+    <!--    <color name="teal100">#B2DFDB</color>-->
+    <!--    <color name="teal300">#4DB6AC</color>-->
+    <!--    <color name="teal400">#26A69A</color>-->
+    <!--    <color name="teal500">#009688</color>-->
+    <!--    <color name="teal600">#00897B</color>-->
+    <!--    <color name="teal900">#004D40</color>-->
+    <!--    <color name="greenA700">#00C853</color>-->
+    <!--    <color name="orange50">#FFF3E0</color>-->
+    <!--    <color name="orange100">#FFE0B2</color>-->
+    <!--    <color name="orange300">#FFB74D</color>-->
+    <!--    <color name="orange400">#FFA726</color>-->
+    <!--    <color name="brown400">#8D6E63</color>-->
+    <!--    <color name="brown800">#4E342E</color>-->
+    <!--    <color name="lightGreen700">#689F38</color>-->
+    <!--    <color name="yellow700">#FBC02D</color>-->
+    <!--    <color name="orange500">#FF9800</color>-->
+    <!--    <color name="brown500">#795548</color>-->
+    <!--    <color name="blueGrey500">#607D8B</color>-->
+    <color name="page_indicator">#B2B2B2</color>
+    <color name="page_indicator_selected">#3897F0</color>
+
+    <color name="divider">#11000000</color>
+</resources>

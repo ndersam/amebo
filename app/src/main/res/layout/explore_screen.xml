@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:minHeight="500dp"
+    android:orientation="vertical"
+    tools:context=".screens.explore.ExploreScreen">
+
+    <LinearLayout
+        style="?bottomAppBarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="?actionBarSize"
+        android:clickable="true"
+        android:elevation="4dp"
+        android:focusable="true"
+        android:gravity="center"
+        android:padding="@dimen/medium"
+        android:transitionName="@string/simple_fragment_transition"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:focusableInTouchMode="true">
+
+            <requestFocus />
+        </FrameLayout>
+
+
+        <EditText
+            android:id="@+id/searchBox"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:autofillHints="text"
+            android:background="@android:color/white"
+            android:cursorVisible="false"
+            android:drawableStart="@drawable/ic_search_24dp"
+            android:drawablePadding="@dimen/large"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:hint="@string/search_nairaland"
+            android:imeOptions="actionSearch"
+            android:inputType="none"
+            android:longClickable="false"
+            android:padding="@dimen/medium"
+            android:paddingStart="@dimen/large"
+            android:paddingEnd="@dimen/large"
+            android:textColor="@color/black_opacity_60"
+            android:textColorHint="@color/black_opacity_60"
+            android:textIsSelectable="false"
+            android:transitionName="@string/simple_fragment_transition" />
+
+        <ImageButton
+            android:id="@+id/btnSync"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@color/transparent"
+            android:contentDescription="@string/close"
+            android:padding="@dimen/medium"
+            android:src="@drawable/ic_sync_24dp"
+            android:tint="?colorPrimary" />
+
+        <ProgressBar
+            android:id="@+id/toolbarProgress"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@color/transparent"
+            android:elevation="@dimen/small"
+            android:indeterminateTint="?colorPrimary"
+            android:padding="@dimen/medium"
+            android:paddingStart="0dp"
+            android:paddingEnd="0dp"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+    <include layout="@layout/layout_divider" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvBoards"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:listitem="@layout/item_explore_board" />
+
+</LinearLayout>

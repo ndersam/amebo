@@ -1,0 +1,22 @@
+import com.amebo.core.domain.User;
+import java.lang.Integer;
+import kotlin.collections.List;
+
+CREATE TABLE userAccountData(
+ userId INTEGER AS Integer NOT NULL,
+ usersFollowing TEXT AS List<User> NOT NULL DEFAULT "",
+ FOREIGN KEY(userId) REFERENCES userAccount(id),
+ PRIMARY KEY (userId)
+);
+
+select:
+SELECT * FROM userAccountData WHERE userId = ?;
+
+deleteThis:
+DELETE FROM userAccountData
+WHERE userId IN (
+SELECT U.id FROM userAccount U
+INNER JOIN userAccountData UD
+ON U.id == UD.userId
+WHERE U.slug == ?
+);

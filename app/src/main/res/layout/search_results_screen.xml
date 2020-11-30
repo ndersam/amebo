@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".screens.postlist.BasePostListScreen">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBar"
+        android:layout_width="match_parent"
+        android:background="?colorBackground"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:transitionName="@string/simple_fragment_transition">
+
+
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:contentScrim="?colorBackground"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed|snap|enterAlways"
+            app:titleEnabled="false">
+
+            <LinearLayout
+                android:background="?toolbarBackgroundColor"
+                android:elevation="@dimen/small"
+                android:id="@+id/info"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="?actionBarSize"
+                android:minHeight="0dp"
+                android:orientation="vertical"
+                app:layout_collapseMode="parallax">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/searchTerm"
+                    style="@style/TextAppearance.MaterialComponents.Headline6"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:padding="@dimen/small"
+                    android:textColor="?colorOnPrimary"
+                    tools:text="Results for `Seun`" />
+
+                <TextView
+                    android:id="@+id/subtitle"
+                    style="@style/TextAppearance.MaterialComponents.Caption"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginBottom="@dimen/medium"
+                    android:padding="@dimen/small"
+                    android:textColor="?android:textColorSecondary"
+                    tools:text="Page 1 of 2" />
+            </LinearLayout>
+
+            <androidx.appcompat.widget.Toolbar
+                style="?toolbarStyle"
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?actionBarSize"
+                android:layout_gravity="top"
+                android:elevation="@dimen/small"
+                android:transitionName="@string/simple_fragment_transition"
+                app:contentInsetStartWithNavigation="0dp"
+                app:layout_collapseMode="pin"
+                app:navigationIcon="@drawable/ic_arrow_back_24dp">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/textInputLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:elevation="0dp"
+                    android:paddingStart="@dimen/small"
+                    android:paddingTop="@dimen/medium"
+                    android:layout_marginStart="@dimen/small"
+                    android:paddingEnd="@dimen/small"
+                    android:paddingBottom="@dimen/medium"
+                    app:endIconDrawable="@drawable/ic_close_24dp"
+                    app:endIconMode="custom"
+                    app:endIconTint="@color/black_opacity_60"
+                    app:hintEnabled="false">
+
+                    <EditText
+                        android:id="@+id/searchBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginEnd="@dimen/medium"
+                        android:layout_weight="1"
+                        android:autofillHints="text"
+                        android:background="@android:color/white"
+                        android:cursorVisible="false"
+                        android:drawableStart="@drawable/ic_search_24dp"
+                        android:drawablePadding="@dimen/medium"
+                        android:editable="false"
+                        android:elevation="0dp"
+                        android:hint="@string/search_nairaland"
+                        android:imeOptions="actionSearch"
+                        android:inputType="text"
+                        android:longClickable="false"
+                        android:padding="@dimen/medium"
+                        android:paddingBottom="@dimen/medium"
+                        android:drawableTint="@color/black_opacity_60"
+                        android:textColor="@color/black_opacity_60"
+                        app:drawableTint="@color/black_opacity_60"
+                        android:textIsSelectable="false"
+                        tools:text="Seun" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </androidx.appcompat.widget.Toolbar>
+
+
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefreshLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:descendantFocusability="blocksDescendants"
+            android:orientation="vertical"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <include
+        android:id="@+id/bottomBar"
+        layout="@layout/include_post_list_bottom_bar" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

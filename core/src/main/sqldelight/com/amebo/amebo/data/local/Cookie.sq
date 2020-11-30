@@ -1,0 +1,15 @@
+import com.amebo.core.data.cookies.CookieStore;
+
+CREATE TABLE cookie(
+    account_slug TEXT NOT NULL PRIMARY KEY,
+    cookie TEXT AS CookieStore NOT NULL
+);
+
+select:
+SELECT * FROM cookie WHERE account_slug = ?;
+
+insert:
+REPLACE INTO cookie(account_slug, cookie) VALUES(?, ?);
+
+deleteThis:
+DELETE FROM cookie WHERE account_slug = ?;

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="?listPreferredItemHeight"
+    app:cardCornerRadius="0dp"
+    app:cardElevation="1dp">
+
+    <TextView
+        android:id="@+id/text"
+        android:layout_width="match_parent"
+        android:layout_height="?listPreferredItemHeight"
+        android:fontFamily="@font/muli"
+        android:gravity="center"
+        android:textColor="?android:textColorPrimary"
+        android:textSize="18sp"
+        tools:text="You have 200 likes and 40 shares" />
+</com.google.android.material.card.MaterialCardView>

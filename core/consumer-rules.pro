@@ -1,0 +1,6 @@
+-dontwarn org.joda.convert.**
+-dontwarn org.joda.time.**
+-keep class org.joda.time.** { *; }
+-keep interface org.joda.time.** { *; }
+-keep class net.danlew.** { *; }
+-keep class net.danlew.android.joda.R$raw { *; }

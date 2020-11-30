@@ -1,0 +1,60 @@
+import java.lang.Integer;
+
+CREATE TABLE topicListPages (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    topiclist_id INTEGER  as Integer NOT NULL,
+    sort INTEGER as Integer,
+    page INTEGER as Integer NOT NULL,
+    data TEXT NOT NULL,
+    timestamp INTEGER NOT NULL,
+    user_slug TEXT,
+    FOREIGN KEY(topiclist_id) REFERENCES topicListIds(id) ON DELETE CASCADE,
+    FOREIGN KEY(sort) REFERENCES topicListSort(id) ON DELETE CASCADE,
+    FOREIGN KEY(user_slug) REFERENCES userAccount(slug) ON DELETE CASCADE,
+    UNIQUE(topiclist_id, sort, page, user_slug)
+);
+
+CREATE TABLE topicListSort (
+    id INTEGER as Integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+    value TEXT NOT NULL UNIQUE
+);
+
+insertSort:
+INSERT INTO topicListSort(value) VALUES(?);
+
+findSortById:
+SELECT * FROM topicListSort WHERE id = ?;
+
+findSortByValue:
+SELECT * FROM topicListSort WHERE value = ?;
+
+
+-- findtopicListPageData:
+-- SELECT topicListPages.data FROM topicListPages
+-- JOIN topicListIds ON topicListIds.id = topicListPages.topiclist_id
+-- JOIN topicListSort ON topicListSort.id = topicListPages.sort
+-- WHERE topicListIds.type_id = ? AND topicListIds.board_id = ? AND topicListPages.page = ? AND topicListPages.sort =  ?;
+
+findtopicListPageData:
+SELECT topicListPages.data  FROM topicListPages
+JOIN topicListIds ON topicListIds.id = topicListPages.topiclist_id
+LEFT JOIN topicListSort ON topicListSort.id = topicListPages.sort
+LEFT JOIN userAccount ON userAccount.slug = topicListPages.user_slug
+WHERE topicListIds.type_id = ? AND topicListIds.board_id = ? AND topicListPages.page = ?
+AND ((:sort_id IS NULL AND topicListSort.id IS NULL) OR (:sort_id = topicListSort.id))
+AND ((:user_slug IS NULL AND topicListPages.user_slug IS NULL) OR (:user_slug = topicListPages.user_slug));
+
+findtopicListPage:
+SELECT topicListPages.*  FROM topicListPages
+JOIN topicListIds ON topicListIds.id = topicListPages.topiclist_id
+LEFT JOIN topicListSort ON topicListSort.id = topicListPages.sort
+LEFT JOIN userAccount ON userAccount.slug = topicListPages.user_slug
+WHERE topicListIds.type_id = ? AND topicListIds.board_id = ? AND topicListPages.page = ?
+AND ((:sort_id IS NULL AND topicListSort.id IS NULL) OR (:sort_id = topicListSort.id))
+AND ((:user_slug IS NULL AND topicListPages.user_slug IS NULL) OR (:user_slug = topicListPages.user_slug));
+
+insertTopicListPage:
+INSERT INTO topicListPages(user_slug, topiclist_id, sort, page, data, timestamp) VALUES(?, ?, ?, ?, ?, ?);
+
+updateTopicListPage:
+UPDATE topicListPages SET  data = ?, timestamp = ? WHERE id = ?;

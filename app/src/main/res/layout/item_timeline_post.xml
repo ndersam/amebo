@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:layout_margin="0dp"
+    android:backgroundTint="?colorBackground"
+    app:cardElevation="?postCardElevation">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:focusableInTouchMode="true"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/board"
+            style="@style/TextAppearance.MaterialComponents.Overline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:background="?selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:textColor="?android:textColorSecondary"
+            tools:text="Education" />
+
+
+        <TextView
+            android:id="@+id/topic"
+            style="@style/TextAppearance.MaterialComponents.Body1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:background="?selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:longClickable="true"
+            android:textColor="?android:textColorPrimary"
+            tools:text="There is light at the end of the tunnel - Wiseman" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/small"
+            android:clickable="false"
+            android:focusable="false"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/post_author"
+                style="@style/TextStyle.Subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="true"
+                android:textColor="?colorOnBackground"
+                android:textStyle="bold"
+                tools:text="Wisdomkosi" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/small"
+                android:text="@string/bullet"
+                android:textColor="?android:textColorSecondary" />
+
+            <TextView
+                android:id="@+id/post_time"
+                style="@style/TextStyle.Subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/small"
+                android:clickable="false"
+                android:focusable="false"
+                android:textColor="?android:textColorSecondary"
+                tools:text="12h" />
+
+        </LinearLayout>
+
+        <com.amebo.amebo.screens.postlist.components.RichPostTextView
+            android:id="@+id/text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false"
+            android:orientation="vertical"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+        <FrameLayout
+            android:id="@+id/imageFrame"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/small">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/imageRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/post_view_image_height"
+                android:layout_marginBottom="@dimen/medium"
+                android:orientation="horizontal"
+                android:paddingBottom="@dimen/medium"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:visibility="visible" />
+
+            <ru.tinkoff.scrollingpagerindicator.ScrollingPagerIndicator
+                android:id="@+id/indicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|center_horizontal"
+                app:spi_dotColor="@color/page_indicator"
+                app:spi_dotSelectedColor="@color/page_indicator_selected" />
+        </FrameLayout>
+
+
+        <include
+            android:id="@+id/postActions"
+            layout="@layout/layout_post_actions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/small" />
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

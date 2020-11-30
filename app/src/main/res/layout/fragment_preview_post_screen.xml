@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".screens.preview.PreviewPostScreen">
+
+    <com.google.android.material.textview.MaterialTextView
+        android:elevation="2dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/muli"
+        android:gravity="center"
+        android:padding="@dimen/medium"
+        android:textAllCaps="true"
+        android:textSize="20sp"
+        android:textColor="?android:textColorPrimary"
+        android:textStyle="bold"
+        android:text="@string/preview" />
+
+   <LinearLayout
+       android:layout_marginTop="48dp"
+       android:layout_height="1dp"
+       android:background="@color/dark_white"
+       android:layout_width="match_parent"/>
+
+    <WebView
+        android:layout_marginTop="49dp"
+        android:id="@+id/webView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="200dp" />
+
+</FrameLayout>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="colorBackground" format="reference" />
+    <attr name="colorSurface" format="reference" />
+    <attr name="colorOnPrimary" format="reference" />
+    <attr name="colorOnSecondary" format="reference" />
+    <attr name="colorOnBackground" format="reference" />
+    <attr name="colorOnBackgroundSecondary" format="reference" />
+    <attr name="colorOnError" format="reference" />
+    <attr name="colorOnSurface" format="reference" />
+
+    <attr name="colorOnPrimaryDisabled" format="reference" />
+
+    <attr name="postAuthorColor" format="reference" />
+    <attr name="toolbarBackgroundColor" format="reference" />
+    <attr name="postCardElevation" format="dimension" />
+
+    <declare-styleable name="StateLayout">
+        <attr name="stateLayout_content" format="reference" />
+        <attr name="stateLayout_progress" format="reference" />
+        <attr name="stateLayout_empty" format="reference" />
+        <attr name="stateLayout_failure" format="reference" />
+
+        <attr name="stateLayout_not_content" format="reference" />
+        <attr name="stateLayout_not_progress" format="reference" />
+        <attr name="stateLayout_not_empty" format="reference" />
+        <attr name="stateLayout_not_failure" format="reference" />
+        <attr name="stateLayout_not_content1" format="reference" />
+        <attr name="stateLayout_not_progress1" format="reference" />
+        <attr name="stateLayout_not_empty1" format="reference" />
+        <attr name="stateLayout_not_failure1" format="reference" />
+
+        <attr name="stateLayout_content1" format="reference" />
+        <attr name="stateLayout_progress1" format="reference" />
+        <attr name="stateLayout_empty1" format="reference" />
+        <attr name="stateLayout_failure1" format="reference" />
+
+        <attr name="stateLayout_initialState" format="enum">
+            <enum name="progress" value="0" />
+            <enum name="content" value="1" />
+            <enum name="empty" value="2" />
+            <enum name="failure" value="3"/>
+        </attr>
+    </declare-styleable>
+
+    <declare-styleable name="OuchView">
+        <attr name="buttonDrawable" format="reference" />
+    </declare-styleable>
+
+    <declare-styleable name="BottomSheetPreference">
+        <attr name="entries" format="reference" />
+        <attr name="entryValues" format="reference" />
+        <attr name="useEntriesOrdering" format="boolean"/>
+        <attr name="valueType" format="enum">
+            <enum name="integer" value="0" />
+            <enum name="string" value="1" />
+        </attr>
+    </declare-styleable>
+
+    <declare-styleable name="EditActionMenu">
+        <attr name="editActionMenuStyle" format="reference" />
+    </declare-styleable>
+</resources>

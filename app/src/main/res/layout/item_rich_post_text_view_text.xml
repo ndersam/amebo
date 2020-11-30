@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.amebo.amebo.common.widgets.HackyTextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text"
+    style="@style/TextStyle.Body"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:focusable="true"
+    android:linksClickable="true"
+    android:longClickable="true"
+    android:textColor="?android:textColorPrimary"
+    android:textColorLink="?attr/colorAccent"
+    android:textIsSelectable="true" />

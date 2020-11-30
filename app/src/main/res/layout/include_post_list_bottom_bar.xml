@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.bottomappbar.BottomAppBar xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/bottomBar"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom"
+    app:contentInsetLeft="0dp"
+    app:contentInsetStart="0dp"
+    app:hideOnScroll="true"
+    app:layout_behavior="com.google.android.material.bottomappbar.BottomAppBar$Behavior"
+    app:layout_scrollFlags="scroll|enterAlways"
+    tools:ignore="BottomAppBar">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageButton
+            android:id="@+id/btnPrevPage"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:background="?selectableItemBackgroundBorderless"
+            android:enabled="false"
+            android:src="@drawable/ic_keyboard_arrow_left_24dp"
+            android:tint="@color/button_bg_selector"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/btnNextPage"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_max="wrap"
+            app:layout_constraintWidth_min="wrap"
+            app:layout_constraintWidth_percent="0.2" />
+
+        <ImageButton
+            android:id="@+id/btnNextPage"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="?selectableItemBackgroundBorderless"
+            android:enabled="false"
+            android:src="@drawable/ic_keyboard_arrow_right_24dp"
+            android:tint="@color/button_bg_selector"
+            app:layout_constraintBottom_toBottomOf="@id/btnPrevPage"
+            app:layout_constraintEnd_toStartOf="@+id/btnRefreshPage"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toEndOf="@+id/btnPrevPage"
+            app:layout_constraintTop_toTopOf="@id/btnPrevPage"
+            app:layout_constraintWidth_max="wrap"
+            app:layout_constraintWidth_percent="0.2" />
+
+
+        <ImageButton
+            android:id="@+id/btnRefreshPage"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="?selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_refresh_24dp"
+            app:layout_constraintBottom_toBottomOf="@id/btnPrevPage"
+            app:layout_constraintEnd_toStartOf="@+id/btnReply"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toEndOf="@+id/btnNextPage"
+            app:layout_constraintTop_toTopOf="@id/btnPrevPage"
+            app:layout_constraintWidth_max="wrap"
+            app:layout_constraintWidth_percent="0.2" />
+
+        <ImageButton
+            android:id="@+id/btnReply"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="?selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_edit_24dp"
+            android:visibility="gone"
+            android:tint="@color/button_bg_selector"
+            app:layout_constraintBottom_toBottomOf="@+id/btnPrevPage"
+            app:layout_constraintEnd_toStartOf="@+id/btnMore"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toEndOf="@+id/btnRefreshPage"
+            app:layout_constraintTop_toTopOf="@id/btnPrevPage"
+            app:layout_constraintWidth_max="wrap"
+            app:layout_constraintWidth_percent="0.2"
+            tools:visibility="visible" />
+
+        <ImageButton
+            android:id="@+id/btnMore"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="?selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_more"
+            android:tint="?colorOnPrimary"
+            app:layout_constraintBottom_toBottomOf="@+id/btnPrevPage"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toEndOf="@+id/btnReply"
+            app:layout_constraintTop_toTopOf="@id/btnPrevPage"
+            app:layout_constraintWidth_max="wrap"
+            app:layout_constraintWidth_percent="0.2" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.bottomappbar.BottomAppBar>

@@ -1,0 +1,16 @@
+CREATE TABLE searchHistory(
+    query TEXT NOT NULL PRIMARY KEY,
+    timestamp REAL NOT NULL
+);
+
+selectNRecent:
+SELECT query FROM searchHistory ORDER BY searchHistory.timestamp  DESC LIMIT ?;
+
+insert:
+REPLACE INTO searchHistory(query, timestamp) VALUES(?, ?);
+
+deleteThis:
+DELETE FROM searchHistory WHERE query = ?;
+
+deleteAll:
+DELETE FROM searchHistory;

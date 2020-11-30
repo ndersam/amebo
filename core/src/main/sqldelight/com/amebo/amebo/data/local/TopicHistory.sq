@@ -1,0 +1,20 @@
+CREATE TABLE topicHistory(
+    topic_id TEXT NOT NULL PRIMARY KEY,
+    timestamp_added REAL NOT NULL,
+    FOREIGN KEY(topic_id) REFERENCES topic(topic_id)
+);
+
+selectRecent:
+SELECT topic.* FROM topic JOIN topicHistory ON topic.topic_id == topicHistory.topic_id ORDER BY topicHistory.timestamp_added  DESC;
+
+selectNRecent:
+SELECT topic.* FROM topic JOIN topicHistory ON topic.topic_id == topicHistory.topic_id ORDER BY topicHistory.timestamp_added  DESC LIMIT ?;
+
+insert:
+REPLACE INTO topicHistory(topic_id, timestamp_added) VALUES(?, ?);
+
+deleteAll:
+DELETE FROM topicHistory;
+
+deleteThis:
+DELETE FROM topicHistory WHERE topic_id = ?;

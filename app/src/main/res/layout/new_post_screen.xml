@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?colorBackground"
+    android:orientation="vertical">
+
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="?actionBarSize"
+        app:contentInsetStartWithNavigation="0dp">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize"
+            app:contentInsetStartWithNavigation="0dp"
+            app:navigationIcon="@drawable/ic_arrow_back_24dp"
+            app:title="@string/new_post"
+            app:titleTextColor="?colorOnPrimary" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+
+    <com.amebo.amebo.common.widgets.StateLayout
+        android:id="@+id/stateLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        app:stateLayout_content="@id/content"
+        app:stateLayout_failure="@id/ouchView"
+        app:stateLayout_progress="@id/progress"
+        tools:initialState="content">
+
+        <LinearLayout
+            android:id="@+id/content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:orientation="vertical">
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:fillViewport="true"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/small"
+                android:paddingEnd="@dimen/small">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/background"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:isScrollContainer="true"
+                    android:nestedScrollingEnabled="true"
+                    android:orientation="vertical"
+                    android:scrollbars="vertical">
+
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edit_title"
+                        style="@style/Widget.MaterialComponents.TextInputEditText.FilledBox.Dense"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@null"
+                        android:enabled="false"
+                        android:fontFamily="@font/muli"
+                        android:hint="@null"
+                        android:imeOptions="actionNext"
+                        android:inputType="textMultiLine"
+                        android:maxLength="80"
+                        android:textColor="?android:textColorSecondary"
+                        android:textStyle="bold"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:text="Anambra bans the use of Okada" />
+
+                    <com.google.android.material.checkbox.MaterialCheckBox
+                        android:id="@+id/followTopic"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/medium"
+                        android:checked="true"
+                        android:text="@string/follow_topic_replied"
+                        android:visibility="gone"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/edit_title" />
+
+                    <View
+                        android:id="@+id/divider"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginStart="@dimen/medium"
+                        android:layout_marginEnd="@dimen/medium"
+                        android:alpha="0.2"
+                        android:background="@color/default_drawable_tint"
+                        app:layout_constraintBottom_toTopOf="@id/edit_message"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/followTopic" />
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edit_message"
+                        style="@style/Widget.MaterialComponents.TextInputEditText.FilledBox.Dense"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:layout_weight="1"
+                        android:background="@null"
+                        android:gravity="start"
+                        android:hint="@string/write_your_post_here"
+                        android:inputType="textMultiLine"
+                        android:nestedScrollingEnabled="false"
+                        android:scrollbars="vertical"
+                        android:textColor="?android:textColorPrimary"
+                        android:textColorHint="?android:textColorSecondary"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/divider" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </ScrollView>
+
+
+            <com.amebo.amebo.screens.newpost.editor.EditActionMenu
+                android:id="@+id/edit_action_menu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+
+        <com.amebo.amebo.common.widgets.OuchView
+            android:id="@+id/ouchView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </com.amebo.amebo.common.widgets.StateLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

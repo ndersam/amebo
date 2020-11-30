@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:paddingTop="56dp">
+
+
+    <ImageView
+        android:id="@+id/image"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:maxHeight="40dp"
+        tools:src="@drawable/ic_error404fun_18" />
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="56dp"
+        android:layout_marginBottom="@dimen/medium"
+        android:fontFamily="@font/muli"
+        android:gravity="center"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        tools:text="@string/something_went_wrong" />
+
+
+    <TextView
+        android:id="@+id/subtitle"
+        android:layout_width="wrap_content"
+        android:layout_marginTop="56dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/large"
+        android:fontFamily="@font/muli"
+        android:gravity="center"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        tools:text="@string/network_error_subtitle" />
+
+
+    <ImageView
+        android:id="@+id/btnRetry"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="56dp"
+        android:background="?selectableItemBackgroundBorderless"
+        android:src="@drawable/ic_replay_24dp"
+        android:tint="?colorPrimary" />
+
+
+</LinearLayout>

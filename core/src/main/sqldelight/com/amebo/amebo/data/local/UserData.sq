@@ -1,0 +1,16 @@
+CREATE TABLE userData(
+ userSlug TEXT NOT NULL PRIMARY KEY,
+ data TEXT NOT NULL
+);
+
+find:
+SELECT data FROM userData WHERE userSlug = ?;
+
+insert:
+INSERT INTO userData(userSlug, data) VALUES(?, ?);
+
+update:
+UPDATE userData SET  data = ? WHERE userSlug = ?;
+
+deleteAll:
+DELETE FROM userData;

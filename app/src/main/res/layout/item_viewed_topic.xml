@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="?listPreferredItemHeight"
+    android:layout_marginBottom="@dimen/small"
+    android:background="?selectableItemBackground"
+    android:elevation="2dp"
+    android:padding="0dp"
+    app:cardCornerRadius="0dp"
+    app:cardElevation="2dp"
+    app:cardUseCompatPadding="false"
+    app:contentPadding="0dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?selectableItemBackground"
+        android:elevation="@dimen/small"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:maxLines="2"
+            android:padding="@dimen/small"
+            android:textColor="?android:textColorPrimary"
+            tools:text="Eddie Murphy at the premiere of Purple Rain, 1984 dsfsdl dslfs dlfsd flsdfj dsflds dsfdsfdf dsfd sfdsfdsd sfdsfdsfdsafdsfds ffffffffffffff" />
+
+        <ImageButton
+            android:id="@+id/btnRemove"
+            android:layout_width="?listPreferredItemHeightSmall"
+            android:layout_height="?listPreferredItemHeightSmall"
+            android:layout_marginEnd="@dimen/small"
+            android:background="?selectableItemBackground"
+            android:src="@drawable/ic_close_24dp" />
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

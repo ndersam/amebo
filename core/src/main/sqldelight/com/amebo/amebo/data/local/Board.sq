@@ -1,0 +1,26 @@
+CREATE TABLE board (
+    name TEXT NOT NULL UNIQUE,
+    slug TEXT NOT NULL UNIQUE,
+    id  INTEGER NOT NULL UNIQUE
+);
+
+CREATE INDEX board_slug ON board(id);
+
+selectAll:
+SELECT * FROM board;
+
+-- The first 38 boards in the db are all the boads in "boards" table in assets/database.db
+selectNairalandPicks:
+SELECT * FROM board LIMIT 38;
+
+insert:
+INSERT INTO board(name, slug, id) VALUES(?,?,?);
+
+select:
+SELECT * FROM board WHERE slug = ?;
+
+findLike:
+SELECT * FROM board WHERE name LIKE ?;
+
+selectById:
+SELECT * FROM board WHERE id = ?;

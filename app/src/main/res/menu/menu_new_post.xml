@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <group>
+        <item
+            android:title="@string/undo"
+            android:id="@+id/undo"
+            app:iconTint="?colorOnPrimary"
+            app:showAsAction="always"
+            android:icon="@drawable/ic_undo_24dp" />
+
+        <item
+            android:title="@string/redo"
+            android:id="@+id/redo"
+            app:iconTint="?colorOnPrimary"
+            android:iconTint="?colorOnPrimary"
+            app:showAsAction="always"
+            android:icon="@drawable/ic_redo_24dp" />
+    </group>
+
+
+    <item
+        android:id="@+id/submit"
+        android:icon="@drawable/ic_send_24dp"
+        android:title="@string/submit"
+        android:iconTint="?colorOnPrimary"
+        app:iconTint="?colorOnPrimary"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/show_rules"
+        android:title="@string/show_rules" />
+</menu>

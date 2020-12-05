@@ -26,8 +26,13 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField("String", "TEST_USER", AMEBO_TEST_USER)
-            buildConfigField("String", "TEST_PASSWORD", AMEBO_TEST_PASSWORD)
+            if (project.hasProperty("AMEBO_TEST_USER") && project.hasProperty("AMEBO_TEST_PASSWORD")) {
+                buildConfigField("String", "TEST_USER", AMEBO_TEST_USER)
+                buildConfigField("String", "TEST_PASSWORD", AMEBO_TEST_PASSWORD)
+            } else {
+                buildConfigField("String", "TEST_USER", '"random"')
+                buildConfigField("String", "TEST_PASSWORD", '"random"')
+            }
         }
         release {
             minifyEnabled false
@@ -42,8 +47,8 @@ android {
     }
 }
 
-sourceSets{
-    main{
+sourceSets {
+    main {
         resources.srcDirs = ["src/main/resources"]
     }
 }

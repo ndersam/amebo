@@ -1,20 +1,28 @@
 package com.amebo.amebo.screens.topiclist.main
 
+import android.graphics.Rect
+import android.graphics.Typeface
 import android.os.Bundle
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.setFragmentResultListener
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.amebo.amebo.R
 import com.amebo.amebo.common.EventObserver
 import com.amebo.amebo.common.FragKeys
 import com.amebo.amebo.common.Resource
+import com.amebo.amebo.common.asTheme
+import com.amebo.amebo.common.extensions.dpToPx
 import com.amebo.amebo.common.extensions.viewBinding
 import com.amebo.amebo.common.fragments.BackPressable
 import com.amebo.amebo.databinding.TopicListScreenBinding
 import com.amebo.amebo.screens.topiclist.BaseTopicListScreen
-import com.amebo.core.domain.Board
-import com.amebo.core.domain.BoardsDataPage
-import com.amebo.core.domain.TopicListDataPage
-import com.amebo.core.domain.User
+import com.amebo.core.domain.*
+import com.getkeepsafe.taptargetview.TapTarget
+import com.getkeepsafe.taptargetview.TapTargetView
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 open class TopicListScreen : BaseTopicListScreen(R.layout.topic_list_screen),
     TopicListView.Listener, BackPressable {
@@ -47,6 +55,10 @@ open class TopicListScreen : BaseTopicListScreen(R.layout.topic_list_screen),
             viewLifecycleOwner,
             EventObserver(::onFollowedBoardEvent)
         )
+        viewModel.unFollowTopicEvent.observe(
+            viewLifecycleOwner,
+            EventObserver(::onUnFollowTopicEvent)
+        )
     }
 
     private fun onFollowedBoardEvent(content: Resource<Pair<Board, Boolean>>) {
@@ -55,6 +67,18 @@ open class TopicListScreen : BaseTopicListScreen(R.layout.topic_list_screen),
             is Resource.Error -> topicListView.onFollowingError(content)
             is Resource.Loading -> topicListView.onFollowingLoading(content)
         }
+    }
+
+    override fun onEventContentChanged(content: Resource<BaseTopicListDataPage>) {
+        super.onEventContentChanged(content)
+        if (content is Resource.Success && pref.showUnFollowTopicHint && content.content.data.isNotEmpty() && topicList is FollowedTopics) {
+            pref.showUnFollowTopicHint = false
+            showHint()
+        }
+    }
+
+    private fun onUnFollowTopicEvent(content: Resource<Topic>) {
+        // TODO: Ignore for now
     }
 
 
@@ -80,6 +104,8 @@ open class TopicListScreen : BaseTopicListScreen(R.layout.topic_list_screen),
         router.back()
     }
 
+    override fun unFollowTopic(topic: Topic) = viewModel.unFollowTopic(topic)
+
     override fun toUserList(users: List<User>, title: String) = router.toUserList(users, title)
 
 
@@ -93,5 +119,52 @@ open class TopicListScreen : BaseTopicListScreen(R.layout.topic_list_screen),
             return true
         }
         return false
+    }
+
+    private fun showHint() {
+        lifecycleScope.launch {
+            delay(300)
+            val manager = binding.recyclerView.layoutManager as LinearLayoutManager
+
+            val idx = (manager.findFirstCompletelyVisibleItemPosition() +
+                    manager.findLastCompletelyVisibleItemPosition()) / 2
+            val view =
+                binding.recyclerView.findViewHolderForLayoutPosition(idx)?.itemView
+                    ?: return@launch
+            val rect = Rect().apply {
+                bottom = view.bottom + view.height
+                top = view.bottom
+                right = view.right
+                left = right - requireContext().dpToPx(100)
+            }
+
+            val theme = requireContext().asTheme()
+            TapTargetView.showFor(
+                requireActivity(),
+                TapTarget.forBounds(
+                    rect,
+                    "Slide topic right-to-left to unfollow"
+                ).outerCircleColorInt(theme.colorAccent)
+                    .outerCircleAlpha(0.85f)
+                    .targetCircleColor(android.R.color.white)
+                    .titleTextSize(20)
+                    .titleTextColor(android.R.color.white)
+                    .textColor(R.color.white)
+                    .textTypeface(Typeface.SANS_SERIF)
+                    .dimColor(android.R.color.black)
+                    .drawShadow(true)
+                    .cancelable(true)
+                    .tintTarget(true)
+                    .transparentTarget(false)
+                    .icon(
+                        ContextCompat.getDrawable(
+                            requireContext(),
+                            R.drawable.ic_arrow_back_24dp
+                        )
+                    )
+                    .targetRadius(32),
+                object : TapTargetView.Listener() {}
+            )
+        }
     }
 }

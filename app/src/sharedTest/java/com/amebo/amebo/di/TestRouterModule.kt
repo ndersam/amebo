@@ -11,12 +11,8 @@ import dagger.Provides
 @Module
 class TestRouterModule {
     companion object {
-        var router: Router = mock()
+        lateinit var router: Router
             private set
-
-        private fun reset() {
-            router = mock()
-        }
     }
 
 
@@ -26,12 +22,12 @@ class TestRouterModule {
 
     private object TestRouterFactory : RouterFactory {
         override fun create(activity: FragmentActivity): Router {
-            reset()
+            router = mock()
             return router
         }
 
         override fun create(fragment: Fragment): Router {
-            reset()
+            router = mock()
             return router
         }
 

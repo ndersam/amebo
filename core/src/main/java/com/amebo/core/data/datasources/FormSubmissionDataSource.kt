@@ -16,6 +16,7 @@ interface FormSubmissionDataSource {
     suspend fun reportPost(form: ReportPostForm): ResultWrapper<PostListDataPage, ErrorResponse>
     suspend fun followTopic(topicPostListDataPage: TopicPostListDataPage): ResultWrapper<TopicPostListDataPage, ErrorResponse>
     suspend fun unFollowTopic(topicPostListDataPage: TopicPostListDataPage): ResultWrapper<TopicPostListDataPage, ErrorResponse>
+    suspend fun unFollowTopic(topic: Topic): ResultWrapper<TopicListDataPage, ErrorResponse>
     suspend fun followBoard(boardsDataPage: BoardsDataPage): ResultWrapper<BoardsDataPage, ErrorResponse>
     suspend fun unFollowBoard(boardsDataPage: BoardsDataPage): ResultWrapper<BoardsDataPage, ErrorResponse>
     suspend fun followBoard(

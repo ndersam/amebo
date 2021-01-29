@@ -5,17 +5,17 @@ import android.app.Application
 import android.os.Bundle
 import com.amebo.amebo.TestApp
 import com.amebo.amebo.application.TestFragmentActivity
-import com.amebo.amebo.common.Pref
-import com.amebo.amebo.suite.TestPref
+import com.amebo.amebo.di.mocks.Mocks
 import com.amebo.core.domain.User
 
 object TestAppInjector {
-    fun inject(app: TestApp, user: User = User("random"), pref: Pref = TestPref()) {
+    fun inject(app: TestApp, user: User = User("random")) {
+
         DaggerTestAppComponent.builder()
             .context(app)
             .app(app)
             .user(user)
-            .pref(pref)
+            .pref(Mocks.PrefModule.create())
             .sessionObservable(app.sessionObservable)
             .build()
             .inject(app)

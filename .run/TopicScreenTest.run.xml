@@ -1,0 +1,16 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="TopicScreenTest" type="JUnit" factoryName="JUnit">
+    <module name="Amebo.app" />
+    <shortenClasspath name="MANIFEST" />
+    <useClassPathOnly />
+    <option name="PACKAGE_NAME" value="com.amebo.amebo.screens.postlist.topic" />
+    <option name="MAIN_CLASS_NAME" value="com.amebo.amebo.screens.postlist.topic.TopicScreenTest" />
+    <option name="METHOD_NAME" value="" />
+    <option name="TEST_OBJECT" value="class" />
+    <option name="PARAMETERS" value="" />
+    <dir value="$PROJECT_DIR$/app/src/sharedTest/java/com/amebo/amebo/screens" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

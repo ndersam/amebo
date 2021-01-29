@@ -1,7 +1,6 @@
 package com.amebo.amebo.screens.topiclist.user
 
 import androidx.core.view.isVisible
-import androidx.lifecycle.LifecycleOwner
 import com.amebo.amebo.R
 import com.amebo.amebo.databinding.TopicListScreenBinding
 import com.amebo.amebo.screens.topiclist.BaseTopicListView
@@ -11,14 +10,12 @@ import com.amebo.core.domain.TopicList
 class UserTopicsView(
     topicList: TopicList,
     listener: Listener,
-    binding: TopicListScreenBinding,
-    viewLifecycleOwner: LifecycleOwner
+    binding: TopicListScreenBinding
 ) : SimpleTopicListView(
-    viewLifecycleOwner = viewLifecycleOwner,
     topicList = topicList,
+    sort = null,
     listener = listener,
-    binding = binding,
-    sort = null
+    binding = binding
 ) {
 
     init {

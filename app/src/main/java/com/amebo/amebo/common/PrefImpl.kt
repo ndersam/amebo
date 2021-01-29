@@ -22,6 +22,12 @@ class PrefImpl(context: Context) : Pref {
             prefs.edit().putBoolean("show_followed_board_hint", value).apply()
         }
 
+    override var showUnFollowTopicHint: Boolean
+        get() = prefs.getBoolean("show_unfollow_topic_hint", true)
+        set(value) {
+            prefs.edit().putBoolean("show_unfollow_topic_hint", value).apply()
+        }
+
     override var canAskForReview: Boolean
         get() = prefs.getBoolean("can_ask_for_review", true)
         set(value) {
@@ -363,118 +369,6 @@ class PrefImpl(context: Context) : Pref {
             edit.apply()
         }
 
-//        fun migrate(context: Context, pref: Pref) {
-//            val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-//            val edit = prefs.edit()
-//
-//            val newPrefs = mutableMapOf<String, Any>()
-//
-//            run {
-//                val keyAnon = context.getString(R.string.key_topiclist_anonymous)
-//                val key = context.getString(R.string.key_topiclist)
-//
-//                when (val homeBoard = pref[DEFAULT_HOME_BOARD, ""]) {
-//                    "" -> {
-//                        // No pref saved. Nothing to do
-//                    }
-//                    else -> {
-//                        newPrefs[key] = homeBoard.toInt()
-//                    }
-//                }
-//
-//                when (val homeBoard = pref[DEFAULT_HOME_BOARD_LOGGED_OUT, ""]) {
-//                    "" -> {
-//                        // No pref saved. Nothing to do
-//                    }
-//                    else -> {
-//                        newPrefs[keyAnon] = homeBoard.toInt()
-//                    }
-//                }
-//            }
-//
-//            run {
-//                val key = context.getString(R.string.key_board_sort)
-//                when (val sort = pref[DEFAULT_SORT_OPTION, ""]) {
-//                    "" -> {
-//                        // No pref saved. Nothing to do
-//                    }
-//                    else -> {
-//                        val idx = TopicListSorts.BoardSorts.indexOfFirst { it.name == sort }
-//                        if (idx != -1) {
-//                            newPrefs[key] = idx
-//                        }
-//                    }
-//                }
-//            }
-//
-//            run {
-//                // Previously was stored as String, now as Int
-//                edit.remove(Pref.CURRENT_THEME)
-//                newPrefs[Pref.CURRENT_THEME] = 0
-//                val isDarkMode = pref[Pref.CURRENT_THEME, ""] == "Dark"
-//                if (isDarkMode) {
-//                    newPrefs[Pref.DARK_MODE] = true
-//                }
-//            }
-//
-//            run {
-//                when (val json = pref[EDIT_ACTIONS, ""]) {
-//                    "" -> {
-//
-//                    }
-//                    else -> {
-//                        val actions = actionsFromString(json).map { it.type.ordinal }
-//                        val value = EditAction.defaultList.map {
-//                            EditActionSetting(it, isVisible = actions.contains(it.identifier))
-//                        }
-//                        newPrefs[EDIT_ACTIONS] =
-//                            value.joinToString(separator = ",") { it.editAction.identifier.toString() + "|" + it.isVisible.toString() }
-//                    }
-//                }
-//            }
-//
-//
-//            run {
-//                when (val currentUser = pref.userName) {
-//                    is String -> {
-//                        newPrefs[CURRENT_USER] = currentUser
-//                    }
-//                }
-//
-//                newPrefs[LOGIN_STATUS] = pref.isLoggedIn
-//                newPrefs[IS_FIRST_LAUNCH] = pref.isFirstLaunch
-//            }
-//
-//            // Remove unused keys (if exist)
-//            run {
-//                edit.clear().apply()
-//
-//                newPrefs.forEach { entry ->
-//                    val (k, v) = entry
-//                    when (v) {
-//                        is Int -> {
-//                            edit.putInt(k, v)
-//                        }
-//                        is Long -> {
-//                            edit.putLong(k, v)
-//                        }
-//                        is Boolean -> {
-//                            edit.putBoolean(k, v)
-//                        }
-//                        is String -> {
-//                            edit.putString(k, v)
-//                        }
-//                        is Set<*> -> {
-//                            edit.putStringSet(k, v as? Set<String> ?: return@forEach)
-//                        }
-//                    }
-//                }
-//
-//            }
-//
-//
-//            edit.apply()
-//        }
     }
 }
 

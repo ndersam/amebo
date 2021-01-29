@@ -5,7 +5,6 @@ import android.os.Parcelable
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
-import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -44,8 +43,7 @@ open class SimpleTopicListView(
         topicList: TopicList,
         sort: Sort?,
         listener: BaseTopicListView.Listener,
-        binding: TopicListScreenBinding,
-        viewLifecycleOwner: LifecycleOwner
+        binding: TopicListScreenBinding
     ) : this(
         topicList = topicList,
         sort = sort,
@@ -91,11 +89,11 @@ open class SimpleTopicListView(
     private val context get() = swipeRefreshLayout.context
 
     private val headerAdapter = HeaderAdapter(topicList, sort, listener)
-    private val itemAdapter = ItemAdapter(listener, topicList)
+    val itemAdapter = ItemAdapter(listener, topicList)
     private val altAdapter = AltAdapter(listener)
 
     private val adapter = ConcatAdapter(headerAdapter, altAdapter, itemAdapter)
-
+    private var ignoreSavedState = false
 
     init {
         recyclerView.adapter = adapter
@@ -116,6 +114,10 @@ open class SimpleTopicListView(
     }
 
     override fun restoreLayoutState(parcelable: Parcelable) {
+        if (ignoreSavedState) {
+            ignoreSavedState = false
+            return
+        }
         recyclerView.addOnLayoutChangeListener(object : View.OnLayoutChangeListener {
             override fun onLayoutChange(
                 v: View?,
@@ -141,6 +143,10 @@ open class SimpleTopicListView(
         val page = success.content
         swipeRefreshLayout.isRefreshing = false
         setContent(page)
+        // Hack: Scrolling doesn't work everytime ... from stackoverflow
+        recyclerView.postDelayed({
+            recyclerView.scrollToPosition(0)
+        }, 200)
     }
 
     override fun onError(error: Resource.Error<BaseTopicListDataPage>) {
@@ -159,6 +165,7 @@ open class SimpleTopicListView(
 
 
     override fun onLoading(loading: Resource.Loading<BaseTopicListDataPage>) {
+        ignoreSavedState = true
         val isFullLoad = loading.content?.data.isNullOrEmpty()
         if (isFullLoad) {
             itemAdapter.clear()

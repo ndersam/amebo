@@ -35,16 +35,19 @@ class Authenticator @Inject constructor(
         var res = api.login(username, password).execute()
         var tries = 1
         var code = hasLoggedInSuccessfully(res)
-        while (tries <= 2 && code == AuthResponse.SUCCESS_REDIRECT) {
+        while (tries <= 2 && code == AuthResponse.SuccessRedirect) {
             res = api.visit(res.raw().request.url.toString()).execute()
             code = hasLoggedInSuccessfully(res)
             tries += 1
         }
-        if (code == AuthResponse.SUCCESS_NO_REDIRECT)
-            return ResultWrapper.Success(JAR.getStoreAndClear())
-        if (code == AuthResponse.WRONG_USERNAME_OR_PASSWORD)
-            return ResultWrapper.Failure(ErrorResponse.Login)
-        return ResultWrapper.Failure(ErrorResponse.Network)
+        return when (code) {
+            AuthResponse.SuccessNoRedirect -> ResultWrapper.Success(JAR.getStoreAndClear())
+            AuthResponse.WrongUsernameOrPassword -> ResultWrapper.Failure(ErrorResponse.Login)
+            AuthResponse.SuccessRedirect, AuthResponse.Failure -> ResultWrapper.Failure(
+                ErrorResponse.Network
+            )
+            is AuthResponse.Unknown -> ResultWrapper.failure(ErrorResponse.Unknown(code.msg))
+        }
     }
 
     companion object {

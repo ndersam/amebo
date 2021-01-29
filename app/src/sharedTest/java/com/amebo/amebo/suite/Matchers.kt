@@ -183,7 +183,7 @@ fun withHolderPosition(position: Int): Matcher<RecyclerView.ViewHolder> {
 fun withIndexOfType(
     matcher: Matcher<View?>,
     index: Int
-): Matcher<View?>? {
+): Matcher<View?> {
     return object : TypeSafeMatcher<View?>() {
         var currentIndex = 0
         override fun describeTo(description: Description) {
@@ -217,7 +217,7 @@ fun List<ViewInteraction>.check(assertion: ViewAssertion): List<ViewInteraction>
 fun withCustomConstraints(
     action: ViewAction,
     constraints: Matcher<View>
-): ViewAction? {
+): ViewAction {
     return object : ViewAction {
         override fun getConstraints(): Matcher<View> {
             return constraints
@@ -233,16 +233,17 @@ fun withCustomConstraints(
     }
 }
 
-fun withNavigationIcon(@DrawableRes resourceId: Int) = object: BoundedMatcher<View, Toolbar>(Toolbar::class.java){
-    override fun describeTo(description: Description) {
-        description.appendText("has navigation icon $resourceId")
-    }
+fun withNavigationIcon(@DrawableRes resourceId: Int) =
+    object : BoundedMatcher<View, Toolbar>(Toolbar::class.java) {
+        override fun describeTo(description: Description) {
+            description.appendText("has navigation icon $resourceId")
+        }
 
-    override fun matchesSafely(item: Toolbar): Boolean {
-       return sameBitmap(item.context, item.navigationIcon, resourceId)
-    }
+        override fun matchesSafely(item: Toolbar): Boolean {
+            return sameBitmap(item.context, item.navigationIcon, resourceId)
+        }
 
-}
+    }
 
 fun withImageDrawable(resourceId: Int): Matcher<View?>? {
     return object : BoundedMatcher<View?, ImageView>(ImageView::class.java) {
@@ -256,7 +257,7 @@ fun withImageDrawable(resourceId: Int): Matcher<View?>? {
     }
 }
 
-private  fun sameBitmap(context: Context, drawable: Drawable?, resourceId: Int): Boolean {
+private fun sameBitmap(context: Context, drawable: Drawable?, resourceId: Int): Boolean {
     var drawable: Drawable? = drawable
     var otherDrawable = context.resources.getDrawable(resourceId)
     if (drawable == null || otherDrawable == null) {

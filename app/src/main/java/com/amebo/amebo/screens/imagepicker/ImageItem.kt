@@ -4,7 +4,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Parcelable
 import com.amebo.core.domain.Attachment
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 sealed class ImageItem : Parcelable {
     /**

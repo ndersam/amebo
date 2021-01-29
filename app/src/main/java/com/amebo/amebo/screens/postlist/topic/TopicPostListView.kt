@@ -1,6 +1,7 @@
 package com.amebo.amebo.screens.postlist.topic
 
 import androidx.fragment.app.Fragment
+import com.amebo.amebo.common.extensions.show
 import com.amebo.amebo.common.widgets.AppBarStateChangeListener
 import com.amebo.amebo.databinding.TopicScreenBinding
 import com.amebo.amebo.screens.postlist.PostListMeta
@@ -64,9 +65,8 @@ class TopicPostListView(
         // Don't set toolbar subtitle
     }
 
-    override fun scrollToPosition(position: Int) {
-        super.scrollToPosition(position)
-        val bottomBar = binding.bottomBar.bottomBar
-        bottomBar.behavior.slideDown(bottomBar)
+    override fun scrollToPosition(position: Int, smoothScroll: Boolean) {
+        super.scrollToPosition(position, smoothScroll)
+        binding.bottomBar.bottomBar.show()
     }
 }

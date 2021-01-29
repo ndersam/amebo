@@ -7,7 +7,7 @@ import android.text.Selection
 import android.text.TextWatcher
 import android.text.style.UnderlineSpan
 import android.widget.EditText
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 import java.lang.ref.WeakReference
 import java.util.*
 

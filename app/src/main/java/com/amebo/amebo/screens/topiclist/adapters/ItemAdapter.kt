@@ -4,20 +4,23 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.view.isVisible
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.amebo.amebo.R
 import com.amebo.amebo.common.asTheme
+import com.amebo.amebo.common.extensions.context
 import com.amebo.amebo.databinding.ItemBoardTopicBinding
 import com.amebo.amebo.databinding.ItemFeaturedTopicBinding
 import com.amebo.amebo.databinding.ItemFooterBinding
 import com.amebo.amebo.databinding.ItemSpecialTopicBinding
+import com.amebo.amebo.screens.topiclist.main.SwipeToUnFollowCallback
 import com.amebo.core.domain.*
 
 class ItemAdapter(
     private var listener: TopicListAdapterListener,
     private val topicList: TopicList
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    private var items: List<Item> = emptyList()
+) : ListAdapter<Item, RecyclerView.ViewHolder>(DIFF_CALLBACK) {
 
     var page: BaseTopicListDataPage? = null
         set(value) {
@@ -32,8 +35,7 @@ class ItemAdapter(
                     }
                 })
                 list.add(FooterItem)
-                items = list
-                notifyDataSetChanged()
+                submitList(list)
             }
         }
 
@@ -66,10 +68,9 @@ class ItemAdapter(
         }
     }
 
-    override fun getItemCount(): Int = items.size
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        when (val item = items[position]) {
+        when (val item = getItem(position)) {
             is BoardTopicItem -> {
                 val vh = holder as BoardTopicItemVH
                 vh.bind(item.topic, listener)
@@ -89,7 +90,7 @@ class ItemAdapter(
         }
     }
 
-    override fun getItemViewType(position: Int): Int = when (items[position]) {
+    override fun getItemViewType(position: Int): Int = when (getItem(position)) {
         is BoardTopicItem -> ITEM_BOARD_TOPIC
         is OtherTopicItem -> ITEM_OTHER_TOPIC
         is FeaturedTopicItem -> ITEM_FEATURED_TOPIC
@@ -98,11 +99,22 @@ class ItemAdapter(
 
 
     fun clear() {
-        items = emptyList()
-        notifyDataSetChanged()
+        submitList(emptyList())
     }
 
-    fun isEmpty() = items.isEmpty()
+    fun isEmpty() = itemCount == 0
+
+    fun removeTopicAt(position: Int): Topic? {
+        val copy = currentList.toMutableList()
+        val item = copy.removeAt(position)
+        submitList(copy)
+        return when (item) {
+            is BoardTopicItem -> item.topic
+            is FeaturedTopicItem -> item.topic
+            is OtherTopicItem -> item.topic
+            else -> null
+        }
+    }
 
     class BoardTopicItemVH(private val binding: ItemBoardTopicBinding) :
         RecyclerView.ViewHolder(binding.root) {
@@ -124,7 +136,15 @@ class ItemAdapter(
 
     class OtherTopicItemVH(private val binding: ItemSpecialTopicBinding) :
         RecyclerView.ViewHolder(binding.root) {
+
+        private val backgroundColor = binding.context.asTheme().colorBackground
+
         fun bind(topic: Topic, listener: TopicListAdapterListener) {
+            /**
+             * reset background color in case changed by [SwipeToUnFollowCallback]
+             */
+            binding.root.setBackgroundColor(backgroundColor)
+
             binding.root.setOnClickListener { listener.onTopicClicked(topic) }
             binding.storyTitle.text = topic.title
             binding.txtBoard.text = topic.mainBoard!!.name
@@ -190,13 +210,25 @@ class ItemAdapter(
             val theme = view.context.asTheme()
             view.setTextColor(if (!hasBeenRead) theme.textColorPrimary else theme.textColorTertiary)
         }
+
+        private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Item>() {
+            override fun areItemsTheSame(oldItem: Item, newItem: Item): Boolean = when {
+                oldItem is TopicItem && newItem is TopicItem -> oldItem.topic.id == newItem.topic.id
+                else -> false
+            }
+
+            override fun areContentsTheSame(oldItem: Item, newItem: Item): Boolean =
+                oldItem == newItem
+
+        }
     }
 }
 
-private sealed class Item
-private class BoardTopicItem(val topic: Topic) : Item()
-private class FeaturedTopicItem(val topic: Topic) : Item()
-private class OtherTopicItem(val topic: Topic) : Item()
+sealed class Item
+private sealed class TopicItem(open val topic: Topic) : Item()
+private data class BoardTopicItem(override val topic: Topic) : TopicItem(topic)
+private data class FeaturedTopicItem(override val topic: Topic) : TopicItem(topic)
+private data class OtherTopicItem(override val topic: Topic) : TopicItem(topic)
 private object FooterItem : Item()
 
 interface TopicListAdapterListener {

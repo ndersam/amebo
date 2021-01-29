@@ -5,21 +5,23 @@ import org.jsoup.nodes.Document
 import retrofit2.Response
 import timber.log.Timber
 
-internal enum class AuthResponse {
-    SUCCESS_NO_REDIRECT,
-    SUCCESS_REDIRECT,
-    FAILURE,
-    WRONG_USERNAME_OR_PASSWORD
+
+sealed class AuthResponse {
+    object SuccessNoRedirect: AuthResponse()
+    object SuccessRedirect: AuthResponse()
+    object Failure: AuthResponse()
+    object WrongUsernameOrPassword: AuthResponse()
+    class Unknown(val msg: String): AuthResponse()
 }
 
 internal fun hasLoggedInSuccessfully(res: Response<Document>): AuthResponse {
     val soup = res.body()
     if (!res.isSuccessful || soup == null) {
-        return AuthResponse.FAILURE
+        return AuthResponse.Failure
     }
 
     if (res.raw().request.url.toString() == "https://www.nairaland.com/?x=2178109") {
-        return AuthResponse.SUCCESS_NO_REDIRECT
+        return AuthResponse.SuccessNoRedirect
     }
 
     return parseLoginResponse(soup)
@@ -27,37 +29,36 @@ internal fun hasLoggedInSuccessfully(res: Response<Document>): AuthResponse {
 
 
 internal fun parseLoginResponse(soup: Document): AuthResponse {
-    soup.select("h2").forEach {
-        if (it.text().toString().trim() == "Logging In...") {
-            return AuthResponse.SUCCESS_REDIRECT
+    soup.selectFirst("h2")?.let {
+        if (it.text().toString().equals("Wrong Username or Password", true)) {
+            return AuthResponse.WrongUsernameOrPassword
         }
+        if (it.text().toString().trim() == "Logging In...") {
+            return AuthResponse.SuccessRedirect
+        }
+        return AuthResponse.Unknown(it.text())
     }
 
     soup.select("table tr td b").forEach {
         if (it.text().toString().trim() == "Please refresh this page to complete your login!") {
-            return AuthResponse.SUCCESS_REDIRECT
+            return AuthResponse.SuccessRedirect
         }
     }
 
-    soup.select("h2").forEach {
-        if (it.text().toString().equals("Wrong Username or Password", true)) {
-            return AuthResponse.WRONG_USERNAME_OR_PASSWORD
-        }
-    }
     soup.select("b").forEach {
         if (it.text().toString().equals("re-enter your username and password", true)) {
-            return AuthResponse.WRONG_USERNAME_OR_PASSWORD
+            return AuthResponse.WrongUsernameOrPassword
         }
     }
 
     try {
         val session = SessionParser.parse(soup.selectFirst("#up"))
         if (session.activeUser != null || session.isLoggedIn) {
-            return AuthResponse.SUCCESS_NO_REDIRECT
+            return AuthResponse.SuccessNoRedirect
         }
     } catch (ex: Exception) {
         Timber.e(ex)
     }
 
-    return AuthResponse.FAILURE
+    return AuthResponse.Failure
 }

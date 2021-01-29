@@ -6,9 +6,11 @@ import androidx.work.ListenableWorker
 import androidx.work.testing.TestListenableWorkerBuilder
 import androidx.work.testing.WorkManagerTestInitHelper
 import com.amebo.amebo.TestApp
+import com.amebo.amebo.data.TestData
 import com.amebo.amebo.di.TestAppModule
 import com.amebo.amebo.suite.injectIntoTestApp
 import com.amebo.core.domain.ResultWrapper
+import com.amebo.core.domain.TopicFeed
 import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.core.Is.`is`
@@ -32,7 +34,7 @@ class FeedWorkerTest {
         runBlocking {
             whenever(TestAppModule.nairaland.sources.misc.feed()).thenReturn(
                 ResultWrapper.success(
-                    emptyList()
+                    listOf(TopicFeed(TestData.topics.first(), "yada yada",System.currentTimeMillis()))
                 )
             )
         }

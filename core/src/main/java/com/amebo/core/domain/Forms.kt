@@ -2,8 +2,8 @@ package com.amebo.core.domain
 
 import android.graphics.Bitmap
 import android.os.Parcelable
-import kotlinx.android.parcel.IgnoredOnParcel
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.IgnoredOnParcel
+import kotlinx.parcelize.Parcelize
 
 sealed class Form(
     var body: String,

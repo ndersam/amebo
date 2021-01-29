@@ -24,7 +24,7 @@ class TestFragmentActivity : AppCompatActivity(), HasAndroidInjector {
         this.fragment = fragment
         supportFragmentManager
             .beginTransaction()
-            .replace(android.R.id.content, fragment)
-            .commit()
+            .replace(android.R.id.content, fragment, "FRAG")
+            .commitNowAllowingStateLoss()
     }
 }

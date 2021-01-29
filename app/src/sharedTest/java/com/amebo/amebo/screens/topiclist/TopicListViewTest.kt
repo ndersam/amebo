@@ -1,10 +1,9 @@
 package com.amebo.amebo.screens.topiclist
 
 import android.view.View
-import androidx.lifecycle.lifecycleScope
+import android.widget.ProgressBar
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ActivityScenario
-import androidx.test.core.app.launchActivity
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.UiController
 import androidx.test.espresso.ViewAction
@@ -18,173 +17,253 @@ import com.amebo.amebo.application.TestFragmentActivity
 import com.amebo.amebo.common.Resource
 import com.amebo.amebo.data.TestData
 import com.amebo.amebo.databinding.TopicListScreenBinding
+import com.amebo.amebo.screens.topiclist.adapters.HeaderAdapter
 import com.amebo.amebo.screens.topiclist.adapters.ItemAdapter
 import com.amebo.amebo.screens.topiclist.main.TopicListView
 import com.amebo.amebo.suite.*
 import com.amebo.core.domain.*
+import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.*
-import junit.framework.Assert.assertEquals
 import org.hamcrest.Matcher
+import org.hamcrest.Matchers.allOf
+import org.hamcrest.core.IsInstanceOf
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@RunWith(AndroidJUnit4::class)
+
 class TopicListViewTest {
 
-    private lateinit var scenario: ActivityScenario<TestFragmentActivity>
-    private lateinit var fragment: TestFragment
-    private lateinit var topicListView: TopicListView
-    private lateinit var topicListViewListener: TopicListView.Listener
-    private val recyclerViewMatcher get() = withIndexOfType(withId(R.id.recyclerView), 0)
+    @RunWith(AndroidJUnit4::class)
+    class Featured {
+        private lateinit var scenario: ActivityScenario<TestFragmentActivity>
+        private lateinit var topicListView: TopicListView
+        private lateinit var topicListViewListener: TopicListView.Listener
+        private lateinit var pref: TestPref
+        private val recyclerViewMatcher get() = withIndexOfType(withId(R.id.recyclerView), 0)
 
 
-    @Before
-    fun before() {
-        scenario = launchActivity()
-        topicListViewListener = mock()
-    }
+        @Before
+        fun before() {
+            pref = TestPref()
+            topicListViewListener = mock()
+            scenario =
+                launchTestFragmentInTestActivity(R.layout.topic_list_screen) { fragment, _ ->
+                    val binding = TopicListScreenBinding.bind(fragment.requireView())
+                    topicListView = TopicListView(
+                        pref,
+                        binding,
+                        fragment.viewLifecycleOwner,
+                        Featured,
+                        topicListViewListener
+                    )
+                }
+        }
 
-    @Test
-    fun onCreate_viewDisplaysCorrectly() {
-        initializeFragment()
-        onView(withId(R.id.toolbar)).check(matches(withToolbarTitle(R.string.featured)))
-        onView(withId(R.id.toolbar)).check(matches(withToolbarSubtitle("")))
-    }
 
-    @Test
-    fun viewReactsCorrectlyToLoadingEventWithNoExistingData() {
-        initializeFragment()
-        topicListView.onLoading(Resource.Loading(null))
+        @Test
+        fun onCreate_viewDisplaysCorrectly() {
+            onView(withId(R.id.title)).check(matches(withText(R.string.featured)))
+            onView(withId(R.id.txtPageInfo)).check(matches(withText("")))
+        }
 
-        onView(recyclerViewMatcher).check(matches(withEffectiveVisibility(Visibility.GONE)))
-        onView(withId(R.id.progress)).check(matches(isDisplayed()))
-        onView(withId(R.id.swipeRefreshLayout)).check(matches(isNotRefreshing()))
-    }
+        @Test
+        fun onLoadingEventNoData() {
+            topicListView.onLoading(Resource.Loading(null))
 
-    @Test
-    fun viewReactsCorrectlyToLoadingEventWithExistingData() {
-        initializeFragment()
-        val count = 33
-        val currentPage = 0
-        val lastPage = 19
-        val dataPage = TopicListDataPage(
-            TestData.generateFeaturedTopicList(count), currentPage, lastPage
-        )
-        topicListView.onLoading(Resource.Loading(dataPage))
+            onView(recyclerViewMatcher).check(matches(withItemCount(1)))
+            onView(recyclerViewMatcher).check(matches(atPosition(0, hasDescendant(allOf(withId(R.id.progress), isDisplayed())))))
+            onView(withId(R.id.swipeRefreshLayout)).check(matches(isNotRefreshing()))
+        }
 
-        onView(recyclerViewMatcher).check(matches(isDisplayed()))
-        onView(withId(R.id.progress)).check(matches(withEffectiveVisibility(Visibility.GONE)))
-        onView(withId(R.id.swipeRefreshLayout)).check(matches(isRefreshing()))
-        onView(recyclerViewMatcher).check(matches(withItemCount(count + 1))) // +1 for footer
-    }
+        @Test
+        fun onLoadingEvent_WithData() {
+            val count = 33
+            val currentPage = 0
+            val lastPage = 19
+            val dataPage = TopicListDataPage(
+                TestData.generateFeaturedTopicList(count), currentPage, lastPage
+            )
+            topicListView.onLoading(Resource.Loading(dataPage))
 
-    @Test
-    fun viewReactsCorrectlyToSuccessfulDataLoad() {
-        initializeFragment()
-        val count = 33
-        val currentPage = 0
-        val lastPage = 19
-        val dataPage = TopicListDataPage(
-            TestData.generateFeaturedTopicList(count), currentPage, lastPage
-        )
-        topicListView.onSuccess(Resource.Success(dataPage))
+            onView(recyclerViewMatcher).check(matches(isDisplayed()))
+            onView(withId(R.id.swipeRefreshLayout)).check(matches(isRefreshing()))
+            onView(recyclerViewMatcher).check(matches(withItemCount(count + 1))) // +1 for footer
+        }
 
-        onView(recyclerViewMatcher).check(matches(isDisplayed()))
-        onView(withId(R.id.progress)).check(matches(withEffectiveVisibility(Visibility.GONE)))
-        onView(withId(R.id.swipeRefreshLayout)).check(matches(isNotRefreshing()))
-        onView(recyclerViewMatcher).check(matches(withItemCount(count + 1))) // +1 for footer
-    }
+        @Test
+        fun onDataEvent_dataDisplayedRight() {
+            val count = 33
+            val currentPage = 0
+            val lastPage = 19
+            val dataPage = TopicListDataPage(
+                TestData.generateFeaturedTopicList(count), currentPage, lastPage
+            )
+            topicListView.onSuccess(Resource.Success(dataPage))
 
-    @Test
-    fun viewReactsCorrectlyToFeaturedTopicListMetaEvent() {
-        initializeFragment()
-        topicListView.onTopicListMetaChanged(TopicListMeta(0, null, null))
-        onView(withId(R.id.toolbar)).check(matches(withToolbarSubtitle("")))
+            onView(recyclerViewMatcher).check(matches(isDisplayed()))
+            onView(withId(R.id.swipeRefreshLayout)).check(matches(isNotRefreshing()))
+            onView(recyclerViewMatcher).check(matches(withItemCount(count + 1))) // +1 for footer
+        }
 
-        val currentPage = 0
-        val lastPage = 19
-        topicListView.onTopicListMetaChanged(TopicListMeta(currentPage, lastPage, null))
-        onView(withId(R.id.toolbar)).check(matches(withToolbarSubtitle("Page ${currentPage + 1} of ${lastPage + 1}")))
-    }
+        @Test
+        fun onMetaEvent_viewsUpdatedAppropriately() {
+            var meta = TopicListMeta(0, null, null)
+            topicListView.onTopicListMetaChanged(meta)
+            onView(withId(R.id.txtPageInfo)).check(matches(withText("Page ${meta.page + 1}")))
 
-    @Test
-    fun onClickButtons_theyWorkAppropriately() {
-        initializeFragment()
+            meta = TopicListMeta(0, 19, null)
+            topicListView.onTopicListMetaChanged(meta)
+            onView(withId(R.id.txtPageInfo)).check(matches(withText("Page ${meta.page + 1} of ${meta.lastPage!! + 1}")))
 
-        onView(withId(R.id.btnNextPage)).perform(click())
-        verify(topicListViewListener, times(1)).loadNextPage()
+            meta = TopicListMeta(7, 20, TopicListSorts.UPDATED)
+            topicListView.onTopicListMetaChanged(meta)
+            onView(withId(R.id.txtPageInfo)).check(matches(withText("Page ${meta.page + 1} of ${meta.lastPage!! + 1}")))
+        }
 
-        onView(withId(R.id.btnPrevPage)).perform(click())
-        verify(topicListViewListener, times(1)).loadPrevPage()
+        @Test
+        fun onClickButtons_theyWorkAppropriately() {
+            onView(withId(R.id.btnNextPage)).perform(click())
+            verify(topicListViewListener, times(1)).loadNextPage()
 
-        onView(withId(R.id.btnRefreshPage)).perform(click())
-        verify(topicListViewListener, times(1)).refreshPage()
+            onView(withId(R.id.btnPrevPage)).perform(click())
+            verify(topicListViewListener, times(1)).loadPrevPage()
 
-        onView(withId(R.id.toolbar)).perform(click())
-        verify(topicListViewListener, times(1)).changePageOrSort()
+            onView(withId(R.id.btnRefreshPage)).perform(click())
+            verify(topicListViewListener, times(1)).refreshPage()
 
-        onView(withId(R.id.btnMore)).perform(click())
-//        verify(topicListViewListener, times(1)).showExplore()
+            onView(withId(R.id.txtPageInfo)).perform(click())
+            verify(topicListViewListener, times(1)).changePageOrSort()
 
-        onView(withId(R.id.btnNewTopic)).perform(click())
-        verify(topicListViewListener, times(1)).newTopic()
+            onView(withId(R.id.btnMore)).perform(click())
+            verify(topicListViewListener, times(1)).onMoreClicked()
 
-        onView(withId(R.id.swipeRefreshLayout)).perform(pullRefresh())
-        verify(topicListViewListener, times(1)).refreshPage()
+            onView(withId(R.id.btnNewTopic)).perform(click())
+            verify(topicListViewListener, times(1)).newTopic()
+
+            onView(withId(R.id.swipeRefreshLayout)).perform(pullRefresh())
+            verify(topicListViewListener, times(1)).refreshPage()
 
 //        onView(withId(R.id.ouch_view)).perform(ouchViewButtonClick())
 //        verify(topicListViewListener, times(1)).retryLastRequest()
-    }
-
-    @Test
-    fun viewReactsAppropriatelyTo_viewedTopicsLoadedEvent() {
-        // attempting to check whether the recyclerview refreshes its content (calls notifyDatasetChanged)
-        // by counting the calls its adapter makes to the `haveViewedTopic` method
-        var expectedCount = 0
-        whenever(topicListViewListener.hasViewedTopic(any())).then {
-            expectedCount++
-            false
         }
 
-        initializeFragment()
-        val dataPage = TopicListDataPage(
-            TestData.generateFeaturedTopicList(33), 0, 19
-        )
-        topicListView.onSuccess(Resource.Success(dataPage))
-        verify(topicListViewListener, atLeastOnce()).hasViewedTopic(any())
+        @Test
+        fun onViewedTopicsLoadedEvent_viewsUpdatedAppropriately() {
+            // attempting to check whether the recyclerview refreshes its content (calls notifyDatasetChanged)
+            // by counting the calls its adapter makes to the `haveViewedTopic` method
+            var expectedCount = 0
+            whenever(topicListViewListener.hasViewedTopic(any())).then {
+                expectedCount++
+                false
+            }
+
+            val dataPage = TopicListDataPage(
+                TestData.generateFeaturedTopicList(33), 0, 19
+            )
+            topicListView.onSuccess(Resource.Success(dataPage))
+            verify(topicListViewListener, atLeastOnce()).hasViewedTopic(any())
 
 
-        // on viewed topics data loaded
-        var counter = 0
-        whenever(topicListViewListener.hasViewedTopic(any())).then {
-            counter++
-            false
+            // on viewed topics data loaded
+            var counter = 0
+            whenever(topicListViewListener.hasViewedTopic(any())).then {
+                counter++
+                false
+            }
+            topicListView.onViewedTopicsLoaded()
+            assertThat(counter).isEqualTo(expectedCount)
         }
-        topicListView.onViewedTopicsLoaded()
-        assertEquals(expectedCount, counter)
+
+        @Test
+        fun recyclerViewAdapterDisplayingFeaturedTopicItems_reactsAppropriatelyToEvents() {
+            val dataPage = TopicListDataPage(
+                TestData.generateFeaturedTopicList(33), 0, 19
+            )
+            topicListView.onSuccess(Resource.Success(dataPage))
+
+            onView(
+                recyclerViewMatcher
+
+
+            ).perform(actionOnItemAtPosition<RecyclerView.ViewHolder>(0, click()))
+            verify(topicListViewListener, times(1)).onTopicClicked(dataPage.data.first())
+        }
     }
 
-    @Test
-    fun recyclerViewAdapterDisplayingFeaturedTopicItems_reactsAppropriatelyToEvents() {
-        initializeFragment()
-        val dataPage = TopicListDataPage(
-            TestData.generateFeaturedTopicList(33), 0, 19
-        )
-        topicListView.onSuccess(Resource.Success(dataPage))
-
-        onView(
-            recyclerViewMatcher
+    @RunWith(AndroidJUnit4::class)
+    class Board {
+        private lateinit var scenario: ActivityScenario<TestFragmentActivity>
+        private lateinit var topicListView: TopicListView
+        private lateinit var topicListViewListener: TopicListView.Listener
+        private lateinit var pref: TestPref
+        private val recyclerViewMatcher get() = withIndexOfType(withId(R.id.recyclerView), 0)
 
 
-        ).perform(actionOnItemAtPosition<RecyclerView.ViewHolder>(0, click()))
-        verify(topicListViewListener, times(1)).onTopicClicked(dataPage.data.first())
-    }
+        @Before
+        fun before() {
+            pref = TestPref().apply {
+                defaultSort = TopicListSorts.BoardSorts.first()
+            }
+            topicListViewListener = mock()
+            scenario = launchTestFragmentInTestActivity(R.layout.topic_list_screen) { fragment, _ ->
+                val binding = TopicListScreenBinding.bind(fragment.requireView())
+                topicListView = TopicListView(
+                    pref,
+                    binding,
+                    fragment.viewLifecycleOwner,
+                    Board("Politics", "politics"),
+                    topicListViewListener
+                )
+            }
+        }
 
-    @Test
-    fun recyclerViewAdapterDisplayingBoardTopicItems_reactsAppropriatelyToEvents() {
-        initializeFragment(Board("Politics", "politics"))
-        val dataPage = BoardsDataPage(
+        @Test
+        fun onSortItemClick_ListenerTriggered() {
+            val dataPage = newDataPage()
+            topicListView.onSuccess(Resource.Success(dataPage))
+            onView(recyclerViewMatcher).perform(
+                actionOnItemAtPosition<HeaderAdapter.SortVH>(
+                    0,
+                    onViewHolderItem(withText(R.string.updated), click())
+                )
+            )
+
+            val captor = argumentCaptor<Sort>()
+            verify(topicListViewListener).onSortSelected(captor.capture())
+            assertThat(captor.firstValue.name).isEqualTo(pref.defaultSort?.name)
+        }
+
+        @Test
+        fun onTopicClick_ListenerTriggered() {
+            val dataPage = newDataPage()
+            topicListView.onSuccess(Resource.Success(dataPage))
+
+            onView(recyclerViewMatcher).perform(
+                actionOnItemAtPosition<ItemAdapter.BoardTopicItemVH>(
+                    1,
+                    click()
+                )
+            )
+            verify(topicListViewListener, times(1)).onTopicClicked(dataPage.data.first())
+        }
+
+
+        @Test
+        fun onTopicAuthorClick_ListenerTriggered() {
+            val dataPage = newDataPage()
+            topicListView.onSuccess(Resource.Success(dataPage))
+
+            onView(recyclerViewMatcher).perform(
+                actionOnItemAtPosition<ItemAdapter.BoardTopicItemVH>(
+                    1,
+                    boardTopicItemUserClick()
+                )
+            )
+            verify(topicListViewListener, times(1)).onAuthorClicked(dataPage.data.first().author!!)
+        }
+
+        private fun newDataPage() = BoardsDataPage(
             data = TestData.generateDetailedTopicList(33),
             page = 0,
             last = 19,
@@ -196,72 +275,84 @@ class TopicListViewTest {
             moderators = emptyList(),
             boardInfo = ""
         )
-        topicListView.onSuccess(Resource.Success(dataPage))
-
-
-        onView(recyclerViewMatcher).perform(
-            actionOnItemAtPosition<ItemAdapter.BoardTopicItemVH>(
-                0,
-                click()
-            )
-        )
-        verify(topicListViewListener, times(1)).onTopicClicked(dataPage.data.first())
-
-        onView(recyclerViewMatcher).perform(
-            actionOnItemAtPosition<ItemAdapter.BoardTopicItemVH>(
-                0,
-                boardTopicItemUserClick()
-            )
-        )
-        verify(topicListViewListener, times(1)).onAuthorClicked(dataPage.data.first().author!!)
     }
 
-    @Test
-    fun recyclerViewAdapterDisplayingTrendingOrNewTopicItems_reactsAppropriatelyToEvents() {
-        initializeFragment(Trending)
-        val dataPage = TopicListDataPage(
+    @RunWith(AndroidJUnit4::class)
+    class Trending {
+        private lateinit var scenario: ActivityScenario<TestFragmentActivity>
+        private lateinit var topicListView: TopicListView
+        private lateinit var topicListViewListener: TopicListView.Listener
+        private lateinit var pref: TestPref
+        private val recyclerViewMatcher get() = withIndexOfType(withId(R.id.recyclerView), 0)
+
+
+        @Before
+        fun before() {
+            pref = TestPref()
+            topicListViewListener = mock()
+            scenario = launchTestFragmentInTestActivity(R.layout.topic_list_screen) { fragment, _ ->
+                val binding = TopicListScreenBinding.bind(fragment.requireView())
+                topicListView = TopicListView(
+                    pref,
+                    binding,
+                    fragment.viewLifecycleOwner,
+                    Trending,
+                    topicListViewListener
+                )
+            }
+        }
+
+        @Test
+        fun onTopicClick() {
+            val dataPage = newDataPage()
+            topicListView.onSuccess(Resource.Success(dataPage))
+
+            onView(recyclerViewMatcher).perform(
+                actionOnItemAtPosition<ItemAdapter.BoardTopicItemVH>(
+                    0,
+                    click()
+                )
+            )
+            verify(topicListViewListener, times(1)).onTopicClicked(dataPage.data.first())
+        }
+
+        @Test
+        fun onTopicAuthorClick() {
+            val dataPage = newDataPage()
+            topicListView.onSuccess(Resource.Success(dataPage))
+
+            onView(recyclerViewMatcher).perform(
+                actionOnItemAtPosition<ItemAdapter.BoardTopicItemVH>(
+                    0,
+                    boardTopicItemUserClick()
+                )
+            )
+            verify(topicListViewListener, times(1)).onAuthorClicked(dataPage.data.first().author!!)
+        }
+
+        @Test
+        fun onBoardClick() {
+            val dataPage = newDataPage()
+            topicListView.onSuccess(Resource.Success(dataPage))
+
+
+            onView(recyclerViewMatcher).perform(
+                actionOnItemAtPosition<ItemAdapter.BoardTopicItemVH>(
+                    0,
+                    topicItemBoardClick()
+                )
+            )
+            verify(
+                topicListViewListener,
+                times(1)
+            ).onBoardClicked(dataPage.data.first().mainBoard!!)
+        }
+
+        private fun newDataPage() = TopicListDataPage(
             data = TestData.generateDetailedTopicList(33),
             page = 0,
             last = 19
         )
-        topicListView.onSuccess(Resource.Success(dataPage))
-
-
-        onView(recyclerViewMatcher).perform(
-            actionOnItemAtPosition<ItemAdapter.BoardTopicItemVH>(
-                0,
-                click()
-            )
-        )
-        verify(topicListViewListener, times(1)).onTopicClicked(dataPage.data.first())
-
-
-        onView(recyclerViewMatcher).perform(
-            actionOnItemAtPosition<ItemAdapter.BoardTopicItemVH>(
-                0,
-                boardTopicItemUserClick()
-            )
-        )
-        verify(topicListViewListener, times(1)).onAuthorClicked(dataPage.data.first().author!!)
-
-
-        onView(recyclerViewMatcher).perform(
-            actionOnItemAtPosition<ItemAdapter.BoardTopicItemVH>(
-                0,
-                topicItemBoardClick()
-            )
-        )
-        verify(topicListViewListener, times(1)).onBoardClicked(dataPage.data.first().mainBoard!!)
-    }
-
-    private fun initializeFragment(topicList: TopicList = Featured) {
-        fragment = TestFragment()
-        fragment.lifecycleScope.launchWhenStarted {
-            val binding = TopicListScreenBinding.bind(fragment.requireView())
-            // FIXME: pref mock
-//            topicListView = TopicListView(mock(), binding, fragment.viewLifecycleOwner, topicList, topicListViewListener)
-        }
-        scenario.setFragment(fragment, TestFragment.newBundle(R.layout.topic_list_screen))
     }
 
     companion object {

@@ -35,6 +35,9 @@ class TopicListScreenViewModel @Inject constructor(
     private val _followingBoardEvent = MutableLiveData<Event<Resource<Pair<Board, Boolean>>>>()
     val followingBoardEvent: LiveData<Event<Resource<Pair<Board, Boolean>>>> = _followingBoardEvent
 
+    private val _unFollowTopicEvent = MutableLiveData<Event<Resource<Topic>>>()
+    val unFollowTopicEvent: LiveData<Event<Resource<Topic>>> = _unFollowTopicEvent
+
 
     private val prefObservable = Pref.Observable().apply {
         subscribe(
@@ -70,7 +73,6 @@ class TopicListScreenViewModel @Inject constructor(
     val hasNextPage: Boolean get() = manager.hasNextPage
 
     val hasPrevPage: Boolean get() = manager.hasPrevPage
-
 
 
     override fun onCleared() {
@@ -137,6 +139,26 @@ class TopicListScreenViewModel @Inject constructor(
     fun sortBy(sort: Sort) {
         val request = request ?: return
         this.request = Request(request.page, sort)
+    }
+
+    fun unFollowTopic(topic: Topic) {
+        viewModelScope.launch {
+            _unFollowTopicEvent.value = Event(Resource.Loading())
+            val resource =
+                nairaland.sources.submissions.unFollowTopic(topic).toResource(manager.dataPage)
+            if (resource is Resource.Success) {
+                manager.update(resource.content)
+            }
+            postMeta()
+            _dataPageEvent.value = Event(resource)
+            _unFollowTopicEvent.value = Event(
+                when (resource) {
+                    is Resource.Success -> Resource.Success(topic)
+                    is Resource.Error -> Resource.Error(resource.cause, topic)
+                    else -> return@launch // IllegalState
+                }
+            )
+        }
     }
 
 

@@ -1,7 +1,7 @@
 package com.amebo.core.domain
 
 import android.os.Parcelable
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 sealed class TopicList : Parcelable {
     val hasSort: Boolean get() = this is Board || this is FollowedBoards

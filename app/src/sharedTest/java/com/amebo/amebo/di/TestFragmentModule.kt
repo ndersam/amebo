@@ -1,5 +1,6 @@
 package com.amebo.amebo.di
 
+import com.amebo.amebo.di.mocks.Mocks
 import com.amebo.amebo.screens.accounts.AccountListScreen
 import com.amebo.amebo.screens.editactions.EditActionsPickerScreen
 import com.amebo.amebo.screens.explore.ExploreScreen
@@ -59,7 +60,7 @@ abstract class TestFragmentModule {
     @ContributesAndroidInjector
     abstract fun topicListBottomSheet(): TopicListPageSelectionDialog
 
-    @ContributesAndroidInjector(modules = [TopicPostListViewModule::class])
+    @ContributesAndroidInjector(modules = [Mocks.TopicScreen::class])
     abstract fun topicScreen(): TopicScreen
 
     @ContributesAndroidInjector
@@ -105,7 +106,7 @@ abstract class TestFragmentModule {
     @ContributesAndroidInjector(modules = [PostListViewModule::class])
     abstract fun likesAndSharesScreen(): LikesAndSharesScreen
 
-    @ContributesAndroidInjector(modules = [TestNewPostScreenModule::class])
+    @ContributesAndroidInjector(modules = [Mocks.NewPostScreen::class])
     abstract fun newPostScreen(): NewPostScreen
 
     @ContributesAndroidInjector(modules = [TestModifyPostScreenModule::class])

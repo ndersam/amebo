@@ -85,6 +85,7 @@ open class PostListView(
     private val concatAdapter = ConcatAdapter(headerAdapter, contentAdapter, altAdapter)
     private val scroller = CenterSmoothScroller(recyclerView.context)
 
+    private var resetScroll = false
 
     init {
         nextPage.setOnClickListener { listener.onNextClicked() }
@@ -111,6 +112,7 @@ open class PostListView(
 
 
     override fun onLoading(loading: Resource.Loading<PostListDataPage>) {
+        resetScroll = true
         val isFullLoad = loading.content?.data.isNullOrEmpty()
         if (isFullLoad) {
             contentAdapter.clear()
@@ -141,18 +143,18 @@ open class PostListView(
         swipeRefreshLayout.isRefreshing = false
         setContent(success.content)
 
-        if (listener.shouldHighlightPost) {
+        if (listener.shouldHighlightPost && scrollTo != null) {
             recyclerView.postDelayed({
-                if (scrollTo != null) {
-                    val idx = contentAdapter.findPostPosition(scrollTo)
-                    if (idx != -1) {
-                        scrollToPosition(idx + headerAdapter.itemCount)
-                        contentAdapter.highlightItem(idx)
-                    }
+                val idx = contentAdapter.findPostPosition(scrollTo)
+                if (idx != -1) {
+                    scrollToPosition(idx + headerAdapter.itemCount, smoothScroll = true)
+                    contentAdapter.highlightItem(idx)
                 }
             }, 0)
+        } else if (resetScroll) {
+            scrollToPosition(0)
         }
-
+        resetScroll = false
     }
 
     override fun onError(state: Resource.Error<PostListDataPage>) {
@@ -178,7 +180,7 @@ open class PostListView(
     override fun scrollToPost(postId: String) {
         val position = contentAdapter.findPostPosition(postId)
         if (position != -1) {
-            scrollToPosition(position + headerAdapter.itemCount)
+            scrollToPosition(position + headerAdapter.itemCount, smoothScroll = true)
             contentAdapter.highlightItem(position)
         } else {
             listener.viewPost(postId)
@@ -243,9 +245,15 @@ open class PostListView(
         contentAdapter.collapsePost(postPosition)
     }
 
-    open fun scrollToPosition(position: Int = 0) {
-        scroller.targetPosition = position
-        recyclerView.layoutManager!!.startSmoothScroll(scroller)
+    open fun scrollToPosition(position: Int = 0, smoothScroll: Boolean = false) {
+        recyclerView.postDelayed({
+            if (smoothScroll) {
+                scroller.targetPosition = position
+                recyclerView.layoutManager!!.startSmoothScroll(scroller)
+            } else {
+                recyclerView.scrollToPosition(position)
+            }
+        }, 100)
     }
 }
 

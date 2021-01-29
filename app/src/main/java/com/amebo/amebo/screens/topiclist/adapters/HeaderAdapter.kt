@@ -10,39 +10,52 @@ import com.amebo.core.domain.*
 
 class HeaderAdapter(
     private val topicList: TopicList,
-    private var sort: Sort?,
+    sort: Sort?,
     private val listener: Listener
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val items: List<HeaderItem> = when (topicList) {
-        is Board, FollowedBoards -> mutableListOf(ItemSort)
+        is Board, FollowedBoards -> mutableListOf(ItemSort(sort!!))
         else -> emptyList()
     }
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        return SortVH(ItemSortBinding.inflate(inflater, parent, false), topicList, listener)
+        return when (viewType) {
+            R.layout.item_sort -> SortVH(
+                ItemSortBinding.inflate(inflater, parent, false),
+                topicList,
+                listener
+            )
+            else -> throw IllegalArgumentException("Unknown viewType $viewType")
+        }
     }
 
-    override fun getItemCount(): Int = if (sort == null) 0 else items.size
+    override fun getItemCount(): Int = items.size
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val vh = holder as SortVH
-        vh.bind(sort!!)
+        when (val item = items[position]) {
+            is ItemSort -> {
+                val vh = holder as SortVH
+                vh.bind(item.sort)
+            }
+        }
     }
 
-    override fun getItemViewType(position: Int): Int {
-        return R.layout.item_sort
+    override fun getItemViewType(position: Int): Int = when (items[position]) {
+        is ItemSort -> R.layout.item_sort
     }
 
     fun setItems(sort: Sort?) {
-        this.sort = sort
+        sort ?: return
+        val item = items.firstOrNull { it is ItemSort } as? ItemSort ?: return
+        item.sort = sort
         notifyDataSetChanged()
     }
 
 
-    private class SortVH(
+    class SortVH(
         private val binding: ItemSortBinding,
         private val topicList: TopicList,
         private val listener: Listener
@@ -82,7 +95,6 @@ class HeaderAdapter(
                 }
                 is FollowedBoards -> {
                     binding.followBoardSorts.setSelectedSegment(TopicListSorts.FollowedBoardsSorts.indexOfFirst { it == selected })
-
                 }
                 else -> throw IllegalStateException("You shouldn't be here")
             }
@@ -103,4 +115,4 @@ class HeaderAdapter(
 }
 
 private sealed class HeaderItem
-private object ItemSort : HeaderItem()
+private class ItemSort(var sort: Sort) : HeaderItem()

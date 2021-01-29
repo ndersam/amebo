@@ -1,6 +1,5 @@
 package com.amebo.amebo.screens.newpost.newpost
 
-import androidx.lifecycle.MutableLiveData
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.launchActivity
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -10,13 +9,21 @@ import com.amebo.amebo.common.Event
 import com.amebo.amebo.common.FragKeys
 import com.amebo.amebo.common.Resource
 import com.amebo.amebo.data.TestData
-import com.amebo.amebo.di.TestNewPostScreenModule
-import com.amebo.amebo.di.TestRouterModule
+import com.amebo.amebo.di.TestRouterModule.Companion.router
+import com.amebo.amebo.di.mocks.Mocks
+import com.amebo.amebo.di.mocks.Mocks.ImagePickerShared.imagesUpdatedEvent
+import com.amebo.amebo.di.mocks.Mocks.NewPostScreen.existingImageRemovalEvent
+import com.amebo.amebo.di.mocks.Mocks.NewPostScreen.formLoadingEvent
+import com.amebo.amebo.di.mocks.Mocks.NewPostScreen.formSubmissionEvent
+import com.amebo.amebo.di.mocks.Mocks.NewPostScreen.getPostEvent
+import com.amebo.amebo.di.mocks.Mocks.NewPostScreen.imageCountEvent
+import com.amebo.amebo.di.mocks.Mocks.NewPostScreen.muslimDeclarationEvent
+import com.amebo.amebo.di.mocks.Mocks.NewPostScreen.newPostView
+import com.amebo.amebo.di.mocks.Mocks.PrefModule.pref
 import com.amebo.amebo.screens.accounts.UserManagementViewModel
 import com.amebo.amebo.screens.imagepicker.ImageItem
 import com.amebo.amebo.screens.imagepicker.ImagePickerSharedViewModel
 import com.amebo.amebo.screens.imagepicker.PostImagesUpdate
-import com.amebo.amebo.screens.newpost.FormData
 import com.amebo.amebo.screens.newpost.NewPostFormData
 import com.amebo.amebo.suite.*
 import com.amebo.core.domain.ErrorResponse
@@ -24,50 +31,56 @@ import com.amebo.core.domain.PostListDataPage
 import com.amebo.core.domain.TopicPostListDataPage
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.*
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class NewPostScreenTest {
-
-    lateinit var scenario: ActivityScenario<TestFragmentActivity>
+    private lateinit var scenario: ActivityScenario<TestFragmentActivity>
     private lateinit var viewModel: NewPostScreenViewModel
     private lateinit var userManagementViewModel: UserManagementViewModel
     private lateinit var imagePickerSharedViewModel: ImagePickerSharedViewModel
-    private lateinit var formLoadingEvent: MutableLiveData<Event<Resource<FormData>>>
-    private lateinit var formSubmissionEvent: MutableLiveData<Event<Resource<PostListDataPage>>>
-    private lateinit var imageCountEvent: MutableLiveData<Event<Int>>
-    private lateinit var existingImageRemovalEvent: MutableLiveData<Event<Resource<ImageItem.Existing>>>
-    private lateinit var imagesUpdatedEvent: MutableLiveData<Event<PostImagesUpdate>>
 
     private val topic = TestData.topics.first()
     private val formData = NewPostFormData(title = topic.title, body = "", followTopic = true)
-    private val newPostView get() = TestNewPostScreenModule.newPostView
+
+
+    @Before
+    fun before() {
+        viewModel = Mocks.NewPostScreen.createVM()
+        userManagementViewModel = Mocks.UserManagement.new()
+        imagePickerSharedViewModel = Mocks.ImagePickerShared.new()
+        whenever(viewModel.formData).thenReturn(formData)
+
+        injectIntoTestApp()
+
+        setupViewModelFactory(imagePickerSharedViewModel)
+        setupViewModelFactory(userManagementViewModel)
+        setupViewModelFactory(viewModel)
+        pref.isLoggedIn = true
+
+        scenario = launchActivity()
+        scenario.setFragment(NewPostScreen(), NewPostScreen.newBundle(topic))
+    }
 
 
     @Test
     fun newPost_onCreateView_viewModelsInitialized() {
-        initialize()
-
         whenever(viewModel.canSubmit).thenReturn(false)
 
-        verify(viewModel, times(1)).formLoadingEvent
-        verify(viewModel, times(1)).formSubmissionEvent
-        verify(viewModel, times(1)).existingImageRemovalEvent
-        verify(viewModel, times(1)).imageCountEvent
-        verify(imagePickerSharedViewModel, times(1)).imagesUpdatedEvent
         verify(viewModel, times(1)).initialize(topic, null)
-
-        verify(formLoadingEvent, times(1)).observe(any(), any())
-        verify(formSubmissionEvent, times(1)).observe(any(), any())
-        verify(existingImageRemovalEvent, times(1)).observe(any(), any())
-        verify(imageCountEvent, times(1)).observe(any(), any())
-        verify(imagesUpdatedEvent, times(1)).observe(any(), any())
+        assertThat(formLoadingEvent.hasActiveObservers()).isTrue()
+        assertThat(formSubmissionEvent.hasActiveObservers()).isTrue()
+        assertThat(existingImageRemovalEvent.hasActiveObservers()).isTrue()
+        assertThat(imageCountEvent.hasActiveObservers()).isTrue()
+        assertThat(imagesUpdatedEvent.hasActiveObservers()).isTrue()
+        assertThat(muslimDeclarationEvent.hasActiveObservers()).isTrue()
+        assertThat(getPostEvent.hasActiveObservers()).isTrue()
     }
 
     @Test
     fun onImagesUpdate_viewIsUpdated() {
-        initialize(useFakeLiveData = false)
         val event = Event(2)
         imageCountEvent.value = event
 
@@ -81,8 +94,6 @@ class NewPostScreenTest {
 
     @Test
     fun onFormEventDispatched_appropriateViewMethodIsCalled() {
-        initialize(useFakeLiveData = false)
-
         val success = Event(Resource.Success(formData))
         formLoadingEvent.value = success
         verify(newPostView, times(1)).onFormSuccess(success.peekContent())
@@ -98,14 +109,12 @@ class NewPostScreenTest {
 
     @Test
     fun onFormSubmissionEventDispatched_appropriateViewMethodCalled() {
-        initialize(useFakeLiveData = false)
-
         // action
         val success = Event(Resource.Success(mock<PostListDataPage>()))
         formSubmissionEvent.value = success
         // verify
         verify(newPostView, times(1)).onSubmissionSuccess(success.peekContent())
-        verify(TestRouterModule.router, times(1)).back()
+        verify(router, times(1)).back()
 
         // action
         val loading: Event<Resource<PostListDataPage>> = Event(Resource.Loading(null))
@@ -125,8 +134,6 @@ class NewPostScreenTest {
 
     @Test
     fun onPostImagesUpdateEventDispatched_fragmentsViewModelIsUpdated() {
-        initialize(useFakeLiveData = false)
-
         val event = Event(PostImagesUpdate(emptyList(), emptyList()))
         imagesUpdatedEvent.value = event
         val res = event.peekContent()
@@ -135,8 +142,6 @@ class NewPostScreenTest {
 
     @Test
     fun onImagesRemovedEventDispatched_appropriateViewMethodCalled() {
-        initialize(useFakeLiveData = false)
-
         val success: Event<Resource<ImageItem.Existing>> = Event(Resource.Success(mock()))
         existingImageRemovalEvent.value = success
         verify(
@@ -160,8 +165,19 @@ class NewPostScreenTest {
     }
 
     @Test
+    fun onMuslimDeclarationEventDispatched_routeToMuslimDeclaration() {
+        muslimDeclarationEvent.value = Event(mock())
+        verify(router).toMuslimDeclaration(any())
+    }
+
+    @Test
+    fun onGetPostEventSuccess_appropriateViewMethodCalled() {
+        getPostEvent.value = Event(Resource.Success("data"))
+        verify(newPostView).insertText(any())
+    }
+
+    @Test
     fun onViewBodyText_viewModelFormDataUpdated() {
-        initialize()
         val text = "text"
         scenario.onFragment<NewPostScreen> {
             it.setPostBody(text)
@@ -171,7 +187,6 @@ class NewPostScreenTest {
 
     @Test
     fun onViewTitleText_viewModelFormDataUpdated() {
-        initialize()
         val text = "text"
         scenario.onFragment<NewPostScreen> {
             it.setPostTitle(text)
@@ -181,7 +196,6 @@ class NewPostScreenTest {
 
     @Test
     fun onViewFollowTopicUpdated_viewModelFormDataUpdated() {
-        initialize()
         val follow = false
         scenario.onFragment<NewPostScreen> {
             it.setFollowTopic(follow)
@@ -190,44 +204,15 @@ class NewPostScreenTest {
     }
 
     @Test
-    fun onSubmitMenuItemClicked_initiateSubmission() {
-        initialize()
-        scenario.onFragment<NewPostScreen> {
-            it.onOptionsItemSelected(newMenuItem(R.id.submit))
-            verify(viewModel, times(1)).submitForm()
-        }
-    }
-
-    @Test
-    fun onRedoMenuItemClicked_redo() {
-        initialize()
-        scenario.onFragment<NewPostScreen> {
-            it.onOptionsItemSelected(newMenuItem(R.id.redo))
-            verify(newPostView, times(1)).redo()
-        }
-    }
-
-    @Test
-    fun onUndoMenuItemClicked_undo() {
-        initialize()
-        scenario.onFragment<NewPostScreen> {
-            it.onOptionsItemSelected(newMenuItem(R.id.undo))
-            verify(newPostView, times(1)).undo()
-        }
-    }
-
-    @Test
     fun onShowRulesMenuItemClicked_rulesScreenShown() {
-        initialize()
         scenario.onFragment<NewPostScreen> {
             it.onOptionsItemSelected(newMenuItem(R.id.show_rules))
-            verify(TestRouterModule.router, times(1)).toPostingRules()
+            verify(router, times(1)).toPostingRules()
         }
     }
 
     @Test
     fun callingRetry_initiatesRequestRetry() {
-        initialize()
         scenario.onFragment<NewPostScreen> {
             it.retryLastRequest()
             verify(viewModel, times(1)).retry()
@@ -236,7 +221,6 @@ class NewPostScreenTest {
 
     @Test
     fun onAttachFile_imagesAreCorrectlySetup() {
-        initialize()
         val selected: List<ImageItem.New> = listOf(mock(), mock(), mock())
         whenever(viewModel.selectedImages).thenReturn(selected)
 
@@ -257,7 +241,6 @@ class NewPostScreenTest {
 
     @Test
     fun onAttachFile_openImagePicker() {
-        initialize()
         val selected: List<ImageItem.New> = listOf(mock(), mock(), mock())
         whenever(viewModel.selectedImages).thenReturn(selected)
         val existing: MutableList<ImageItem.Existing> = mutableListOf(mock())
@@ -265,20 +248,19 @@ class NewPostScreenTest {
 
         scenario.onFragment<NewPostScreen> {
             it.attachFile()
-            verify(TestRouterModule.router, times(1)).toImagePicker()
+            verify(router, times(1)).toImagePicker()
         }
     }
 
     @Test
     fun onPreviewClicked_postPreviewOpened() {
-        initialize()
         val rawTextCaptor = argumentCaptor<String>()
         val processedTextCaptor = argumentCaptor<String>()
         whenever(viewModel.preparePreview(any(), rawTextCaptor.capture())).thenReturn("processed")
 
         scenario.onFragment<NewPostScreen> {
             it.preview("text")
-            verify(TestRouterModule.router, times(1)).toPostPreview(processedTextCaptor.capture())
+            verify(router, times(1)).toPostPreview(processedTextCaptor.capture())
             assertThat(rawTextCaptor.firstValue).isEqualTo("text")
             assertThat(processedTextCaptor.firstValue).isEqualTo("processed")
         }
@@ -286,25 +268,22 @@ class NewPostScreenTest {
 
     @Test
     fun onGoBack_moveToPreviousScreen() {
-        initialize()
         scenario.onFragment<NewPostScreen> {
             it.goBack()
-            verify(TestRouterModule.router, times(1)).back()
+            verify(router, times(1)).back()
         }
     }
 
     @Test
     fun onEditorSettingsClicked_editorSettingsOpened() {
-        initialize()
         scenario.onFragment<NewPostScreen> {
             it.openSettings()
-            verify(TestRouterModule.router, times(1)).toPostEditorSettings()
+            verify(router, times(1)).toPostEditorSettings()
         }
     }
 
     @Test
     fun onDismissDialog_showKeyboard() {
-        initialize()
         scenario.onFragment<NewPostScreen> {
             it.onDismissDialog()
             val onBodyCaptor = argumentCaptor<Boolean>()
@@ -316,7 +295,6 @@ class NewPostScreenTest {
     @Test
     fun onSubmissionSuccess_dataIsSetAndRouterGoesToPreviousScreen() {
         // setup
-        initialize(useFakeLiveData = false)
         val data = mock<TopicPostListDataPage>()
 
         // action
@@ -326,7 +304,7 @@ class NewPostScreenTest {
         // VERIFY
         // router goes to previous screen
         verify(newPostView, times(1)).onSubmissionSuccess(success.peekContent())
-        verify(TestRouterModule.router, times(1)).back()
+        verify(router, times(1)).back()
 
         // data is set
         val bundle = scenario.assertFragmentResultSet(FragKeys.RESULT_POST_LIST)
@@ -336,45 +314,4 @@ class NewPostScreenTest {
         assertThat(result).isEqualTo(data)
     }
 
-    private fun setupViewModels() {
-        setupViewModelFactory(imagePickerSharedViewModel)
-        setupViewModelFactory(userManagementViewModel)
-        setupViewModelFactory(viewModel)
-    }
-
-    private fun initMocks(useFakeLiveData: Boolean = true) {
-        viewModel = mock()
-        userManagementViewModel = mock()
-        imagePickerSharedViewModel = mock()
-        if (useFakeLiveData) {
-            formLoadingEvent = mock()
-            formSubmissionEvent = mock()
-            imageCountEvent = mock()
-            existingImageRemovalEvent = mock()
-            imagesUpdatedEvent = mock()
-        } else {
-            formLoadingEvent = MutableLiveData()
-            formSubmissionEvent = MutableLiveData()
-            imageCountEvent = MutableLiveData()
-            existingImageRemovalEvent = MutableLiveData()
-            imagesUpdatedEvent = MutableLiveData()
-        }
-
-        whenever(viewModel.formLoadingEvent).thenReturn(formLoadingEvent)
-        whenever(viewModel.formSubmissionEvent).thenReturn(formSubmissionEvent)
-        whenever(viewModel.imageCountEvent).thenReturn(imageCountEvent)
-        whenever(viewModel.existingImageRemovalEvent).thenReturn(existingImageRemovalEvent)
-        whenever(imagePickerSharedViewModel.imagesUpdatedEvent).thenReturn(imagesUpdatedEvent)
-
-        whenever(viewModel.formData).thenReturn(formData)
-    }
-
-
-    private fun initialize(useFakeLiveData: Boolean = true) {
-        initMocks(useFakeLiveData)
-        injectIntoTestApp()
-        setupViewModels()
-        scenario = launchActivity()
-        scenario.setFragment(NewPostScreen(), NewPostScreen.newBundle(topic))
-    }
 }

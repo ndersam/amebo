@@ -1,14 +1,15 @@
 package com.amebo.amebo.screens.leftdrawer
 
 import android.graphics.Bitmap
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.lifecycle.MutableLiveData
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.amebo.amebo.R
 import com.amebo.amebo.common.Event
 import com.amebo.amebo.common.Resource
+import com.amebo.amebo.common.routing.Router
 import com.amebo.amebo.common.routing.TabItem
-import com.amebo.amebo.di.TestRouterModule
 import com.amebo.amebo.screens.accounts.UserManagementViewModel
 import com.amebo.amebo.suite.*
 import com.amebo.core.domain.DisplayPhoto
@@ -29,7 +30,8 @@ class DrawerLayoutControllerTest {
     private lateinit var view: DrawerLayoutView
     private lateinit var sessionEvent: MutableLiveData<Session>
     private lateinit var displayPhotoEvent: MutableLiveData<Event<Resource<DisplayPhoto>>>
-
+    private lateinit var router: Router
+    private lateinit var drawerLayout: DrawerLayout
 
     @Test
     fun onInit_initializationDoneProperly() {
@@ -84,7 +86,7 @@ class DrawerLayoutControllerTest {
 
         controller.onHeaderClicked()
 
-        verify(TestRouterModule.router, times(1)).toAccountList()
+        verify(router, times(1)).toAccountList()
     }
 
     @Test
@@ -93,7 +95,7 @@ class DrawerLayoutControllerTest {
 
         controller.onImageClicked()
 
-        verify(TestRouterModule.router, times(1)).toEditProfile()
+        verify(router, times(1)).toEditProfile()
     }
 
     @Test
@@ -102,7 +104,7 @@ class DrawerLayoutControllerTest {
 
         controller.onImageClicked()
 
-        verify(TestRouterModule.router, times(0)).toEditProfile()
+        verify(router, times(0)).toEditProfile()
     }
 
     @Test
@@ -113,9 +115,8 @@ class DrawerLayoutControllerTest {
         controller.onItemSelected(item)
 
         val captor = argumentCaptor<TabItem>()
-        verify(TestRouterModule.router, times(1)).toTabItem(captor.capture())
+        verify(router, times(1)).toTabItem(captor.capture())
         assertThat(captor.firstValue).isEqualTo(item)
-        assertThat(captor.secondValue).isEqualTo(TabItem.Topics)
     }
 
     @Test
@@ -136,7 +137,7 @@ class DrawerLayoutControllerTest {
         for (i in 0 until 4) {
             initialize()
 //            controller.onBackPress = { externalBackPressHandled[i] }
-            whenever(TestRouterModule.router.back()).thenReturn(routerBackPressHandled[i])
+            whenever(router.back()).thenReturn(routerBackPressHandled[i])
 
 
 //            assertThat(controller.handleBackPress())
@@ -151,13 +152,14 @@ class DrawerLayoutControllerTest {
 
         controller.onSettingsClicked()
 
-        verify(TestRouterModule.router, times(1)).toSettings()
+        verify(router, times(1)).toSettings()
     }
 
 
     private fun initialize(useMocks: Boolean = true, isLoggedIn: Boolean = false) {
         injectIntoTestApp()
         viewModel = mock()
+        router = mock()
         if (useMocks) {
             sessionEvent = mock()
             displayPhotoEvent = mock()
@@ -166,20 +168,25 @@ class DrawerLayoutControllerTest {
             displayPhotoEvent = MutableLiveData()
         }
         view = mock()
-        pref = TestPref(isLoggedIn = isLoggedIn)
+        whenever(view.drawerLayout).thenReturn(mock())
+
+        pref = TestPref().apply {
+            this.isLoggedIn = isLoggedIn
+        }
 
         whenever(viewModel.sessionEvent).thenReturn(sessionEvent)
         whenever(viewModel.displayPhotoEvent).thenReturn(displayPhotoEvent)
         setupViewModelFactory(viewModel)
 
         scenario = launchTestFragment(R.layout.activity_main) { fragment, _ ->
-//            controller = DrawerLayoutController(
-//                fragment = fragment,
-//                pref = pref,
-//                router = TestRouterModule.router,
-//                userManagementViewModel = viewModel,
-//                view = this.view
-//            )
+            controller = DrawerLayoutController(
+                pref = pref,
+                router = router,
+                userManagementViewModel = viewModel,
+                view = this.view,
+                fragmentManager = fragment.parentFragmentManager,
+                viewLifecycleOwner = fragment.requireActivity()
+            )
         }
     }
 

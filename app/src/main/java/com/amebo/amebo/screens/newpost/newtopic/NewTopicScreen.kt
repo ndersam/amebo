@@ -48,7 +48,7 @@ class NewTopicScreen : FormScreen<NewTopicForm>(R.layout.new_topic_screen), NewT
     override fun onSubmissionSuccess(postListDataPage: PostListDataPage) {
         super.onSubmissionSuccess(postListDataPage)
         val topicPostList = postListDataPage as TopicPostListDataPage
-        router.toTopic(topicPostList.topic)
+        router.toTopic(topicPostList.topic, replace = true)
     }
 
     private fun setSelectedBoard(board: Board?) {

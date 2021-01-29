@@ -6,14 +6,16 @@ import com.amebo.amebo.screens.newpost.editor.EditAction
 import com.amebo.amebo.screens.newpost.editor.EditActionSetting
 import com.amebo.core.domain.*
 
-class TestPref(override var isLoggedIn: Boolean = false) : Pref {
+class TestPref : Pref {
+    override var isLoggedIn: Boolean = false
     override var showFollowedBoardHint: Boolean = false
+    override var showUnFollowTopicHint: Boolean = false
     override var canAskForReview: Boolean = false
     override var timeFirstLaunch: Long = 0
     override var numOfTimesLaunchedApp: Long = 0
     override var followedBoardSort: Sort = TopicListSorts.CREATION
     override var userName: String? = null
-    override val user: User? = null
+    override var user: User? = null
 
     override var isFirstLaunch: Boolean = false
     override var editActions: List<EditActionSetting> = emptyList()
@@ -38,7 +40,7 @@ class TestPref(override var isLoggedIn: Boolean = false) : Pref {
         return "Anonymous"
     }
 
-    override fun defaultSortOf(topicList: TopicList): Sort? = null
+    override fun defaultSortOf(topicList: TopicList): Sort? = defaultSort
 
     override fun allVisibleEditActions(): List<EditAction> = emptyList()
 
@@ -64,4 +66,6 @@ class TestPref(override var isLoggedIn: Boolean = false) : Pref {
     override fun clearFollowedBoardsSyncTime() {
 
     }
+
+    var defaultSort: Sort? = null
 }

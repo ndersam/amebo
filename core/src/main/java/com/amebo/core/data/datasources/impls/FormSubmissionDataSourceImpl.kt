@@ -15,6 +15,7 @@ import com.amebo.core.crawler.postList.parseTopicPosts
 import com.amebo.core.crawler.postList.parseUnknownPostList
 import com.amebo.core.crawler.topicList.parseBoardTopics
 import com.amebo.core.crawler.topicList.parseFollowedBoards
+import com.amebo.core.crawler.topicList.parseFollowedTopics
 import com.amebo.core.crawler.user.fetchUserData
 import com.amebo.core.data.CoroutineContextProvider
 import com.amebo.core.data.datasources.FormSubmissionDataSource
@@ -270,6 +271,18 @@ class FormSubmissionDataSourceImpl @Inject constructor(
     override suspend fun unFollowTopic(topicPostListDataPage: TopicPostListDataPage): ResultWrapper<TopicPostListDataPage, ErrorResponse> =
         followTopic(topicPostListDataPage, false)
 
+    override suspend fun unFollowTopic(topic: Topic): ResultWrapper<TopicListDataPage, ErrorResponse> =
+        withContext(context.IO) {
+            val form = parseFollowTopicUrl(topic.followOrUnFollowLink!!)
+            val resp = api.topicAction(
+                action = "do_unfollowtopic",
+                topicId = form.topic,
+                session = form.session,
+                redirect = form.redirect
+            )
+            parseFollowedTopicListResp(resp)
+        }
+
     override suspend fun followBoard(boardsDataPage: BoardsDataPage): ResultWrapper<BoardsDataPage, ErrorResponse> =
         followBoard(boardsDataPage, true)
 
@@ -507,6 +520,19 @@ class FormSubmissionDataSourceImpl @Inject constructor(
             val url = resp.raw().request.url.toString()
             try {
                 ResultWrapper.success(parseBoardTopics(soup, url))
+            } catch (e: ParseException) {
+                ResultWrapper.failure(ErrorResponse.Parse)
+            }
+        } else {
+            ResultWrapper.failure(ErrorResponse.Network)
+        }
+    }
+
+    private fun parseFollowedTopicListResp(resp: Response<Document>): ResultWrapper<TopicListDataPage, ErrorResponse> {
+        return if (resp.isSuccessful) {
+            val soup = resp.body()!!
+            try {
+                ResultWrapper.success(parseFollowedTopics(soup))
             } catch (e: ParseException) {
                 ResultWrapper.failure(ErrorResponse.Parse)
             }

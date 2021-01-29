@@ -2,6 +2,7 @@ package com.amebo.amebo.screens.search
 
 import androidx.fragment.app.Fragment
 import com.amebo.amebo.common.extensions.disableCopyPaste
+import com.amebo.amebo.common.extensions.show
 import com.amebo.amebo.databinding.SearchResultsScreenBinding
 import com.amebo.amebo.screens.postlist.PostListMeta
 import com.amebo.amebo.screens.postlist.adapters.posts.ItemAdapter
@@ -56,10 +57,9 @@ class SearchResultsView(
         binding.subtitle.text = toolbar.subtitle
     }
 
-    override fun scrollToPosition(position: Int) {
-        super.scrollToPosition(position)
-        val bottomBar = binding.bottomBar.bottomBar
-        bottomBar.behavior.slideDown(bottomBar)
+    override fun scrollToPosition(position: Int, smoothScroll: Boolean) {
+        super.scrollToPosition(position, smoothScroll)
+        binding.bottomBar.bottomBar.show()
     }
 
     interface Listener : IPostListView.Listener {

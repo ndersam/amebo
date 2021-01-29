@@ -1,5 +1,6 @@
 package com.amebo.core.di.mocks
 
+import com.amebo.core.auth.Authenticator
 import com.amebo.core.auth.AuthenticatorTest
 import com.amebo.core.data.datasources.TopicListDataSourceImplTest
 import com.amebo.core.data.datasources.impls.PostListDataSourceImplTest
@@ -25,6 +26,8 @@ interface TestComponent {
     fun inject(case: TopicListDataSourceImplTest)
     fun inject(auth: AuthenticatorTest)
     fun inject(case: PostListDataSourceImplTest)
+
+    fun provideAuthenticator(): Authenticator
 
     @Component.Builder
     interface Builder {

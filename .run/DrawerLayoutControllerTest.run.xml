@@ -1,0 +1,15 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="DrawerLayoutControllerTest" type="JUnit" factoryName="JUnit">
+    <module name="Amebo.app" />
+    <shortenClasspath name="MANIFEST" />
+    <useClassPathOnly />
+    <option name="PACKAGE_NAME" value="com.amebo.amebo.screens.leftdrawer" />
+    <option name="MAIN_CLASS_NAME" value="com.amebo.amebo.screens.leftdrawer.DrawerLayoutControllerTest" />
+    <option name="METHOD_NAME" value="" />
+    <option name="TEST_OBJECT" value="class" />
+    <option name="PARAMETERS" value="" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

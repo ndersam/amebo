@@ -1,11 +1,11 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
-apply plugin: 'kotlin-kapt'
 apply plugin: "kotlin-allopen"
-//apply plugin: 'pandora-plugin'
+apply plugin: 'pandora-plugin'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
+
+apply from: '../shared_dependencies.gradle'
 
 def keyStoreProps = new Properties()
 def releasePropsFilename = 'release.properties'
@@ -15,7 +15,7 @@ android {
 
     signingConfigs {
         release {
-            if (project.file(releasePropsFilename).exists()) {
+            if (project.rootProject.file(releasePropsFilename).exists()) {
                 keyStoreProps.load(project.rootProject.file(releasePropsFilename).newDataInputStream())
                 storeFile file(keyStoreProps['storeFile'])
                 storePassword keyStoreProps['storePassword']
@@ -30,8 +30,8 @@ android {
         applicationId "com.amebo.amebo"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 18
-        versionName "1.1.0"
+        versionCode 23
+        versionName "1.2.0"
 
         testInstrumentationRunner "com.amebo.amebo.suite.TestRunner"
     }
@@ -104,12 +104,8 @@ android {
 
 
 dependencies {
-
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    implementation 'androidx.core:core-ktx:1.2.0'
-    implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta6'
+
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0'
@@ -120,33 +116,10 @@ dependencies {
     implementation 'com.ncapdevi:frag-nav:3.2.0'
 
     // Utils
-    implementation 'com.jakewharton.timber:timber:4.7.1'
     implementation 'com.airbnb.android:lottie:3.3.0'
     implementation 'com.github.bumptech.glide:glide:4.11.0'
     kapt 'com.github.bumptech.glide:compiler:4.11.0'
-    implementation 'com.google.code.gson:gson:2.8.6'
 
-    //------------------------------
-    // Dependency Injection
-    //---------------------------------
-    compileOnly 'javax.annotation:jsr250-api:1.0'
-    implementation 'com.google.code.findbugs:jsr305:3.0.2'
-//    implementation 'com.google.dagger:dagger:2.24'
-    // required
-    implementation 'com.google.dagger:dagger-android:2.24'
-    kapt "com.google.dagger:dagger-android-processor:2.24"
-    // for androidX
-    implementation 'com.google.dagger:dagger-android-support:2.24'
-    kapt 'com.google.dagger:dagger-compiler:2.24'
-    // for testing
-    kaptTest 'com.google.dagger:dagger-compiler:2.24'
-    kaptTest 'com.google.dagger:dagger-android-processor:2.24'
-    kaptAndroidTest 'com.google.dagger:dagger-compiler:2.24'
-    kaptAndroidTest 'com.google.dagger:dagger-android-processor:2.24'
-//    testAnnotationProcessor 'com.google.dagger:dagger-compiler:2.24'
-//    testAnnotationProcessor 'com.google.dagger:dagger-android-processor:2.24'
-//    androidTestAnnotationProcessor 'com.google.dagger:dagger-compiler:2.24'
-//    androidTestAnnotationProcessor 'com.google.dagger:dagger-android-processor:2.24'
 
     // Jetpack
     implementation "android.arch.lifecycle:extensions:1.1.1"
@@ -167,6 +140,7 @@ dependencies {
 
 
     // Views
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta6'
     implementation "ru.tinkoff.scrollingpagerindicator:scrollingpagerindicator:1.0.6"
     implementation 'com.github.chrisbanes:PhotoView:2.1.3'
     implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.19'
@@ -178,35 +152,11 @@ dependencies {
     implementation 'com.github.RobertApikyan:SegmentedControl:1.2.0'
     implementation 'com.github.HeyAlex:BottomDrawer:v1.0.0'
     implementation 'com.github.rtugeek:colorseekbar:1.7.5'
+    implementation 'com.getkeepsafe.taptargetview:taptargetview:1.13.0'
 
     // Testing
-    androidTestImplementation 'androidx.test:core-ktx:1.2.0'
-    androidTestImplementation 'androidx.test:rules:1.2.0'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-
     debugImplementation "androidx.fragment:fragment-testing:$fragment_version"
 
-    testImplementation 'junit:junit:4.12'
-    testImplementation 'androidx.test:core-ktx:1.2.0'
-    testImplementation 'androidx.test.ext:junit:1.1.1'
-
-    testImplementation 'org.robolectric:robolectric:4.3.1'
-
-    androidTestImplementation "androidx.arch.core:core-testing:2.1.0"
-    testImplementation "androidx.arch.core:core-testing:2.1.0"
-    androidTestImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.3.7'
-    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.3.7'
-
-    // Assertions
-    testImplementation "com.google.truth:truth:1.0.1"
-    androidTestImplementation "com.google.truth:truth:1.0.1"
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.ext:truth:1.2.0'
-    testImplementation 'androidx.arch.core:core-testing:2.1.0'
-//    testImplementation 'org.robolectric:robolectric:4.0'
-//    androidTestImplementation 'org.robolectric:robolectric:4.0'
-//    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-//    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
     def multidex_version = "2.0.1"
     implementation "androidx.multidex:multidex:$multidex_version"
@@ -223,30 +173,14 @@ dependencies {
     testImplementation "androidx.test.espresso:espresso-intents:$espresso_intents_version"
     testImplementation "androidx.test.espresso:espresso-contrib:$espresso_core_version"
 
-    // Mocking
-    // https://stackoverflow.com/questions/49797508/mockito-2-for-android-instrumentation-test-could-not-initialize-plugin-interf#answer-57503128
-//    androidTestImplementation "org.mockito:mockito-android:2.28.2"
-//    androidTestImplementation 'com.linkedin.dexmaker:dexmaker-mockito-inline-extended:2.19.1'
-//    androidTestImplementation "net.bytebuddy:byte-buddy:1.9.10"
-//    androidTestImplementation "net.bytebuddy:byte-buddy-agent:1.9.10"
-//    androidTestImplementation "org.objenesis:objenesis:2.6"
-    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0"
-    testImplementation 'org.mockito:mockito-inline:3.0.0'
-    androidTestImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0"
-//    androidTestImplementation 'org.mockito:mockito-inline:3.0.0'
-    testImplementation 'com.github.moove-it:fakeit:v0.5'
-    androidTestImplementation 'com.github.moove-it:fakeit:v0.5'
-    testImplementation 'com.github.blocoio:faker:1.2.8'
-    androidTestImplementation 'com.github.blocoio:faker:1.2.8'
-
 
     // Debugging
-//    debugImplementation 'com.facebook.stetho:stetho:1.5.1'
-//    debugImplementation 'com.facebook.stetho:stetho-okhttp3:1.5.1'
-//    debugImplementation 'com.github.whataa:pandora:androidx_v2.1.0'
-//    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.3'
+    debugImplementation 'com.facebook.stetho:stetho:1.5.1'
+    debugImplementation 'com.facebook.stetho:stetho-okhttp3:1.5.1'
+    debugImplementation "com.github.whataa:pandora:androidx_v2.1.0"
+    releaseImplementation "com.github.whataa:pandora-no-op:v2.0.3"
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.3'
 
-    implementation platform("com.google.firebase:firebase-bom:${firebase_version}")
-    implementation 'com.google.firebase:firebase-crashlytics-ktx'
+    // Play
     implementation 'com.google.android.play:core-ktx:1.8.1'
 }

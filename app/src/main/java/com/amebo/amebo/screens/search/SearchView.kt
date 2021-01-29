@@ -68,7 +68,6 @@ class SearchView(
         binding.recyclerView.adapter = searchAdapter
 
         state = State.History
-        binding.searchBox.performClick()
         binding.searchBox.showKeyboard()
     }
 

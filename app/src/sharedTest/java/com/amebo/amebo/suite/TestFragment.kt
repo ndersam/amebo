@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 class TestFragment : Fragment() {
 

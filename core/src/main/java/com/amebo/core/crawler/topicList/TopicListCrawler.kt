@@ -308,18 +308,23 @@ internal fun parseUserTopics(soup: Document, page: Int): TopicListDataPage {
     return TopicListDataPage(topics, page, lastPage)
 }
 
-internal fun parseFollowedTopics(soup: Document, page: Int): TopicListDataPage {
+internal fun parseFollowedTopics(soup: Document, page: Int? = null): TopicListDataPage {
     var topics = emptyList<Topic>()
     val tables = soup.select("html > body > div > table")
     val tdTopics = tables[1].select("tbody tr td")
     var lastPage = 0
+    val currentPage: Int
     if (!tdTopics.isEmpty()) { // => there are followed topics
         topics = parseOtherTopics(tdTopics)
         val pageInfo =
             tables[1].previousElementSibling().previousElementSibling()
         lastPage = pageInfo.selectFirst("b:last-of-type").text().toInt() - 1
+        val currentPageInfo = pageInfo.selectFirst("b:first-of-type").text()
+        currentPage = currentPageInfo.substring(1, currentPageInfo.length - 1).toInt() - 1 // remove parentheses
+    } else {
+        currentPage = 0
     }
-    return TopicListDataPage(topics, page, lastPage)
+    return TopicListDataPage(topics, currentPage, lastPage)
 }
 
 
@@ -364,6 +369,10 @@ internal fun parseOtherTopics(tableRows: Elements): List<Topic> {
         }
         val mainBoard = Board(boardElem.text(), href)
         val stats = parseTopicStats(it.selectFirst("> span.s"))
+        // For FollowedTopicsList
+        // TODO: The redirect param in url is wrong...
+        // The page number is not present
+        val unFollowLink = it.selectFirst("img[src=\"/static/delete.png\"]")?.parent()?.attr("href")
         val topic =
             Topic(
                 topicElem.text(),
@@ -377,7 +386,8 @@ internal fun parseOtherTopics(tableRows: Elements): List<Topic> {
                 linkedPage = result.page,
                 refPost = result.refPost,
                 author = stats.author,
-                isOldUrl = result.isOldUrl
+                isOldUrl = result.isOldUrl,
+                followOrUnFollowLink = unFollowLink
             )
         topic
     }

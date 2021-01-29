@@ -10,6 +10,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.util.DisplayMetrics
 import android.view.View
 import android.widget.Toast
 import androidx.annotation.StringRes
@@ -118,4 +119,8 @@ val Context.hasMediaAccess: Boolean
 fun Context.dpToPx(dp: Int): Int {
     val density = resources.displayMetrics.density
     return (density * dp + 0.5f).toInt()
+}
+
+fun Context.spToPx(sp: Int): Float {
+   return sp *  resources.displayMetrics.scaledDensity
 }

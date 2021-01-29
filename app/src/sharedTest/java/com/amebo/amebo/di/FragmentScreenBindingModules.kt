@@ -1,7 +1,6 @@
 package com.amebo.amebo.di
 
 import com.amebo.amebo.screens.newpost.modifypost.ModifyPostView
-import com.amebo.amebo.screens.newpost.newpost.NewPostView
 import com.amebo.amebo.screens.newpost.newtopic.NewTopicView
 import com.amebo.amebo.screens.photoviewer.IPhotoViewerView
 import com.amebo.amebo.screens.postlist.components.PostListView
@@ -11,23 +10,6 @@ import com.nhaarman.mockitokotlin2.mock
 import dagger.Module
 import dagger.Provides
 
-@Module
-class TestNewPostScreenModule {
-    companion object {
-        var newPostView: NewPostView = mock()
-            private set
-
-        fun reset() {
-            newPostView = mock()
-        }
-    }
-
-    @Provides
-    fun provideNewPostView(): NewPostView {
-        reset()
-        return newPostView
-    }
-}
 
 @Module
 class TestModifyPostScreenModule {
@@ -76,22 +58,6 @@ class PostListViewModule {
     @Provides
     fun provideView(): PostListView = postListView
 }
-
-@Module
-class TopicPostListViewModule {
-    companion object {
-        var postListView: TopicPostListView = mock()
-            private set
-
-        fun reset() {
-            postListView = mock()
-        }
-    }
-
-    @Provides
-    fun provideView(): TopicPostListView = postListView
-}
-
 
 
 @Module

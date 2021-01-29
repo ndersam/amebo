@@ -1,7 +1,9 @@
 package com.amebo.amebo.application
 
 import android.content.Intent
+import android.content.res.Configuration
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.MotionEvent
 import android.widget.Toast
@@ -182,6 +184,15 @@ class MainActivity : ThemedActivity(), HasAndroidInjector, DrawerLayoutContainer
     }
 
     override fun androidInjector(): AndroidInjector<Any> = dispatchingAndroidInjector
+
+    // YoutubePlayer issue https://github.com/PierfrancescoSoffritti/android-youtube-player/issues/419#issuecomment-574377789
+    // https://stackoverflow.com/a/58695635/7212836
+    override fun applyOverrideConfiguration(overrideConfiguration: Configuration) {
+        if (Build.VERSION.SDK_INT in 21..22) {
+            return
+        }
+        super.applyOverrideConfiguration(overrideConfiguration)
+    }
 
     companion object {
         const val INTENT_ACTION_TOPIC = "com.amebo.amebo.view_featured_topic"

@@ -12,6 +12,8 @@ interface Pref {
 
     var showFollowedBoardHint: Boolean
 
+    var showUnFollowTopicHint: Boolean
+
     var canAskForReview: Boolean
 
     var timeFirstLaunch: Long

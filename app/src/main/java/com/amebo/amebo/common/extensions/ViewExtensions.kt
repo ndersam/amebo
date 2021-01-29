@@ -5,6 +5,7 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.annotation.StringRes
 import com.amebo.core.domain.ErrorResponse
+import com.google.android.material.bottomappbar.BottomAppBar
 import com.google.android.material.snackbar.Snackbar
 
 fun View.showKeyboard() {
@@ -26,3 +27,8 @@ fun View.snack(@StringRes res: Int) =
 
 fun View.snack(msg: String) =
     Snackbar.make(this, msg, Snackbar.LENGTH_SHORT).show()
+
+
+fun BottomAppBar.show() {
+    behavior.slideDown(this)
+}

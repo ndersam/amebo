@@ -4,6 +4,7 @@ import android.view.MenuItem
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.LifecycleOwner
+import androidx.recyclerview.widget.ItemTouchHelper
 import com.amebo.amebo.R
 import com.amebo.amebo.common.Pref
 import com.amebo.amebo.common.Resource
@@ -23,11 +24,10 @@ class TopicListView(
     topicList: TopicList,
     private val listener: Listener
 ) : SimpleTopicListView(
-    listener = listener,
     topicList = topicList,
-    viewLifecycleOwner = viewLifecycleOwner,
-    binding = binding,
-    sort = pref.defaultSortOf(topicList)
+    sort = pref.defaultSortOf(topicList),
+    listener = listener,
+    binding = binding
 ) {
     private var bindingRef = WeakReference(binding)
     private val binding: TopicListScreenBinding get() = bindingRef.get()!!
@@ -61,6 +61,10 @@ class TopicListView(
             binding.root.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, GravityCompat.END)
         }
         binding.toolbar.setOnMenuItemClickListener(::onOptionsItemSelected)
+        if (topicList is FollowedTopics) {
+            ItemTouchHelper(SwipeToUnFollowCallback(context, ::unFollowTopicAt))
+                .attachToRecyclerView(binding.recyclerView)
+        }
     }
 
     fun onFollowingSuccess(success: Resource.Success<Pair<Board, Boolean>>) {
@@ -94,6 +98,14 @@ class TopicListView(
         return true
     }
 
+    private fun unFollowTopicAt(position: Int) {
+        // If itemAdapter is in concat adapter, we might need to increment the position if
+        // the itemAdapter is not the first adapter in the concat adapter
+        val topic = itemAdapter.removeTopicAt(position) ?: return
+        topic.followOrUnFollowLink ?: return
+        listener.unFollowTopic(topic)
+    }
+
     private fun invalidateToolbarMenu(content: BaseTopicListDataPage) {
         val menu = binding.toolbar.menu
         menu.findItem(R.id.info).apply {
@@ -112,5 +124,6 @@ class TopicListView(
         fun viewMods(users: List<User>)
         fun toggleBoardFollowing()
         fun onNavigationClicked()
+        fun unFollowTopic(topic: Topic)
     }
 }

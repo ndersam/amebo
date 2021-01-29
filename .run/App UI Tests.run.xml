@@ -1,0 +1,15 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="App UI Tests" type="JUnit" factoryName="JUnit">
+    <module name="Amebo.app" />
+    <shortenClasspath name="MANIFEST" />
+    <useClassPathOnly />
+    <option name="MAIN_CLASS_NAME" value="" />
+    <option name="METHOD_NAME" value="" />
+    <option name="TEST_OBJECT" value="directory" />
+    <option name="PARAMETERS" value="" />
+    <dir value="$PROJECT_DIR$/app/src/sharedTest/java/com/amebo/amebo/screens" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

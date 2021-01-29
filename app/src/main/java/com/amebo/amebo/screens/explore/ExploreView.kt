@@ -19,8 +19,6 @@ class ExploreView(
     private val bindingRef = WeakReference(binding)
     private val binding get() = bindingRef.get()!!
 
-//    private val headerAdapter = ExploreHeaderAdapter(listener)
-//    private val adapter = ConcatAdapter(headerAdapter, topicListAdapter)
 
     init {
         binding.rvBoards.adapter = topicListAdapter

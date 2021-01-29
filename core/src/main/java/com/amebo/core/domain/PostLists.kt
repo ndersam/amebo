@@ -1,7 +1,7 @@
 package com.amebo.core.domain
 
 import android.os.Parcelable
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 sealed class PostList
 
@@ -22,7 +22,8 @@ data class Topic(
     val viewCount: Int? = null,
     val linkedPage: Int = 0,
     val refPost: String? = null,
-    val isOldUrl: Boolean = false
+    val isOldUrl: Boolean = false,
+    val followOrUnFollowLink: String? = null
 ) : PostList(), Parcelable
 
 /**

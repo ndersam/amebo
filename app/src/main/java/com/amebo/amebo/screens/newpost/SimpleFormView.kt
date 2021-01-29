@@ -1,14 +1,24 @@
 package com.amebo.amebo.screens.newpost
 
+import android.graphics.Rect
 import android.text.InputType
 import android.view.MenuItem
+import android.view.MotionEvent
 import android.widget.EditText
+import android.widget.FrameLayout.LayoutParams
+import android.widget.ProgressBar
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.GravityCompat
+import androidx.core.view.setMargins
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
 import com.amebo.amebo.R
 import com.amebo.amebo.common.Pref
 import com.amebo.amebo.common.Resource
+import com.amebo.amebo.common.TouchEventDispatcher
 import com.amebo.amebo.common.extensions.*
 import com.amebo.amebo.common.widgets.OuchView
 import com.amebo.amebo.common.widgets.StateLayout
@@ -16,6 +26,7 @@ import com.amebo.amebo.screens.imagepicker.ImageItem
 import com.amebo.amebo.screens.newpost.editor.EditActionMenu
 import com.amebo.amebo.screens.newpost.editor.PostEditor
 import com.amebo.core.domain.PostListDataPage
+import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import java.lang.ref.WeakReference
 
@@ -47,6 +58,7 @@ open class SimpleFormView(
     private val postEditor: PostEditor
 
     private val context get() = editMessage.context
+    private var snackBar: WeakReference<Snackbar>? = null
 
     init {
         editTitle.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
@@ -55,7 +67,8 @@ open class SimpleFormView(
             invalidateMenu()
         }
 
-        editMessage.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES or InputType.TYPE_TEXT_FLAG_MULTI_LINE
+        editMessage.inputType =
+            InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES or InputType.TYPE_TEXT_FLAG_MULTI_LINE
         editMessage.cursorAtEnd()
         editMessage.doOnTextChanged { text, _, _, _ ->
             listener.setPostBody(text.toString())
@@ -69,6 +82,20 @@ open class SimpleFormView(
         invalidateMenu()
         toolbar.setOnMenuItemClickListener(::onOptionsItemSelected)
         toolbar.setNavigationOnClickListener { listener.goBack() }
+
+        fragment.viewLifecycleOwner.lifecycle.addObserver(object : LifecycleObserver {
+            @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+            fun onCreate() {
+                val dispatcher = fragment.activity as? TouchEventDispatcher
+                dispatcher?.register(::onActivityTouchEvent)
+            }
+
+            @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+            fun onDestroy() {
+                val dispatcher = fragment.activity as? TouchEventDispatcher
+                dispatcher?.unRegister(::onActivityTouchEvent)
+            }
+        })
     }
 
     fun invalidateMenu() {
@@ -89,7 +116,7 @@ open class SimpleFormView(
         }
     }
 
-     private fun onOptionsItemSelected(item: MenuItem): Boolean {
+    private fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.submit -> listener.submit()
             R.id.show_rules -> listener.showRules()
@@ -140,7 +167,34 @@ open class SimpleFormView(
     override fun onSubmissionLoading(loading: Resource.Loading<PostListDataPage>) {
         editTitle.isEnabled = false
         editMessage.isEnabled = false
-        showSnackBar(context.getString(R.string.submitting))
+
+        snackBar = WeakReference(
+            Snackbar.make(
+                stateLayout,
+                R.string.submitting,
+                Snackbar.LENGTH_INDEFINITE
+            ).addCallback(object : BaseTransientBottomBar.BaseCallback<Snackbar>() {
+                override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                    snackBar = null
+                }
+            }).apply {
+                val layout = view as Snackbar.SnackbarLayout
+                val progress = ProgressBar(context).apply {
+                    isIndeterminate = true
+                    val params = LayoutParams(
+                        LayoutParams.WRAP_CONTENT,
+                        LayoutParams.WRAP_CONTENT,
+                        GravityCompat.END
+                    )
+                    params.setMargins(8)
+                    layoutParams = params
+                }
+
+                layout.addView(progress)
+                show()
+            }
+        )
+
         invalidateMenu()
     }
 
@@ -203,11 +257,23 @@ open class SimpleFormView(
     }
 
     private fun showSnackBar(message: String) {
+        snackBar?.get()?.dismiss()
         Snackbar.make(
             stateLayout,
             message,
             Snackbar.LENGTH_LONG
         ).show()
+    }
+
+    private fun onActivityTouchEvent(e: MotionEvent) {
+        if (e.action == MotionEvent.ACTION_DOWN) {
+            val snackBar = snackBar?.get() ?: return
+            val rect = Rect()
+            snackBar.view.getHitRect(rect)
+            if (!rect.contains(e.x.toInt(), e.y.toInt())) {
+                snackBar.dismiss()
+            }
+        }
     }
 
 }

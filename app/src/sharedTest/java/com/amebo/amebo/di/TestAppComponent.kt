@@ -51,11 +51,9 @@ interface TestAppComponent {
 @Module
 abstract class ScreenBindingModule {
 
-    @ActivityScope
     @ContributesAndroidInjector(modules = [TestFragmentModule::class])
     abstract fun emptyFragmentActivity(): FragmentScenario.EmptyFragmentActivity
 
-//    @ActivityScope
     @ContributesAndroidInjector(modules = [TestFragmentModule::class])
     abstract fun testFragmentActivity(): TestFragmentActivity
 }

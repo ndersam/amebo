@@ -1,7 +1,6 @@
 package com.amebo.amebo.screens.postlist.topic
 
 import android.view.View
-import androidx.lifecycle.MutableLiveData
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
@@ -10,12 +9,10 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.amebo.amebo.R
 import com.amebo.amebo.application.TestFragmentActivity
-import com.amebo.amebo.common.Event
-import com.amebo.amebo.common.Resource
 import com.amebo.amebo.data.TestData
-import com.amebo.amebo.di.TopicPostListViewModule
-import com.amebo.amebo.screens.accounts.UserManagementViewModel
-import com.amebo.amebo.screens.postlist.PostListMeta
+import com.amebo.amebo.di.mocks.Mocks
+import com.amebo.amebo.di.mocks.Mocks.TopicScreen.view
+import com.amebo.amebo.di.mocks.Mocks.TopicScreen.vm
 import com.amebo.amebo.suite.*
 import com.amebo.core.domain.*
 import com.google.common.truth.Truth.assertThat
@@ -26,15 +23,8 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class TopicScreenTest {
-
     private lateinit var scenario: ActivityScenario<TestFragmentActivity>
-    private lateinit var topicViewModel: TopicViewModel
-    private lateinit var userManagementViewModel: UserManagementViewModel
-    private lateinit var view: TopicPostListView
-    private lateinit var dataEvent: MutableLiveData<Event<Resource<PostListDataPage>>>
-    private lateinit var metaEvent: MutableLiveData<Event<PostListMeta>>
     private val topic = TestData.topics.first()
-
     private val fragment: TopicScreen
         get() {
             var frag: TopicScreen? = null
@@ -46,15 +36,23 @@ class TopicScreenTest {
 
     @Before
     fun before() {
+        injectIntoTestApp()
 
+        Mocks.TopicScreen.createVM()
+        setupViewModelFactory(vm)
+        setupViewModelFactory(Mocks.UserManagement.new())
+
+        scenario = launchFragmentInTestActivity(
+            TopicScreen(),
+            TopicScreen.bundle(topic)
+        )
     }
 
     @Test
     fun onCreateView_fragmentInitializedCorrectly() {
-        initialize()
-        verify(topicViewModel, times(1)).dataEvent
-        verify(topicViewModel.dataEvent, times(1)).observe(any(), any())
-        verify(topicViewModel.metaEvent, times(1)).observe(any(), any())
+        verify(vm, times(1)).dataEvent
+        verify(vm.dataEvent, times(1)).observe(any(), any())
+        verify(vm.metaEvent, times(1)).observe(any(), any())
         scenario.onFragment<TopicScreen> {
             assertThat(it.postListView).isEqualTo(view)
         }
@@ -62,44 +60,34 @@ class TopicScreenTest {
 
     @Test
     fun onNextClicked_initiatedNextPageLoading() {
-        initialize()
-
         fragment.onNextClicked()
 
-        verify(topicViewModel, times(1)).loadNextPage()
+        verify(vm, times(1)).loadNextPage()
     }
 
     @Test
     fun onPrevClicked_initiatedPrevPageLoading() {
-        initialize()
-
         fragment.onPrevClicked()
 
-        verify(topicViewModel, times(1)).loadPrevPage()
+        verify(vm, times(1)).loadPrevPage()
     }
 
     @Test
     fun onFirstClicked_initiatedFirstPageLoading() {
-        initialize()
-
         fragment.onFirstClicked()
 
-        verify(topicViewModel, times(1)).loadFirstPage()
+        verify(vm, times(1)).loadFirstPage()
     }
 
     @Test
     fun onLastClicked_initiatedLastPageLoading() {
-        initialize()
-
         fragment.onLastClicked()
 
-        verify(topicViewModel, times(1)).loadLastPage()
+        verify(vm, times(1)).loadLastPage()
     }
 
     @Test
     fun onMoreClicked_displayedPopup() {
-        initialize()
-
         fragment.onMoreClicked(View(ApplicationProvider.getApplicationContext()))
 
 
@@ -108,8 +96,6 @@ class TopicScreenTest {
 
     @Test
     fun onNavigationClicked_routesBackToPreviousScreen() {
-        initialize()
-
         fragment.onNavigationClicked()
 
         verify(fragment.router, times(1)).back()
@@ -117,46 +103,40 @@ class TopicScreenTest {
 
     @Test
     fun onRetryClicked_retryInitiated() {
-        initialize()
-
         fragment.onRetryClicked()
 
-        verify(topicViewModel, times(1)).retry()
+        verify(vm, times(1)).retry()
     }
 
     @Test
     fun onRefreshTriggered_refreshInitiated() {
-        initialize()
-
         fragment.onRefreshTriggered()
 
-        verify(topicViewModel, times(1)).refreshPage()
+        verify(vm, times(1)).refreshPage()
     }
 
     @Test
     fun onLikePost_likePostInitiated() {
-        initialize()
         val post = TestData.newPost()
 
         fragment.likePost(post, true)
 
         val postCaptor = argumentCaptor<SimplePost>()
         val boolCaptor = argumentCaptor<Boolean>()
-        verify(topicViewModel, times(1)).likePost(postCaptor.capture(), boolCaptor.capture())
+        verify(vm, times(1)).likePost(postCaptor.capture(), boolCaptor.capture())
         assertThat(postCaptor.firstValue).isEqualTo(post)
         assertThat(boolCaptor.firstValue).isTrue()
     }
 
     @Test
     fun onSharePost_sharePostInitiated() {
-        initialize()
         val post = TestData.newPost()
 
         fragment.sharePost(post, false)
 
         val postCaptor = argumentCaptor<SimplePost>()
         val boolCaptor = argumentCaptor<Boolean>()
-        verify(topicViewModel, times(1)).sharePost(postCaptor.capture(), boolCaptor.capture())
+        verify(vm, times(1)).sharePost(postCaptor.capture(), boolCaptor.capture())
         assertThat(postCaptor.firstValue).isEqualTo(post)
         assertThat(boolCaptor.firstValue).isFalse()
     }
@@ -164,7 +144,6 @@ class TopicScreenTest {
 
     @Test
     fun onTopicClicked_routesToTopicScreen() {
-        initialize()
         val topic = TestData.generateTopic()
 
         fragment.onPostTopicClick(topic, fragment.requireView())//FIXME
@@ -176,7 +155,6 @@ class TopicScreenTest {
 
     @Test
     fun onUserClicked_routesToUserScreen() {
-        initialize()
         val user = TestData.generateUser()
 
         fragment.onUserClicked(user)
@@ -188,9 +166,8 @@ class TopicScreenTest {
 
     @Test
     fun onItemCollapsed_collapsedItemAdded() {
-        initialize()
         val collapsedItems = mutableSetOf<Int>()
-        whenever(topicViewModel.collapsedItems).thenReturn(collapsedItems)
+        whenever(vm.collapsedItems).thenReturn(collapsedItems)
         val position = 99
 
         fragment.onItemCollapsed(position)
@@ -200,9 +177,8 @@ class TopicScreenTest {
 
     @Test
     fun onItemExpanded_collapsedItemRemoved() {
-        initialize()
         val collapsedItems = mutableSetOf(99, 91, 0)
-        whenever(topicViewModel.collapsedItems).thenReturn(collapsedItems)
+        whenever(vm.collapsedItems).thenReturn(collapsedItems)
         val position = 99
 
         fragment.onItemExpanded(position)
@@ -213,9 +189,8 @@ class TopicScreenTest {
 
     @Test
     fun checkForCollapsedItem_returnsDesiredResult() {
-        initialize()
         val collapsedItems = mutableSetOf(99, 91, 0)
-        whenever(topicViewModel.collapsedItems).thenReturn(collapsedItems)
+        whenever(vm.collapsedItems).thenReturn(collapsedItems)
 
 
         collapsedItems.forEach {
@@ -228,7 +203,6 @@ class TopicScreenTest {
 
     @Test
     fun onYoutubeLinkClicked_routesToYoutubeScreen() {
-        initialize()
         val videoId = "abcdef"
 
         fragment.onYoutubeUrlClick(videoId)
@@ -240,25 +214,21 @@ class TopicScreenTest {
 
     @Test
     fun hasNextPageRequest_appropriateViewModelMethodCalled() {
-        initialize()
-        whenever(topicViewModel.hasNextPage).thenReturn(true)
+        whenever(vm.hasNextPage).thenReturn(true)
 
         assertThat(fragment.hasNextPage()).isTrue()
-        verify(topicViewModel, times(1)).hasNextPage
+        verify(vm, times(1)).hasNextPage
     }
 
     @Test
     fun nextPageRequestFromFooterItem_initiatedNextPage() {
-        initialize()
-
         fragment.nextPage()
 
-        verify(topicViewModel, times(1)).loadNextPage()
+        verify(vm, times(1)).loadNextPage()
     }
 
     @Test
     fun onTopicLongPressed_routesToTopicScreenWithPageInfo() {
-        initialize()
         val page = 20
         val topic = TestData.generateTopic(linkedPage = page)
 
@@ -274,7 +244,6 @@ class TopicScreenTest {
 
     @Test
     fun onBoardClicked_routesToBoardScreen() {
-        initialize()
         val board = TestData.generateBoard()
 
         fragment.onBoardClicked(board)
@@ -286,7 +255,6 @@ class TopicScreenTest {
 
     @Test
     fun onReplyPostClicked_routesToNewPostScreen_onlyIfTopicIsOpenAndUserIsLoggedIn() {
-        initialize()
         val post = TestData.newPost()
 
         val topicIsOpenAndIsLoggedInPairs = listOf(
@@ -298,7 +266,7 @@ class TopicScreenTest {
 
         topicIsOpenAndIsLoggedInPairs.forEach {
             val (topicIsOpen, isLoggedIn) = it
-            whenever(topicViewModel.isClosed).thenReturn(!topicIsOpen)
+            whenever(vm.isClosed).thenReturn(!topicIsOpen)
             with(fragment.pref as TestPref) {
                 this.isLoggedIn = isLoggedIn
             }
@@ -316,34 +284,4 @@ class TopicScreenTest {
         verify(fragment.router, times(1)).toAccountList()
     }
 
-    private fun initialize(useMocks: Boolean = true) {
-        injectIntoTestApp()
-        if (useMocks) initLiveDataWithMocks() else initLiveData()
-        setupViewModels()
-        setupViewModels()
-        scenario = launchFragmentInTestActivity(
-            TopicScreen(),
-            TopicScreen.bundle(topic)
-        )
-        view = TopicPostListViewModule.postListView
-    }
-
-    private fun setupViewModels() {
-        topicViewModel = mock()
-        userManagementViewModel = mock()
-        whenever(topicViewModel.dataEvent).thenReturn(dataEvent)
-        whenever(topicViewModel.metaEvent).thenReturn(metaEvent)
-        setupViewModelFactory(topicViewModel)
-        setupViewModelFactory(userManagementViewModel)
-    }
-
-    private fun initLiveData() {
-        dataEvent = MutableLiveData()
-        metaEvent = MutableLiveData()
-    }
-
-    private fun initLiveDataWithMocks() {
-        dataEvent = mock()
-        metaEvent = mock()
-    }
 }

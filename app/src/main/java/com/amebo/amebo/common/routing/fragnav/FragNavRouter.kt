@@ -95,7 +95,7 @@ class FragNavRouter(
 
     private val initialIndex = INDEX_TOPICS
 
-    private val frags = listOf(
+    private val frags get() = listOf(
         HomeScreen(),
         RecentPostsScreen().rootScreen(),
         // for authenticated users

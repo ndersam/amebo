@@ -87,7 +87,6 @@ class Theme(private val context: Context) {
         try {
             context.setTheme(style)
         } catch (e: ClassCastException) {
-            // FIXME(This is not necessary) Confirm!!
             val style = when (prefs.getString(Pref.CURRENT_THEME, null)) {
                 "Dark" -> DEFAULT_DARK
                 else -> DEFAULT

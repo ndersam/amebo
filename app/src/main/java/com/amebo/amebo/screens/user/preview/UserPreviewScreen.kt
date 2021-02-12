@@ -25,6 +25,7 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.launch
 
 class UserPreviewScreen : InjectableBaseDialogFragment(R.layout.user_preview_screen),
@@ -96,11 +97,16 @@ class UserPreviewScreen : InjectableBaseDialogFragment(R.layout.user_preview_scr
 
     private fun loadAvatar() {
         lifecycleScope.launch {
-            val bitmap = AvatarGenerator.generate(requireContext(), user.name)
-            binding.displayPhoto.isVisible = true
-            Glide.with(binding.displayPhoto)
-                .load(bitmap)
-                .into(binding.displayPhoto)
+            try {
+                val bitmap = AvatarGenerator.getForUser(requireContext(), user.name)
+                binding.displayPhoto.isVisible = true
+                Glide.with(binding.displayPhoto)
+                    .load(bitmap)
+                    .into(binding.displayPhoto)
+            } catch (e: Exception) {
+                FirebaseCrashlytics.getInstance()
+                    .log("Error AvatarGenerator for '${user.name}': $e")
+            }
         }
     }
 

@@ -24,6 +24,7 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -55,9 +56,14 @@ class UserScreenView(
 
         if (!listener.lastDisplayPhotoLoadSuccessful) {
             job = scope.launch {
-                Glide.with(binding.displayPhoto)
-                    .load(AvatarGenerator.getForUser(binding.context, user.name))
-                    .into(binding.displayPhoto)
+                try {
+                    Glide.with(binding.displayPhoto)
+                        .load(AvatarGenerator.getForUser(binding.context, user.name))
+                        .into(binding.displayPhoto)
+                } catch (e: Exception) {
+                    FirebaseCrashlytics.getInstance()
+                        .log("Error AvatarGenerator for '${user.name}': $e")
+                }
             }
         }
 

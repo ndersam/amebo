@@ -16,6 +16,7 @@ import com.amebo.amebo.databinding.ItemFooterBinding
 import com.amebo.amebo.databinding.ItemSpecialTopicBinding
 import com.amebo.amebo.screens.topiclist.main.SwipeToUnFollowCallback
 import com.amebo.core.domain.*
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 
 class ItemAdapter(
     private var listener: TopicListAdapterListener,
@@ -144,6 +145,11 @@ class ItemAdapter(
              * reset background color in case changed by [SwipeToUnFollowCallback]
              */
             binding.root.setBackgroundColor(backgroundColor)
+
+            if (topic.mainBoard == null) {
+                FirebaseCrashlytics.getInstance().log("MainBoard doesn't exist for '$topic'")
+                return
+            }
 
             binding.root.setOnClickListener { listener.onTopicClicked(topic) }
             binding.storyTitle.text = topic.title

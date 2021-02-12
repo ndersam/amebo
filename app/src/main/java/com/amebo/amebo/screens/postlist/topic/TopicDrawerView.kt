@@ -4,11 +4,9 @@ import androidx.core.view.GravityCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
-import com.amebo.amebo.R
 import com.amebo.amebo.common.fragments.BaseFragment
 import com.amebo.amebo.databinding.TopicScreenBinding
 import com.amebo.core.domain.Topic
-import com.google.android.material.tabs.TabLayoutMediator
 import java.lang.ref.WeakReference
 
 class TopicDrawerView(
@@ -24,13 +22,7 @@ class TopicDrawerView(
     init {
         fragment.viewLifecycleOwner.lifecycle.addObserver(this)
         viewPager.adapter = ViewPagerAdapter(topic, fragment)
-        TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
-            tab.text = when (position) {
-                0 -> fragment.getString(R.string.this_topic)
-                1 -> fragment.getString(R.string.recent)
-                else -> throw  IllegalStateException()
-            }
-        }.attach()
+        binding.tabLayout.setupWithViewPager(binding.viewPager)
     }
 
 

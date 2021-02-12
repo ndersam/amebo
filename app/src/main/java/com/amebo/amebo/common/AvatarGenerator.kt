@@ -23,10 +23,10 @@ object AvatarGenerator {
     }
 
     suspend fun getForUser(context: Context, username: String): Bitmap {
-       return when(val bitmap = getBitmapIfExists(context, username)){
-           is Bitmap -> bitmap
-           else -> generate(context, username)
-       }
+        return when (val bitmap = getBitmapIfExists(context, username)) {
+            is Bitmap -> bitmap
+            else -> generate(context, username)
+        }
     }
 
     /**
@@ -37,14 +37,14 @@ object AvatarGenerator {
         context: Context,
         string: String,
         size: Int = 5,
-        bitmapSize: Int = 100
+        bitmapSize: Int = 100,
+        save: Boolean = true
     ): Bitmap = withContext(Dispatchers.IO) {
         if (size !in 5..10) {
             throw IllegalArgumentException("Size mush be in range 5 .. 10 but passed '${size}'.")
         }
         val hash = string.sha1Num()
         val hashStr = hash.toString(16)
-        println(hash)
         val hashBin = hash.toString(2)
 
 
@@ -120,7 +120,9 @@ object AvatarGenerator {
         Timber.d(builder.toString())
 
         val scaledBitmap = Bitmap.createScaledBitmap(bitmap, bitmapSize, bitmapSize, false)
-        saveImage(context, scaledBitmap, string)
+        if (save) {
+            saveImage(context, scaledBitmap, string)
+        }
         scaledBitmap
     }
 

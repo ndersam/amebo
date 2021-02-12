@@ -13,6 +13,7 @@ import com.amebo.amebo.common.Pref
 import com.amebo.amebo.common.Resource
 import com.amebo.core.Nairaland
 import com.amebo.core.domain.*
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -100,17 +101,23 @@ class UserManagementViewModel @Inject constructor(
 
             val resource = when (val result = nairaland.sources.accounts.displayPhoto(user)) {
                 is ResultWrapper.Success -> {
-                    displayPhoto = if (result.data is NoDisplayPhoto) { // user has no url?
-                        DisplayPhotoBitmap(
-                            bitmap = AvatarGenerator.getForUser(
-                                getApplication(),
-                                pref.userName ?: "throwaway"
+                    try {
+                        displayPhoto = if (result.data is NoDisplayPhoto) { // user has no url?
+                            DisplayPhotoBitmap(
+                                bitmap = AvatarGenerator.getForUser(
+                                    getApplication(),
+                                    pref.userName ?: "throwaway"
+                                )
                             )
-                        )
-                    } else {
-                        result.data
+                        } else {
+                            result.data
+                        }
+                        Resource.Success(displayPhoto!!)
+                    } catch (e: Exception) {
+                        FirebaseCrashlytics.getInstance()
+                            .log("Error AvatarGenerator for '${pref.userName ?: "throwaway"}': $e")
+                        Resource.Error(cause = ErrorResponse.Unknown("Unable to generate avatar for user"))
                     }
-                    Resource.Success(displayPhoto!!)
                 }
                 is ResultWrapper.Failure -> {
                     Resource.Error(cause = result.data, content = displayPhoto)
@@ -122,11 +129,18 @@ class UserManagementViewModel @Inject constructor(
 
     private fun loadAvatar() {
         viewModelScope.launch {
-            val bitmap = AvatarGenerator.getForUser(
-                getApplication(),
-                pref.userName ?: "throwaway"
-            )
-            _displayPhotoEvent.value = Event(Resource.Success(DisplayPhotoBitmap(bitmap = bitmap)))
+            val name = pref.userName ?: "throwaway"
+
+            try {
+                val bitmap = AvatarGenerator.getForUser(
+                    getApplication(),
+                    name
+                )
+                _displayPhotoEvent.value =
+                    Event(Resource.Success(DisplayPhotoBitmap(bitmap = bitmap)))
+            } catch (e: Exception) {
+                FirebaseCrashlytics.getInstance().log("Error AvatarGenerator for '$name': $e")
+            }
         }
     }
 

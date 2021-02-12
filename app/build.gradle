@@ -30,8 +30,8 @@ android {
         applicationId "com.amebo.amebo"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 23
-        versionName "1.2.0"
+        versionCode 24
+        versionName "1.2.1"
 
         testInstrumentationRunner "com.amebo.amebo.suite.TestRunner"
     }

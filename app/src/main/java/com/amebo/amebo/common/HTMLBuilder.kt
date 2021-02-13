@@ -15,11 +15,14 @@ import com.amebo.core.domain.Board
 import com.amebo.core.domain.Topic
 
 class HTMLBuilder(text: String, private val textView: TextView? = null) {
+    private val imageGetterState = ImageGetterState()
+    private val imageGetter =
+        if (textView == null) null else ImageGetter(textView, imageGetterState)
     private val spannable = SpannableStringBuilder(
         HtmlCompat.fromHtml(
             text,
             HtmlCompat.FROM_HTML_MODE_COMPACT,
-            if (textView == null) null else ImageGetter(textView),
+            imageGetter,
             null
         )
     )
@@ -203,8 +206,19 @@ class HTMLBuilder(text: String, private val textView: TextView? = null) {
                         spannable.removeSpan(it)
                     }
                     val newSpan = object : ClickableSpan() {
-                        override fun onClick(p0: View) =
-                            callback(p0 as TextView, imageSpan.source!!)
+                        override fun onClick(p0: View) {
+                            val source = imageSpan.source!!
+                            when (imageGetterState[source]) {
+                                ImageFetchState.Success, null -> {
+                                    callback(p0 as TextView, source)
+                                }
+                                ImageFetchState.Error -> {
+                                    imageGetter?.getDrawable(source)
+                                }
+                                ImageFetchState.Loading -> {
+                                }
+                            }
+                        }
                     }
                     spannable.setSpan(newSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }

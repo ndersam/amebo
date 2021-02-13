@@ -1,5 +1,6 @@
 package com.amebo.amebo.screens.topiclist
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Parcelable
 import android.view.View
@@ -21,6 +22,7 @@ import com.amebo.core.domain.BaseTopicListDataPage
 import com.amebo.core.domain.Sort
 import com.amebo.core.domain.TopicList
 import com.google.android.material.snackbar.Snackbar
+import timber.log.Timber
 import java.lang.ref.WeakReference
 
 open class SimpleTopicListView(
@@ -94,10 +96,20 @@ open class SimpleTopicListView(
 
     private val adapter = ConcatAdapter(headerAdapter, altAdapter, itemAdapter)
     private var ignoreSavedState = false
+    private var resetScroll = false
 
     init {
         recyclerView.adapter = adapter
         recyclerView.dividerDrawable(R.drawable.divider, Color.TRANSPARENT)
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                when (newState) {
+                    RecyclerView.SCROLL_STATE_DRAGGING -> {
+                        resetScroll = false
+                    }
+                }
+            }
+        })
 
         swipeRefreshLayout.setOnRefreshListener { listener.refreshPage() }
         btnPrevPage.setOnClickListener { listener.loadPrevPage() }
@@ -143,10 +155,12 @@ open class SimpleTopicListView(
         val page = success.content
         swipeRefreshLayout.isRefreshing = false
         setContent(page)
-        // Hack: Scrolling doesn't work everytime ... from stackoverflow
-        recyclerView.postDelayed({
-            recyclerView.scrollToPosition(0)
-        }, 200)
+        if (resetScroll) {
+            resetScroll = false
+            recyclerView.postDelayed({
+                recyclerView.scrollToPosition(0)
+            }, 200)
+        }
     }
 
     override fun onError(error: Resource.Error<BaseTopicListDataPage>) {
@@ -166,6 +180,7 @@ open class SimpleTopicListView(
 
     override fun onLoading(loading: Resource.Loading<BaseTopicListDataPage>) {
         ignoreSavedState = true
+        resetScroll = true
         val isFullLoad = loading.content?.data.isNullOrEmpty()
         if (isFullLoad) {
             itemAdapter.clear()
@@ -187,6 +202,7 @@ open class SimpleTopicListView(
         btnNextPage.isEnabled = hasNextPage
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun onViewedTopicsLoaded() {
         adapter.notifyDataSetChanged()
     }

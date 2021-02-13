@@ -98,8 +98,6 @@ class SearchScreen : BaseFragment(R.layout.search_screen), SearchView.Listener {
         router.setOnDialogDismissListener(viewLifecycleOwner) {
             searchView.showKeyboard()
         }
-
-        searchView.showKeyboard()
     }
 
     override fun goBack() {

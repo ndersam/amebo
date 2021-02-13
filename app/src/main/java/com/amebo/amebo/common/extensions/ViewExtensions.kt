@@ -10,7 +10,6 @@ import com.google.android.material.snackbar.Snackbar
 
 fun View.showKeyboard() {
     post {
-        performClick()
         if (requestFocus()) {
             val mgr = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             mgr.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)

@@ -138,6 +138,7 @@
     <string name="key_board_sort">key_board_sort</string>
     <string name="key_confirm_exit">confirm_exit</string>
     <string name="key_privacy">key_privacy</string>
+    <string name="key_app_version">key_app_version</string>
     <string name="key_licences">key_licences</string>
     <string name="key_current_theme">current_theme</string>
     <string name="key_clear_search_history">clear_search_history</string>
@@ -397,4 +398,5 @@
     <string name="view_this_comment_in_thread">View this comment in thread</string>
     <string name="dark_mode">Dark mode</string>
     <string name="no_related_topics_found">No related topics found</string>
+    <string name="app_version">App version</string>
 </resources>

@@ -131,4 +131,14 @@
             app:key="@string/key_rate_app"
             app:title="@string/rate_app" />
     </PreferenceCategory>
+
+    <PreferenceCategory
+        app:title="@string/app_version"
+        app:iconSpaceReserved="false">
+
+        <Preference
+            app:iconSpaceReserved="false"
+            app:key="@string/key_app_version"
+            app:title="@string/app_version" />
+    </PreferenceCategory>
 </PreferenceScreen>

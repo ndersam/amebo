@@ -11,6 +11,7 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceGroup
+import com.amebo.amebo.BuildConfig
 import com.amebo.amebo.R
 import com.amebo.amebo.common.AppUtil
 import com.amebo.amebo.common.FragKeys
@@ -77,6 +78,10 @@ class SettingsScreen : BaseFragment(R.layout.settings_screen) {
             addPreferencesFromResource(R.xml.preferences_home)
 
             initializeBottomPreference()
+
+            // set build version name
+            getPref<Preference>(R.string.key_app_version).title =
+                BuildConfig.VERSION_NAME
 
             // hide logged-in preferences
             getPref<BottomSheetPreference>(R.string.key_topiclist).isVisible = pref.isLoggedIn

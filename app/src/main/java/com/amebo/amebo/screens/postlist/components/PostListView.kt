@@ -108,6 +108,15 @@ open class PostListView(
 
         recyclerView.dividerDrawable(R.drawable.divider)
         recyclerView.adapter = concatAdapter
+        recyclerView.addOnScrollListener(object: RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                when(newState){
+                    RecyclerView.SCROLL_STATE_DRAGGING -> {
+                        resetScroll = false
+                    }
+                }
+            }
+        })
     }
 
 

@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
@@ -16,6 +17,7 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import androidx.annotation.ColorInt
+import androidx.annotation.DrawableRes
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.FileProvider
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
@@ -27,6 +29,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import pl.droidsonroids.gif.GifDrawable
 import timber.log.Timber
 import java.io.*
 import java.net.URL
@@ -99,6 +102,16 @@ object AppUtil {
         }
         return drawable
     }
+
+    fun gifProgressDrawable(context: Context): GifDrawable {
+        val resource = if (context.asTheme().isDark)
+            R.drawable.progress_dark_theme
+        else
+            R.drawable.progress_light_theme
+
+        return ResizeableGifDrawable(context.resources, resource, heightOverride = 100, widthOverride = 100)
+    }
+
 
     fun loadImage(image: ImageView, url: String, placeholder: Drawable) {
         Glide.with(image)
@@ -261,6 +274,23 @@ object AppUtil {
                     Uri.parse("https://play.google.com/store/apps/details?id=" + context.packageName)
                 )
             )
+        }
+    }
+
+    class ResizeableGifDrawable(
+        resources: Resources,
+        @DrawableRes drawableRes: Int,
+        private val heightOverride: Int? = null,
+        private val widthOverride: Int? = null
+    ) :
+        GifDrawable(resources, drawableRes) {
+
+        override fun getIntrinsicHeight(): Int {
+            return heightOverride ?: super.getIntrinsicHeight()
+        }
+
+        override fun getIntrinsicWidth(): Int {
+            return widthOverride ?: super.getIntrinsicWidth()
         }
     }
 }

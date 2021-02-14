@@ -8,9 +8,13 @@ import androidx.annotation.CallSuper
 import androidx.annotation.LayoutRes
 import androidx.core.os.bundleOf
 import androidx.fragment.app.setFragmentResultListener
+import androidx.lifecycle.coroutineScope
 import com.amebo.amebo.common.*
 import com.amebo.amebo.common.fragments.BaseFragment
 import com.amebo.core.domain.*
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -20,6 +24,14 @@ abstract class BaseTopicListScreen(@LayoutRes layoutRes: Int) : BaseFragment(lay
     private val initialSort get() = pref.defaultSortOf(topicList)
     private val initialPage get() = requireArguments().getInt(PAGE)
     val viewModel: TopicListScreenViewModel by viewModels()
+
+    private var lastLoadTime: Long = 0L
+//        get() = requireArguments().getLong("last_load_time", 0L)
+//        set(value) {
+//            requireArguments().putLong("last_load_time", value)
+//        }
+
+    private var refreshJob: Job? = null
 
     @Inject
     lateinit var topicListViewProvider: Provider<BaseTopicListView>
@@ -35,6 +47,9 @@ abstract class BaseTopicListScreen(@LayoutRes layoutRes: Int) : BaseFragment(lay
 
     @CallSuper
     override fun onViewCreated(savedInstanceState: Bundle?) {
+        savedInstanceState?.let {
+            lastLoadTime = it.getLong(LAST_LOAD_TIME)
+        }
         initializeViewBindings()
         viewModel.initialize(topicList, initialSort, initialPage)
         viewModel.dataPageEvent.observe(viewLifecycleOwner, EventObserver(::onEventContentChanged))
@@ -63,6 +78,11 @@ abstract class BaseTopicListScreen(@LayoutRes layoutRes: Int) : BaseFragment(lay
     override fun onResume() {
         super.onResume()
         restoreLayoutState()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putLong(LAST_LOAD_TIME, lastLoadTime)
     }
 
     private fun restoreLayoutState(bundle: Bundle = requireArguments()) {
@@ -105,6 +125,35 @@ abstract class BaseTopicListScreen(@LayoutRes layoutRes: Int) : BaseFragment(lay
             hasPrevPage = viewModel.hasPrevPage,
             hasNextPage = viewModel.hasNextPage
         )
+
+        when {
+            content is Resource.Loading -> {
+                cancelRefreshJob()
+                lastLoadTime = System.currentTimeMillis()
+
+                refreshJob = viewLifecycleOwner.lifecycle.coroutineScope.launchWhenResumed {
+                    delay(REFRESH_INTERVAL_MILLIS)
+                    viewModel.refreshPage()
+                }
+            }
+            refreshJob.let { it == null || !it.isActive } -> {
+                refreshJob = viewLifecycleOwner.lifecycle.coroutineScope.launchWhenResumed {
+                    val timeDiff = (System.currentTimeMillis() - lastLoadTime).coerceAtMost(REFRESH_INTERVAL_MILLIS)
+                    delay(REFRESH_INTERVAL_MILLIS - timeDiff)
+                    viewModel.refreshPage()
+                }
+            }
+        }
+    }
+
+    private fun cancelRefreshJob() {
+        when (val job = refreshJob) {
+            is Job -> {
+                if (job.isActive) {
+                    job.cancel()
+                }
+            }
+        }
     }
 
     private fun onActivityTouchEvent(e: MotionEvent) {
@@ -163,7 +212,9 @@ abstract class BaseTopicListScreen(@LayoutRes layoutRes: Int) : BaseFragment(lay
     companion object {
         const val TOPIC_LIST = "topicList"
         const val BUNDLE_RECYCLER_VIEW_STATE = "firstVisibleTopic"
+        private const val LAST_LOAD_TIME = "last_load_time"
         private const val PAGE = "page"
+        private const val REFRESH_INTERVAL_MILLIS = 1_000L * 60 * 7
 
         fun newBundle(topicList: TopicList, page: Int = 0) =
             bundleOf(

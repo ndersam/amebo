@@ -26,10 +26,7 @@ abstract class BaseTopicListScreen(@LayoutRes layoutRes: Int) : BaseFragment(lay
     val viewModel: TopicListScreenViewModel by viewModels()
 
     private var lastLoadTime: Long = 0L
-//        get() = requireArguments().getLong("last_load_time", 0L)
-//        set(value) {
-//            requireArguments().putLong("last_load_time", value)
-//        }
+
 
     private var refreshJob: Job? = null
 
@@ -68,6 +65,7 @@ abstract class BaseTopicListScreen(@LayoutRes layoutRes: Int) : BaseFragment(lay
         if (activity is TouchEventDispatcher) {
             activity.unRegister(::onActivityTouchEvent)
         }
+        refreshJob = null
     }
 
     override fun onPause() {

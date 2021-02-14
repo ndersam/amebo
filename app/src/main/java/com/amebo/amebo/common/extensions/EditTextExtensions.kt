@@ -5,11 +5,20 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.EditText
 
+fun EditText.showKeyboard(cursorAtEnd: Boolean = true) {
+    requestFocus()
+    context.contextShowKeyboard()
+    if (cursorAtEnd) {
+        cursorAtEnd()
+    }
+}
+
 fun EditText.cursorAtEnd() {
     setSelection(text.length)
 }
+
 fun EditText.disableCopyPaste() {
-    customSelectionActionModeCallback = object: ActionMode.Callback {
+    customSelectionActionModeCallback = object : ActionMode.Callback {
         override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?) = false
 
         override fun onCreateActionMode(mode: ActionMode?, menu: Menu?) = false

@@ -3,7 +3,6 @@ package com.amebo.amebo.common.routing
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
-import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.LifecycleOwner
 import com.amebo.core.domain.*
 
@@ -100,15 +99,7 @@ interface Router {
     fun toPostEditorSettings()
     fun toPostPreview(html: String)
 
-    fun setOnDialogDismissListener(viewLifecycleOwner: LifecycleOwner, listener: () -> Unit) {
-        setOnDialogDismissListener(viewLifecycleOwner, null, listener)
-    }
-
-    fun setOnDialogDismissListener(
-        viewLifecycleOwner: LifecycleOwner,
-        desiredDialogFragments: Array<Class<DialogFragment>>?,
-        listener: () -> Unit
-    )
+    fun setOnDialogDismissListener(viewLifecycleOwner: LifecycleOwner, listener: (numDialogsDisplayed: Int) -> Unit)
 
     fun toMailUser(user: User)
     fun toMailSuperMods()

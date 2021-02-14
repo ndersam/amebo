@@ -31,7 +31,6 @@ class PostListPageNavigationDialog : BaseBottomSheetDialogFragment() {
         binding.btnNextPage.isEnabled = selectedPage < lastPage
 
         binding.editPage.setText(selectedPage.toString())
-        binding.editPage.setSelection(selectedPage.toString().length)
         binding.editPage.cursorAtEnd()
         binding.editPage.doOnTextChanged { text, _, _, _ ->
             val parsedNum = text.toString().toIntOrNull()

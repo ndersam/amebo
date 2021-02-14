@@ -1,5 +1,6 @@
 package com.amebo.amebo.screens.newpost
 
+import android.annotation.SuppressLint
 import android.graphics.Rect
 import android.text.InputType
 import android.view.MenuItem
@@ -164,6 +165,7 @@ open class SimpleFormView(
         invalidateMenu()
     }
 
+    @SuppressLint("ShowToast")
     override fun onSubmissionLoading(loading: Resource.Loading<PostListDataPage>) {
         editTitle.isEnabled = false
         editMessage.isEnabled = false
@@ -217,10 +219,8 @@ open class SimpleFormView(
     override fun showKeyboard(onBody: Boolean) {
         if (!onBody && editTitle.text.isBlank()) {
             editTitle.showKeyboard()
-            editTitle.cursorAtEnd()
         } else {
             editMessage.showKeyboard()
-            editMessage.cursorAtEnd()
         }
     }
 

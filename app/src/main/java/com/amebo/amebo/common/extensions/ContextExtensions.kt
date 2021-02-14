@@ -1,6 +1,7 @@
 package com.amebo.amebo.common.extensions
 
 import android.Manifest
+import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -10,8 +11,8 @@ import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import android.util.DisplayMetrics
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -122,5 +123,10 @@ fun Context.dpToPx(dp: Int): Int {
 }
 
 fun Context.spToPx(sp: Int): Float {
-   return sp *  resources.displayMetrics.scaledDensity
+    return sp * resources.displayMetrics.scaledDensity
+}
+
+fun Context.contextShowKeyboard() {
+    val imm = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY)
 }

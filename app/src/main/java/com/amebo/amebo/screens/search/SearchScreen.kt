@@ -95,8 +95,10 @@ class SearchScreen : BaseFragment(R.layout.search_screen), SearchView.Listener {
             savedSearchTerm != null -> searchView.setText(savedSearchTerm)
             searchTermFromBundle != null -> searchView.setText(searchTermFromBundle)
         }
-        router.setOnDialogDismissListener(viewLifecycleOwner) {
-            searchView.showKeyboard()
+        router.setOnDialogDismissListener(viewLifecycleOwner) { numDialogsDisplayed ->
+            if (numDialogsDisplayed == 0) {
+                searchView.showKeyboard()
+            }
         }
     }
 

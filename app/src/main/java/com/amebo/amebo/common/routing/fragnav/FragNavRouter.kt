@@ -89,26 +89,31 @@ class FragNavRouter(
 
     private var currentDialogFrag: WeakReference<DialogFragment>? = null
 
-    private val dialogDismissEvent = MutableLiveData<Event<Unit>>()
-    private var currentWatchedDialogFragments: Array<Class<DialogFragment>>? = null
+    private val dialogDismissEvent = MutableLiveData<Event<Int>>()
     private var currentDismissEventListener: WeakReference<Fragment>? = null
 
     private val initialIndex = INDEX_TOPICS
 
-    private val frags get() = listOf(
-        HomeScreen(),
-        RecentPostsScreen().rootScreen(),
-        // for authenticated users
-        ProfileScreen().rootScreen(),
-        InboxScreen(),
-        MentionsScreen().rootScreen(),
-        LikesAndSharesScreen().rootScreen(),
-        SharedWithMeScreen().rootScreen(),
-        PostsFromFollowingsScreen().rootScreen(),
-        MyLikesScreen().rootScreen(),
-        MySharedPostsScreen().rootScreen(),
-        MyFollowersScreen(),
-    )
+    private val frags
+        get() = listOf(
+            HomeScreen(),
+            RecentPostsScreen().rootScreen(),
+            // for authenticated users
+            ProfileScreen().rootScreen(),
+            InboxScreen(),
+            MentionsScreen().rootScreen(),
+            LikesAndSharesScreen().rootScreen(),
+            SharedWithMeScreen().rootScreen(),
+            PostsFromFollowingsScreen().rootScreen(),
+            MyLikesScreen().rootScreen(),
+            MySharedPostsScreen().rootScreen(),
+            MyFollowersScreen(),
+        )
+
+    private val dialogFragmentCount: Int
+        get() = getFragmentManagerForDialog().fragments.count {
+            it is DialogFragment
+        }
 
 
     init {
@@ -143,11 +148,8 @@ class FragNavRouter(
             FragmentManager.FragmentLifecycleCallbacks() {
             override fun onFragmentViewDestroyed(fm: FragmentManager, f: Fragment) {
                 super.onFragmentViewDestroyed(fm, f)
-                if (f is DialogFragment && controller.currentFrag == currentDismissEventListener?.get() &&
-                    currentWatchedDialogFragments?.any { it.isInstance(f) } != false
-                ) {
-                    Timber.d("Posting dialog dismiss event")
-                    dialogDismissEvent.value = Event(Unit)
+                if (f is DialogFragment && controller.currentFrag == currentDismissEventListener?.get()) {
+                    dialogDismissEvent.value = Event(dialogFragmentCount)
                 }
             }
         }, false)
@@ -504,13 +506,11 @@ class FragNavRouter(
 
     override fun setOnDialogDismissListener(
         viewLifecycleOwner: LifecycleOwner,
-        desiredDialogFragments: Array<Class<DialogFragment>>?,
-        listener: () -> Unit
+        listener: (numDialogsDisplayed: Int) -> Unit
     ) {
-        this.currentDismissEventListener = WeakReference(controller.currentFrag)
-        this.currentWatchedDialogFragments = desiredDialogFragments
+        currentDismissEventListener = WeakReference(controller.currentFrag)
         dialogDismissEvent.removeObservers(viewLifecycleOwner)
-        dialogDismissEvent.observe(viewLifecycleOwner, EventObserver { listener() })
+        dialogDismissEvent.observe(viewLifecycleOwner, EventObserver { listener(it) })
     }
 
 

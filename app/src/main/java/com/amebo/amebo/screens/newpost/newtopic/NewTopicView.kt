@@ -2,9 +2,9 @@ package com.amebo.amebo.screens.newpost.newtopic
 
 import androidx.fragment.app.Fragment
 import com.amebo.amebo.R
+import com.amebo.amebo.common.Pref
 import com.amebo.amebo.common.extensions.showKeyboard
 import com.amebo.amebo.databinding.NewTopicScreenBinding
-import com.amebo.amebo.common.Pref
 import com.amebo.amebo.screens.newpost.IFormView
 import com.amebo.amebo.screens.newpost.SimpleFormView
 import com.amebo.core.domain.Board

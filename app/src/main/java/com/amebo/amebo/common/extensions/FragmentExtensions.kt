@@ -43,11 +43,15 @@ class FragmentViewBindingDelegate<T : ViewBinding>(
                 }
 
             override fun onCreate(owner: LifecycleOwner) {
-                fragment.viewLifecycleOwnerLiveData.observeForever(viewLifecycleOwnerLiveDataObserver)
+                fragment.viewLifecycleOwnerLiveData.observeForever(
+                    viewLifecycleOwnerLiveDataObserver
+                )
             }
 
             override fun onDestroy(owner: LifecycleOwner) {
-                fragment.viewLifecycleOwnerLiveData.removeObserver(viewLifecycleOwnerLiveDataObserver)
+                fragment.viewLifecycleOwnerLiveData.removeObserver(
+                    viewLifecycleOwnerLiveDataObserver
+                )
             }
         })
     }
@@ -78,14 +82,6 @@ fun Fragment.hideKeyboard() {
     }
 }
 
-fun Fragment.showKeyboard() {
-    (context?.getSystemService(Activity.INPUT_METHOD_SERVICE) as? InputMethodManager)
-        ?.also { inputMethodManager ->
-            view?.rootView?.apply { post { inputMethodManager.showSoftInput(this, 0) } }
-                ?: inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
-        }
-}
-
 
 fun DialogFragment.resizeWindowOnResume(widthPercent: Float = 0.95F) {
     val window = dialog?.window ?: return
@@ -96,28 +92,6 @@ fun DialogFragment.resizeWindowOnResume(widthPercent: Float = 0.95F) {
     val width = size.x
     window.setLayout((width * widthPercent).toInt(), WindowManager.LayoutParams.WRAP_CONTENT)
     window.setGravity(Gravity.CENTER)
-}
-
-fun BottomSheetDialog.makeFullScreen(activity: Activity) {
-
-    fun getWindowHeight(): Int {
-        // Calculate window height for fullscreen use
-        val displayMetrics = DisplayMetrics()
-        activity.windowManager.defaultDisplay.getMetrics(displayMetrics)
-        return displayMetrics.heightPixels
-    }
-
-    val bottomSheet =
-        findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet)
-            ?: return
-    val behavior: BottomSheetBehavior<*> = BottomSheetBehavior.from(bottomSheet)
-    val layoutParams = bottomSheet.layoutParams
-    val windowHeight = getWindowHeight()
-    if (layoutParams != null) {
-        layoutParams.height = windowHeight
-    }
-    bottomSheet.layoutParams = layoutParams
-    behavior.state = BottomSheetBehavior.STATE_EXPANDED
 }
 
 

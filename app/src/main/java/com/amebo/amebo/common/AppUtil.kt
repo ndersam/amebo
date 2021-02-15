@@ -109,7 +109,12 @@ object AppUtil {
         else
             R.drawable.progress_light_theme
 
-        return ResizeableGifDrawable(context.resources, resource, heightOverride = 100, widthOverride = 100)
+        return ResizeableGifDrawable(
+            context.resources,
+            resource,
+            heightOverride = 100,
+            widthOverride = 100
+        )
     }
 
 

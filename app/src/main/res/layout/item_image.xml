@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/imageFrame"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:clickable="true"
+    android:focusable="true">
 
 
     <pl.droidsonroids.gif.GifImageView
@@ -11,8 +14,19 @@
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:adjustViewBounds="true"
-        android:clickable="true"
-        android:focusable="true"
         android:scaleType="center" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/btn_retry"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_gravity="center"
+        android:background="?selectableItemBackgroundBorderless"
+        android:padding="4dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_replay_24dp"
+        android:tint="?colorOnBackground"
+        android:visibility="gone"
+        tools:visibility="visible" />
 
 </FrameLayout>

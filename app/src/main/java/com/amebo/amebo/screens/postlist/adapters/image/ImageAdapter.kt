@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.amebo.amebo.common.AppUtil
@@ -45,6 +46,7 @@ class ImageAdapter(
     ) :
         RecyclerView.ViewHolder(binding.root) {
         private var positionInAdapter: Int = -1
+        private lateinit var url: String
         private val progressDrawable = AppUtil.progressDrawable(itemView.context)
         private val glideListener = object : RequestListener<Drawable> {
             override fun onLoadFailed(
@@ -53,6 +55,8 @@ class ImageAdapter(
                 target: Target<Drawable>?,
                 isFirstResource: Boolean
             ): Boolean {
+                binding.image.isVisible = false
+                binding.btnRetry.isVisible = true
                 listener.onLoadCompleted(binding.image, positionInAdapter)
                 return false
             }
@@ -64,21 +68,33 @@ class ImageAdapter(
                 dataSource: DataSource?,
                 isFirstResource: Boolean
             ): Boolean {
+                // reset original scale type
+                binding.image.scaleType = ImageView.ScaleType.FIT_CENTER
                 listener.onLoadCompleted(binding.image, positionInAdapter)
                 return false
             }
         }
 
         init {
+            binding.btnRetry.setOnClickListener {
+                load()
+            }
             progressDrawable.setStyle(CircularProgressDrawable.LARGE)
-            binding.image.setOnClickListener { listener.onClick(it, positionInAdapter) }
+            binding.imageFrame.setOnClickListener { listener.onClick(it, positionInAdapter) }
         }
 
         fun bind(url: String, position: Int) {
+            this.url = url
             this.positionInAdapter = position
+            load()
+        }
+
+        private fun load() {
             binding.image.scaleType =
                 ImageView.ScaleType.CENTER // for placeholder image alone to work
             binding.image.transitionName = ""
+            binding.image.isVisible = true
+            binding.btnRetry.isVisible = false
 
             progressDrawable.start()
 
@@ -86,7 +102,7 @@ class ImageAdapter(
                 .load(url)
                 .listener(glideListener)
                 .placeholder(progressDrawable)
-                .dontAnimate()
+//                .dontAnimate()
                 .into(binding.image)
                 .waitForLayout()
         }

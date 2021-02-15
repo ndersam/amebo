@@ -14,7 +14,6 @@ import com.amebo.amebo.common.fragments.BaseFragment
 import com.amebo.core.domain.*
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Provider
 

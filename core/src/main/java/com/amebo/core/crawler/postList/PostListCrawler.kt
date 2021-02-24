@@ -649,6 +649,14 @@ private fun isBlankPost(element: Element): Boolean {
 private fun parsePostBody(tableData: Element): PostBody {
     val postBody = PostBody(tableData.id().substring(2))
 
+
+    tableData.select("img").forEach {
+        val src = it.attr("src")
+        if (src.startsWith("/")) {
+            it.attr("src", Values.URL + src)
+        }
+    }
+
     for (element in tableData.children()) { // TEXT
         when {
             element.tagName().compareTo("div", ignoreCase = true) == 0 -> {
@@ -743,9 +751,7 @@ private fun parsePostBody(tableData: Element): PostBody {
             else -> {
                 postBody.images.addAll(
                     element.select("img").map {
-                        var src = it.attr("src")
-                        if (src.startsWith("/")) src = Values.URL + src
-                        src
+                        it.attr("src")
                     }
                 )
 

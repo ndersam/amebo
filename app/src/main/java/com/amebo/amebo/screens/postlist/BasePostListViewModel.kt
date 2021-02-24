@@ -7,7 +7,11 @@ interface BasePostListViewModel<T : Any> {
     val hasNextPage: Boolean
     val hasPrevPage: Boolean
     val collapsedItems: MutableSet<Int>
-    var shouldHighlightPost: Boolean
+
+    /**
+     * Map of Post-position to current image recyclerView position
+     */
+    val currentImageRecyclerViewPosition: MutableMap<Int, Int>
     fun likePost(post: SimplePost, like: Boolean)
     fun sharePost(post: SimplePost, share: Boolean)
     fun retry()

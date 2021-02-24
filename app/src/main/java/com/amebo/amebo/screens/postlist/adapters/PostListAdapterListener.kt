@@ -25,6 +25,8 @@ interface PostListAdapterListener : AltAdapter.Listener, HeaderAdapter.Listener 
     val imageLoadingListener: ImageLoadingListener
     fun onItemCollapsed(position: Int)
     fun isItemCollapsed(position: Int): Boolean
+    fun getCurrentImagePosition(postPosition: Int): Int
+    fun setCurrentImagePosition(postPosition: Int, imagePosition: Int)
     fun onItemExpanded(position: Int)
     fun onYoutubeUrlClick(videoId: String)
     fun onReferencedPostClick(

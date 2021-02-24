@@ -11,6 +11,7 @@ import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.core.text.HtmlCompat
 import com.amebo.core.CoreUtils
+import com.amebo.core.Values
 import com.amebo.core.domain.Board
 import com.amebo.core.domain.Topic
 
@@ -204,6 +205,9 @@ class HTMLBuilder(text: String, private val textView: TextView? = null) {
                     val end = spannable.getSpanEnd(imageSpan)
                     spannable.getSpans(start, end, ClickableSpan::class.java).forEach {
                         spannable.removeSpan(it)
+                    }
+                    if (EmojiGetter.isImageEmoji(imageSpan.source!!.replace(Values.URL, ""))) {
+                        return@forEachIndexed
                     }
                     val newSpan = object : ClickableSpan() {
                         override fun onClick(p0: View) {

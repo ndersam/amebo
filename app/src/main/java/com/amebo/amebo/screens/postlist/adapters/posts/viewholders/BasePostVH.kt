@@ -7,6 +7,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.amebo.amebo.common.*
@@ -105,6 +106,18 @@ abstract class BasePostVH(
         setShareCount()
     }
 
+    private val scrollListener = object : RecyclerView.OnScrollListener() {
+        override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                val manager = recyclerView.layoutManager as LinearLayoutManager
+                listener.setCurrentImagePosition(
+                    postPosition,
+                    manager.findFirstVisibleItemPosition()
+                )
+            }
+        }
+    }
+
     init {
         PagerSnapHelper().attachToRecyclerView(imageRecyclerView)
 
@@ -142,12 +155,17 @@ abstract class BasePostVH(
 
         // IMAGES
         imageFrame.isGone = post.images.isEmpty()
+        imageRecyclerView.removeOnScrollListener(scrollListener)
         imageRecyclerView.adapter =
             ImageAdapter(
                 post.images,
                 requestManager,
                 imageAdapterListener
             )
+        if (post.images.isNotEmpty()) {
+            imageRecyclerView.scrollToPosition(listener.getCurrentImagePosition(postPosition))
+        }
+        imageRecyclerView.addOnScrollListener(scrollListener)
         indicator.attachToRecyclerView(imageRecyclerView)
 
         // ACTIONS

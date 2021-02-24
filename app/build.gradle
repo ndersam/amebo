@@ -30,8 +30,8 @@ android {
         applicationId "com.amebo.amebo"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 24
-        versionName "1.2.1"
+        versionCode 25
+        versionName new Date().format('yyyy.MM.dd.HHmmss')
 
         testInstrumentationRunner "com.amebo.amebo.suite.TestRunner"
     }

@@ -16,6 +16,7 @@ import com.amebo.amebo.R
 import com.amebo.amebo.common.AppUtil
 import com.amebo.amebo.common.FragKeys
 import com.amebo.amebo.common.Pref
+import com.amebo.amebo.common.extensions.copyTextToClipboard
 import com.amebo.amebo.common.extensions.viewBinding
 import com.amebo.amebo.common.fragments.BaseFragment
 import com.amebo.amebo.common.routing.Router
@@ -96,7 +97,8 @@ class SettingsScreen : BaseFragment(R.layout.settings_screen) {
                 R.string.key_clear_search_history,
                 R.string.key_privacy,
                 R.string.key_licences,
-                R.string.key_rate_app
+                R.string.key_rate_app,
+                R.string.key_app_version
             )
         }
 
@@ -131,6 +133,10 @@ class SettingsScreen : BaseFragment(R.layout.settings_screen) {
                 }
                 getString(R.string.key_rate_app) -> {
                     AppUtil.openInStore(requireContext())
+                }
+                getString(R.string.key_app_version) -> {
+                    requireContext().copyTextToClipboard(BuildConfig.VERSION_NAME)
+                    showSnackBar(R.string.app_version_copied)
                 }
                 else -> return false
             }

@@ -3,17 +3,18 @@ package com.amebo.amebo.screens.photoviewer
 import android.Manifest
 import android.net.Uri
 import android.os.Bundle
-import android.view.View
+import android.transition.Transition
+import android.transition.TransitionInflater
 import androidx.activity.invoke
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.LayoutRes
-import androidx.core.app.SharedElementCallback
 import androidx.core.os.bundleOf
 import androidx.fragment.app.setFragmentResult
 import com.amebo.amebo.R
 import com.amebo.amebo.common.FragKeys
 import com.amebo.amebo.common.extensions.hasMediaAccess
 import com.amebo.amebo.common.fragments.BaseFragment
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -28,11 +29,8 @@ abstract class BasePhotoViewerScreen(@LayoutRes layoutRes: Int) : BaseFragment(l
 
 
     override var currentPosition: Int
-        get() = arguments?.getInt(CURRENT_POSITION, 0) ?: 0
+        get() = requireArguments().getInt(CURRENT_POSITION, 0)
         set(value) {
-            if (arguments == null) {
-                arguments = Bundle()
-            }
             requireArguments().putInt(CURRENT_POSITION, value)
             setResult()
         }
@@ -60,16 +58,14 @@ abstract class BasePhotoViewerScreen(@LayoutRes layoutRes: Int) : BaseFragment(l
         }
 
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        prepareSharedElementTransition(savedInstanceState)
+    }
+
     override fun onViewCreated(savedInstanceState: Bundle?) {
         setResult() // set result regardless of if position in viewPager is changed
-
         photoView = viewProvider.get()
-
-        prepareSharedElementTransition()
-        // Avoid a postponeEnterTransition on orientation change, and postpone only of first creation.
-        if (savedInstanceState == null) {
-            postponeEnterTransition()
-        }
     }
 
     override fun goBack() {
@@ -108,28 +104,55 @@ abstract class BasePhotoViewerScreen(@LayoutRes layoutRes: Int) : BaseFragment(l
     /**
      * Prepares the shared element transition from and back to the grid fragment.
      */
-    private fun prepareSharedElementTransition() {
-        val transition = android.transition.TransitionInflater.from(context)
-            .inflateTransition(R.transition.image_shared_element_transition)
-        sharedElementEnterTransition = transition
+    private fun prepareSharedElementTransition(savedInstanceState: Bundle?) {
+        sharedElementEnterTransition = TransitionInflater.from(requireContext())
+            .inflateTransition(R.transition.image_shared_element_transition).apply {
+                Timber.d("D: ${this.targets}, ${this.transitionProperties}")
+                addListener(object : Transition.TransitionListener {
+                    private var start = 0L
+                    override fun onTransitionStart(transition: Transition?) {
+                        start = System.currentTimeMillis()
+                    }
 
+                    override fun onTransitionEnd(transition: Transition?) {
+                        Timber.d("Transition Ended: ${System.currentTimeMillis() - start}")
+                    }
+
+                    override fun onTransitionCancel(transition: Transition?) {
+                        Timber.d("Transition Cancelled")
+                    }
+
+                    override fun onTransitionPause(transition: Transition?) {
+                    }
+
+                    override fun onTransitionResume(transition: Transition?) {
+                    }
+
+                })
+            }
         // A similar mapping is set at the GridFragment with a setExitSharedElementCallback.
-        setEnterSharedElementCallback(
-            object : SharedElementCallback() {
-                override fun onMapSharedElements(
-                    names: List<String>,
-                    sharedElements: MutableMap<String, View>
-                ) {
-                    // Locate the image view at the primary fragment (the ImageFragment that is currently
-                    // visible). To locate the fragment, call instantiateItem with the selection position.
-                    // At this stage, the method will simply return the fragment at the position and will
-                    // not create a new one.
-                    val view = photoView.currentImageView ?: return
+//        setEnterSharedElementCallback(
+//            object : SharedElementCallback() {
+//                override fun onMapSharedElements(
+//                    names: List<String>,
+//                    sharedElements: MutableMap<String, View>
+//                ) {
+//                    // Locate the image view at the primary fragment (the ImageFragment that is currently
+//                    // visible). To locate the fragment, call instantiateItem with the selection position.
+//                    // At this stage, the method will simply return the fragment at the position and will
+//                    // not create a new one.
+//                    val view = photoView.currentImageView ?: return
+//
+//                    // Map the first shared element name to the child ImageView.
+//                    sharedElements[names[0]] = view.findViewById(R.id.photoView)
+//                }
+//            })
 
-                    // Map the first shared element name to the child ImageView.
-                    sharedElements[names[0]] = view.findViewById(R.id.photoView)
-                }
-            })
+        // Avoid a postponeEnterTransition on orientation change, and postpone only of first creation.
+        if (savedInstanceState == null) {
+            postponeEnterTransition()
+        }
+        sharedElementReturnTransition = null
     }
 
 
@@ -139,13 +162,13 @@ abstract class BasePhotoViewerScreen(@LayoutRes layoutRes: Int) : BaseFragment(l
         protected const val TRANSITION_NAME = "transitionName"
         protected const val URIS = "uris"
 
-        fun newBundle(links: List<String>, transitionName: String, position: Int = 0) = bundleOf(
+        fun newBundle(links: List<String>, transitionName: String, position: Int) = bundleOf(
             LINKS to links.toTypedArray(),
             TRANSITION_NAME to transitionName,
             CURRENT_POSITION to position
         )
 
-        fun newBundleForUris(uris: List<Uri>, transitionName: String, position: Int = 0) = bundleOf(
+        fun newBundleForUris(uris: List<Uri>, transitionName: String, position: Int) = bundleOf(
             URIS to uris.toTypedArray(),
             TRANSITION_NAME to transitionName,
             CURRENT_POSITION to position

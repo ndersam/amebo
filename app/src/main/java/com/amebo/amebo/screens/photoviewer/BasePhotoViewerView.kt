@@ -3,22 +3,21 @@ package com.amebo.amebo.screens.photoviewer
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.widget.Toolbar
-import androidx.fragment.app.Fragment
-import androidx.viewpager.widget.ViewPager
+import androidx.viewpager2.widget.ViewPager2
 import com.amebo.amebo.R
-import com.amebo.amebo.common.extensions.drawableColor
 import com.amebo.amebo.common.asTheme
+import com.amebo.amebo.common.extensions.drawableColor
 
 abstract class BasePhotoViewerView(
     toolbar: Toolbar,
-    private val viewPager: PhotoViewViewPager,
+    viewPager: ViewPager2,
     private val adapter: ImagePagerAdapter,
     private val listener: IPhotoViewerView.Listener
 ) : IPhotoViewerView {
     init {
         viewPager.adapter = adapter
-        viewPager.currentItem = listener.currentPosition
-        viewPager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
+        viewPager.setCurrentItem(listener.currentPosition, false)
+        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 listener.currentPosition = position
             }
@@ -46,7 +45,7 @@ abstract class BasePhotoViewerView(
     override val currentImageView: View?
         get() {
             val currentFragment =
-                adapter.instantiateItem(viewPager, viewPager.currentItem) as Fragment
+                adapter.createFragment(listener.currentPosition)
             return currentFragment.view
         }
 }

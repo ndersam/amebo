@@ -2,24 +2,24 @@ package com.amebo.amebo.screens.photoviewer
 
 import android.net.Uri
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentStatePagerAdapter
+import androidx.viewpager2.adapter.FragmentStateAdapter
+
 
 class ImagePagerAdapter(
     fragment: Fragment,
     private val imageLinks: List<String>?,
     private val imageUris: List<Uri>?,
     private val transitionName: String
-) : FragmentStatePagerAdapter(
-    fragment.childFragmentManager,
-    BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT
+) : FragmentStateAdapter(
+    fragment
 ) {
     val usingImageLinks get() = imageLinks != null
 
-    override fun getCount(): Int {
-        return imageLinks?.size ?: imageUris?.size ?: 0
+    override fun getItemCount(): Int {
+        return imageLinks?.size ?: imageUris!!.size
     }
 
-    override fun getItem(position: Int): Fragment {
+    override fun createFragment(position: Int): Fragment {
         if (imageLinks != null)
             return ImageFragment.newInstance(imageLinks[position], transitionName)
         if (imageUris != null)

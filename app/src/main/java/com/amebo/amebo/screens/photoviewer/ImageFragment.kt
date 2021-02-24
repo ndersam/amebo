@@ -4,6 +4,8 @@ import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
@@ -18,6 +20,7 @@ import com.amebo.amebo.databinding.FragmentImageBinding
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.load.resource.gif.GifDrawable
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import kotlinx.coroutines.Dispatchers
@@ -69,6 +72,13 @@ class ImageFragment : BaseFragment(R.layout.fragment_image), RequestListener<Dra
         isFirstResource: Boolean
     ): Boolean {
         progressDrawable.stop()
+        // https://stackoverflow.com/questions/55980750/gif-is-not-playing-after-shared-element-transition-glide-v-4-8-0
+        if (resource is GifDrawable) {
+            val handler = Handler(Looper.getMainLooper())
+            handler.post {
+                resource.setVisible(true, true)
+            }
+        }
         parentFragment?.startPostponedEnterTransition()
         viewModel.currentImageDrawable = if (resource != null) Event(resource) else null
         // let glide handle resource load

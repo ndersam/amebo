@@ -5,9 +5,12 @@ import android.os.Bundle
 import android.os.Parcelable
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.ViewCompat
+import androidx.core.view.children
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Lifecycle
 import com.amebo.amebo.R
@@ -18,6 +21,7 @@ import com.amebo.amebo.screens.postlist.adapters.image.ImageLoadingListener
 import com.amebo.amebo.screens.postlist.adapters.image.ImageLoadingListenerImpl
 import com.amebo.amebo.screens.postlist.components.IPostListView
 import com.amebo.core.domain.*
+import timber.log.Timber
 
 
 abstract class BasePostListScreen<T : PostList>(layoutRes: Int) : BaseFragment(layoutRes),
@@ -51,7 +55,6 @@ abstract class BasePostListScreen<T : PostList>(layoutRes: Int) : BaseFragment(l
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        prepareTransitions()
         setFragmentResultListener(FragKeys.RESULT_SELECTED_PAGE) { _, bundle ->
             val page = bundle.getInt(FragKeys.BUNDLE_SELECTED_PAGE)
             viewModel.loadPage(page)
@@ -77,13 +80,16 @@ abstract class BasePostListScreen<T : PostList>(layoutRes: Int) : BaseFragment(l
     override val listenerLifecycle: Lifecycle
         get() = this.viewLifecycleOwner.lifecycle
 
-    override val shouldHighlightPost: Boolean get() = viewModel.shouldHighlightPost
+    override var shouldHighlightPost
+        get() = requireArguments().getBoolean("shouldHighlightPost", true)
+        set(value) {
+            requireArguments().putBoolean("shouldHighlightPost", value)
+        }
 
     override fun onDestroyView() {
         super.onDestroyView()
         postListView = null
         selectedImageView = null
-        viewModel.shouldHighlightPost = false
     }
 
     override fun onPause() {
@@ -186,8 +192,10 @@ abstract class BasePostListScreen<T : PostList>(layoutRes: Int) : BaseFragment(l
     open fun onLoading(loading: Resource.Loading<PostListDataPage>) =
         postListViewNN.onLoading(loading)
 
-    open fun onSuccess(success: Resource.Success<PostListDataPage>) =
+    open fun onSuccess(success: Resource.Success<PostListDataPage>) {
         postListViewNN.onSuccess(success)
+        shouldHighlightPost = false
+    }
 
     open fun onError(error: Resource.Error<PostListDataPage>) = postListViewNN.onError(error)
 
@@ -269,6 +277,13 @@ abstract class BasePostListScreen<T : PostList>(layoutRes: Int) : BaseFragment(l
     override fun isItemCollapsed(position: Int): Boolean =
         viewModel.collapsedItems.contains(position)
 
+    override fun getCurrentImagePosition(postPosition: Int): Int =
+        viewModel.currentImageRecyclerViewPosition[postPosition] ?: 0
+
+    override fun setCurrentImagePosition(postPosition: Int, imagePosition: Int) {
+        viewModel.currentImageRecyclerViewPosition[postPosition] = imagePosition
+    }
+
 
     override fun onYoutubeUrlClick(videoId: String) = router.toYoutubeScreen(videoId)
 
@@ -331,25 +346,41 @@ abstract class BasePostListScreen<T : PostList>(layoutRes: Int) : BaseFragment(l
         position: Int,
         images: List<String>
     ) {
-        selectedImageView = imageView
+        selectedImageView = if (imageView is ViewGroup) {
+            imageView.children.firstOrNull { it is ImageView }
+        } else {
+            imageView
+        }
+
         requireArguments().putInt(LAST_SELECTED_POST, postPosition)
 
-        val transitionName = "${getString(R.string.photo_transition)}_${postPosition}_$position"
-        ViewCompat.setTransitionName(imageView, transitionName)
+        selectedImageView?.let {
+            val transitionName = "${getString(R.string.photo_transition)}_${postPosition}_$position"
 
-        // Exclude the clicked view from the exit transaction
-        // (e.g. the card will disappear immediately instead of fading out
-        // with the rest to prevent and overlapping animation of fade and move.
-        (exitTransition as android.transition.TransitionSet).excludeTarget(imageView, true)
-        router.toPhotoViewer(images, position, imageView, transitionName)
+            ViewCompat.setTransitionName(it, transitionName)
+
+            // Exclude the clicked view from the exit transaction
+            // (e.g. the card will disappear immediately instead of fading out
+            // with the rest to prevent and overlapping animation of fade and move.
+            if (imageView is ViewGroup) {
+                (exitTransition as? android.transition.TransitionSet)?.excludeTarget(
+                    imageView,
+                    true
+                )
+            }
+
+            Timber.d("Selected image at: $position")
+            router.toPhotoViewer(images, position, it, transitionName)
+        }
     }
 
 
-    private fun prepareTransitions() {
-        exitTransition = android.transition.TransitionInflater.from(context)
-            .inflateTransition(R.transition.grid_exit_transition)
-
-        // A similar mapping is set at the ImagePagerFragment with a setEnterSharedElementCallback.
+//    private fun prepareTransitions() {
+//        exitTransition = android.transition.TransitionInflater.from(context)
+//            .inflateTransition(R.transition.grid_exit_transition)
+//        /**
+//         * A similar mapping is set at the [BasePhotoViewerScreen] with a setEnterSharedElementCallback.
+//         */
 //        setExitSharedElementCallback(
 //            object : SharedElementCallback() {
 //                override fun onMapSharedElements(
@@ -359,7 +390,7 @@ abstract class BasePostListScreen<T : PostList>(layoutRes: Int) : BaseFragment(l
 //                    sharedElements[names[0]] = selectedImageView ?: return
 //                }
 //            })
-    }
+//    }
 
 
     /**
@@ -368,6 +399,11 @@ abstract class BasePostListScreen<T : PostList>(layoutRes: Int) : BaseFragment(l
      */
     private fun restoreLayoutState(bundle: Bundle = requireArguments()) {
         val parcelable = bundle.getParcelable<Parcelable?>(LAYOUT_MGR) ?: return
+        lastPostPosition?.let { postPosition ->
+            lastImagePosition?.let { imagePosition ->
+                setCurrentImagePosition(postPosition, imagePosition)
+            }
+        }
         postListViewNN.restoreState(parcelable, lastImagePosition, lastPostPosition)
         lastImagePosition = null
         lastPostPosition = null

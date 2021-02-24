@@ -147,7 +147,6 @@ class FragNavRouter(
         getFragmentManagerForDialog().registerFragmentLifecycleCallbacks(object :
             FragmentManager.FragmentLifecycleCallbacks() {
             override fun onFragmentViewDestroyed(fm: FragmentManager, f: Fragment) {
-                super.onFragmentViewDestroyed(fm, f)
                 if (f is DialogFragment && controller.currentFrag == currentDismissEventListener?.get()) {
                     dialogDismissEvent.value = Event(dialogFragmentCount)
                 }

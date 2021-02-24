@@ -2,9 +2,7 @@ package com.amebo.amebo.common.extensions
 
 import android.Manifest
 import android.app.Activity
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
+import android.content.*
 import android.content.pm.LabeledIntent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -129,4 +127,10 @@ fun Context.spToPx(sp: Int): Float {
 fun Context.contextShowKeyboard() {
     val imm = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
     imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY)
+}
+
+fun Context.copyTextToClipboard(text: String, label: String = "") {
+    val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    val clip = ClipData.newPlainText(label, text)
+    clipboard.setPrimaryClip(clip)
 }

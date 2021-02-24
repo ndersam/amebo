@@ -5,30 +5,26 @@
 package com.amebo.amebo.common
 
 import android.content.Context
-import android.content.res.Resources
-import android.widget.TextView
-import android.text.Html
-import java.lang.ref.WeakReference
-import android.graphics.drawable.Drawable
-import com.bumptech.glide.Glide
+import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Color
-import com.bumptech.glide.request.target.SizeReadyCallback
-import android.graphics.ColorFilter
+import android.graphics.drawable.Drawable
+import android.text.Html
+import android.widget.TextView
 import androidx.annotation.CallSuper
 import androidx.core.content.ContextCompat
 import com.amebo.amebo.R
 import com.amebo.amebo.common.AppUtil.gifProgressDrawable
 import com.amebo.amebo.common.extensions.setColor
+import com.bumptech.glide.Glide
 import com.bumptech.glide.request.Request
+import com.bumptech.glide.request.target.SizeReadyCallback
 import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.request.transition.Transition
 import pl.droidsonroids.gif.GifDrawable
 import timber.log.Timber
 import java.io.File
 import java.io.IOException
+import java.lang.ref.WeakReference
 
 class GlideImageGetter(
     textView: TextView,
@@ -39,7 +35,6 @@ class GlideImageGetter(
     private val container: WeakReference<TextView> = WeakReference(textView)
     private val textView get() = container.get()
     private val context get() = textView?.context
-    private val resources: Resources? get() = container.get()?.resources
     private val density: Float =
         if (densityAware) textView.resources.displayMetrics.density else 1.0f
 
@@ -52,12 +47,7 @@ class GlideImageGetter(
                 cache.remove(source)
                 existing
             }
-            source.endsWith(".gif") -> {
-                GifPlaceholder(source, context!!)
-            }
-            else -> {
-                BitmapDrawablePlaceholder(source, context!!)
-            }
+            else -> GifPlaceholder(source, context!!)
         }
         holder.load()
         cache[source] = WeakReference(holder)
@@ -200,25 +190,6 @@ class GlideImageGetter(
         }
     }
 
-    private inner class BitmapDrawablePlaceholder(source: String, context: Context) :
-        DrawableHolder<Bitmap>(source, context) {
-
-
-        override fun load() {
-            textView!!.post {
-                Glide.with(context ?: return@post)
-                    .asBitmap()
-                    .load(source)
-                    .into(this)
-            }
-        }
-
-        override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-            super.onResourceReady(resource, transition)
-            drawable = BitmapDrawable(resources ?: return, resource)
-        }
-    }
-
 
     private inner class GifPlaceholder(source: String, context: Context) :
         DrawableHolder<File>(source, context) {
@@ -241,6 +212,11 @@ class GlideImageGetter(
                 gifDrawable.start()
             } catch (e: IOException) {
                 Timber.e(e)
+                try {
+                    drawable = BitmapDrawable(context?.resources ?: return, resource.absolutePath)
+                } catch (e: IOException) {
+                    Timber.e(e)
+                }
             }
         }
 

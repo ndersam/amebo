@@ -51,20 +51,13 @@ abstract class PostListScreenViewModel<T : PostList>(
 
     val lastPage get() = manager.last
 
-    override val collapsedItems = mutableSetOf<Int>()
+    override val collapsedItems get() = manager.collapsedItems
+
+    override val currentImageRecyclerViewPosition get() = manager.collapsedImageItems
 
     override val hasNextPage: Boolean get() = manager.hasNextPage
 
     override val hasPrevPage: Boolean get() = manager.hasPrevPage
-
-    /**
-     * For topics with linked posts in their urls like this [https://www.nairaland.com/6212453/ever-tried-breaking-up-someone#95433745],
-     * the UI should scroll to the linked post (post with ID "95433745" in this example).
-     * This scrolling should only happen once even when a [BasePostListScreen]'s view has been destroyed but the
-     * fragment hasn't. This flag is set only during page reloads or loading of new page.
-     * This variable is used to indicate whether a scroll-to-post action can be performed.
-     */
-    override var shouldHighlightPost: Boolean = true
 
     private var request: Request? = null
         set(value) {
@@ -192,7 +185,6 @@ abstract class PostListScreenViewModel<T : PostList>(
                 nairaland.sources.submissions.likePost(post)
             else
                 nairaland.sources.submissions.unLikePost(post)
-            shouldHighlightPost = false
             if (result is ResultWrapper.Success) {
                 manager.update(result.data)
             }
@@ -206,7 +198,6 @@ abstract class PostListScreenViewModel<T : PostList>(
                 nairaland.sources.submissions.sharePost(post)
             else
                 nairaland.sources.submissions.unSharePost(post)
-            shouldHighlightPost = false
             if (result is ResultWrapper.Success) {
                 manager.update(result.data)
             }
@@ -219,7 +210,6 @@ abstract class PostListScreenViewModel<T : PostList>(
         cancelLoading()
 
         job = viewModelScope.launch {
-            shouldHighlightPost = true
             manager.clearIfNotRefresh(request)
 
             if (manager.isLoadFromCache(request)) {
@@ -252,7 +242,8 @@ abstract class PostListScreenViewModel<T : PostList>(
         var current: Int = 0,
         var last: Int? = null,
         var dataPage: PostListDataPage? = null,
-        val collapsedItems: MutableSet<Int> = mutableSetOf()
+        val collapsedItems: MutableSet<Int> = mutableSetOf(),
+        val collapsedImageItems: MutableMap<Int, Int> = mutableMapOf()
     ) {
         val previous: Int get() = current - 1
 
@@ -277,6 +268,7 @@ abstract class PostListScreenViewModel<T : PostList>(
                 this.current = request.page
                 this.dataPage = null
                 this.collapsedItems.clear()
+                this.collapsedImageItems.clear()
             }
         }
 
@@ -285,12 +277,14 @@ abstract class PostListScreenViewModel<T : PostList>(
             dataPage = null
             last = null
             collapsedItems.clear()
+            collapsedImageItems.clear()
         }
 
 
         fun update(dataPage: PostListDataPage?) {
             this.dataPage = dataPage
             collapsedItems.clear()
+            collapsedImageItems.clear()
             if (dataPage != null) {
                 this.current = dataPage.page
                 this.last = when (val last = this.last) {

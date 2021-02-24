@@ -3,7 +3,7 @@ package com.amebo.amebo.common
 import android.graphics.drawable.Drawable
 import android.text.Html
 import android.widget.TextView
-import timber.log.Timber
+import com.amebo.core.Values
 
 class ImageGetter(private val textView: TextView, imageGetterState: ImageGetterState) :
     Html.ImageGetter {
@@ -15,11 +15,8 @@ class ImageGetter(private val textView: TextView, imageGetterState: ImageGetterS
     )
 
     override fun getDrawable(source: String): Drawable {
-        val drawable = EmojiGetter.getDrawable(textView.context, source)
-        if (drawable != null) {
-            return drawable
-        }
-        return webGetter.getDrawable(source)
+        val drawable = EmojiGetter.getDrawable(textView.context, source.replace(Values.URL, ""))
+        return drawable ?: webGetter.getDrawable(source)
     }
 }
 

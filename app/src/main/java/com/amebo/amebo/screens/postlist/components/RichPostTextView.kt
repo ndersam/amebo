@@ -21,6 +21,7 @@ import com.amebo.amebo.common.extensions.quotedPostRanges
 import com.amebo.amebo.databinding.ItemRichPostTextViewTextBinding
 import com.amebo.amebo.databinding.ItemYoutubeViewBinding
 import com.amebo.core.domain.SimplePost
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 
@@ -96,7 +97,11 @@ class RichPostTextView : RecyclerView {
                 }
                 is Item.Video -> {
                     val vh = holder as VideoVH
-                    vh.bind(AppUtil.parseYoutubeUrl(item.url)!!)
+                    vh.bind(AppUtil.parseYoutubeUrl(item.url) ?: run {
+                        FirebaseCrashlytics.getInstance()
+                            .log("AppUtil.parseYoutubeUrl returns null, url=${item.url}")
+                        return
+                    })
                 }
             }
         }

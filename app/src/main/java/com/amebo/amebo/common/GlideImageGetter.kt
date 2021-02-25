@@ -65,8 +65,16 @@ class GlideImageGetter(
 
         private var ignoreBoundsOnce = false
 
-        private val progressDrawable = gifProgressDrawable(context).apply {
-            callback = this@DrawableHolder
+        private val progressDrawable = run {
+            // Wrap in try-catch because instantiating class throws ...
+            // "GifError 101: Failed to open give input: Function not implemented" on some devices
+            try {
+                gifProgressDrawable(context).apply {
+                    callback = this@DrawableHolder
+                }
+            } catch (e: Exception) {
+                null
+            }
         }
 
         private val errorDrawable =
@@ -107,7 +115,7 @@ class GlideImageGetter(
         override fun draw(canvas: Canvas) {
             when (val drawable = drawable) {
                 is Drawable -> drawable.draw(canvas)
-                else -> progressDrawable.draw(canvas)
+                else -> progressDrawable?.draw(canvas)
             }
         }
 
@@ -120,7 +128,7 @@ class GlideImageGetter(
         }
 
         @Suppress("DEPRECATION")
-        override fun getOpacity(): Int = drawable?.opacity ?: progressDrawable.opacity
+        override fun getOpacity(): Int = drawable?.opacity ?: progressDrawable?.opacity ?: 0
 
 
         override fun invalidateDrawable(who: Drawable) {
@@ -139,7 +147,7 @@ class GlideImageGetter(
             imageGetterState[source] = ImageFetchState.Loading
             ignoreBoundsOnce = true
             drawable = progressDrawable
-            progressDrawable.start()
+            progressDrawable?.start()
         }
 
         override fun onLoadFailed(errorDrawable: Drawable?) {

@@ -30,7 +30,9 @@ class BoardDataSourceImpl @Inject constructor(
         withContext(context.IO) {
             db.transaction {
                 src.fetchBoards().forEach {
-                    db.boardQueries.insert(it.name, it.url, it.id.toLong())
+                    if (db.boardQueries.selectById(it.id.toLong()).executeAsOneOrNull() == null) {
+                        db.boardQueries.insert(it.name, it.url, it.id.toLong())
+                    }
                 }
             }
         }

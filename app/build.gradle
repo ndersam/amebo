@@ -30,7 +30,7 @@ android {
         applicationId "com.amebo.amebo"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 25
+        versionCode 26
         versionName new Date().format('yyyy.MM.dd.HHmmss')
 
         testInstrumentationRunner "com.amebo.amebo.suite.TestRunner"
@@ -179,7 +179,7 @@ dependencies {
     debugImplementation 'com.facebook.stetho:stetho-okhttp3:1.5.1'
     debugImplementation "com.github.whataa:pandora:androidx_v2.1.0"
     releaseImplementation "com.github.whataa:pandora-no-op:v2.0.3"
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.3'
+//    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.3'
 
     // Play
     implementation 'com.google.android.play:core-ktx:1.8.1'

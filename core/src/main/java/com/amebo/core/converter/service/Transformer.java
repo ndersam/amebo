@@ -17,6 +17,8 @@ package com.amebo.core.converter.service;
 
 
 
+import androidx.core.util.Predicate;
+
 import com.amebo.core.converter.domain.Document;
 import com.amebo.core.converter.domain.Node;
 import com.amebo.core.converter.domain.Offsets;
@@ -25,7 +27,6 @@ import com.amebo.core.converter.domain.TagNode;
 import com.amebo.core.converter.domain.TextNode;
 
 import java.util.Map;
-import java.util.function.Predicate;
 
 
 /**

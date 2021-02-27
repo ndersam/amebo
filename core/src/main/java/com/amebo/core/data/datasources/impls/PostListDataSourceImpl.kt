@@ -10,6 +10,7 @@ import com.amebo.core.data.CoroutineContextProvider
 import com.amebo.core.data.datasources.PostListDataSource
 import com.amebo.core.domain.*
 import com.amebo.core.extensions.map
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 import timber.log.Timber
@@ -238,6 +239,8 @@ class PostListDataSourceImpl @Inject constructor(
                 ResultWrapper.failure(ErrorResponse.Network)
             } catch (e: Exception) {
                 Timber.e(e)
+                FirebaseCrashlytics.getInstance()
+                    .log("Couldn't fetch page with postId: '$postId'. Exception=$e")
                 ResultWrapper.failure(ErrorResponse.Parse)
             }
         }

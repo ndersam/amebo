@@ -217,10 +217,12 @@ open class SimpleFormView(
     }
 
     override fun showKeyboard(onBody: Boolean) {
-        if (!onBody && editTitle.text.isBlank()) {
-            editTitle.showKeyboard()
-        } else {
-            editMessage.showKeyboard()
+        if (listener.canShowKeyboard) {
+            if (!onBody && editTitle.text.isBlank()) {
+                editTitle.showKeyboard()
+            } else {
+                editMessage.showKeyboard()
+            }
         }
     }
 

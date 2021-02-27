@@ -192,4 +192,6 @@ abstract class FormScreen<T : Form>(@LayoutRes layoutRes: Int) : BaseFragment(la
     override fun submit() = viewModel.submitForm()
 
     override val canSubmit: Boolean get() = viewModel.canSubmit
+
+    override val canShowKeyboard: Boolean get() = pref.acceptedNairalandRules
 }

@@ -18,6 +18,7 @@ package com.amebo.core.converter.service;
 import android.content.Context;
 
 import androidx.annotation.RestrictTo;
+import androidx.core.util.Predicate;
 
 import com.amebo.core.converter.domain.Document;
 import com.amebo.core.converter.domain.TagNode;
@@ -29,7 +30,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Predicate;
 
 /**
  * BBCode to HTML Transformer.

@@ -17,7 +17,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <ImageButton
+        <com.amebo.amebo.common.widgets.AutoTintImageButton
             android:id="@+id/btnPrevPage"
             android:layout_width="0dp"
             android:layout_height="48dp"
@@ -34,7 +34,7 @@
             app:layout_constraintWidth_min="wrap"
             app:layout_constraintWidth_percent="0.2" />
 
-        <ImageButton
+        <com.amebo.amebo.common.widgets.AutoTintImageButton
             android:id="@+id/btnNextPage"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -51,7 +51,7 @@
             app:layout_constraintWidth_percent="0.2" />
 
 
-        <ImageButton
+        <com.amebo.amebo.common.widgets.AutoTintImageButton
             android:id="@+id/btnRefreshPage"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -65,7 +65,7 @@
             app:layout_constraintWidth_max="wrap"
             app:layout_constraintWidth_percent="0.2" />
 
-        <ImageButton
+        <com.amebo.amebo.common.widgets.AutoTintImageButton
             android:id="@+id/btnReply"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -82,7 +82,7 @@
             app:layout_constraintWidth_percent="0.2"
             tools:visibility="visible" />
 
-        <ImageButton
+        <com.amebo.amebo.common.widgets.AutoTintImageButton
             android:id="@+id/btnMore"
             android:layout_width="0dp"
             android:layout_height="0dp"

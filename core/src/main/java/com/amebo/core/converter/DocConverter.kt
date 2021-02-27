@@ -6,12 +6,12 @@ import com.amebo.core.converter.service.BBCodeParser
 import com.amebo.core.converter.service.BBCodeToHTMLTransformer
 
 object DocConverter {
-    fun initialize(context: Context) {
+    internal fun initialize(context: Context) {
         BBCodeToHTMLTransformer.initialize(context)
     }
 
     @RestrictTo(RestrictTo.Scope.TESTS)
-    fun initialize(){
+    internal fun initialize() {
         BBCodeToHTMLTransformer.initialize()
     }
 

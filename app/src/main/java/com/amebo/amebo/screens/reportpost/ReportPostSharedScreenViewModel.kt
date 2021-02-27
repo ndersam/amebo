@@ -26,7 +26,7 @@ class ReportPostSharedScreenViewModel @Inject constructor(private val nairaland:
     private val _submissionEvent = MutableLiveData<Event<Resource<PostListDataPage>>>()
     val submissionEvent: LiveData<Event<Resource<PostListDataPage>>> = _submissionEvent
 
-    val canSubmit get() =  _submissionEvent.value?.peekContent() !is Resource.Loading
+    val canSubmit get() = _submissionEvent.value?.peekContent() !is Resource.Loading && data.reason.isNotBlank()
 
     fun initialize(
         post: SimplePost

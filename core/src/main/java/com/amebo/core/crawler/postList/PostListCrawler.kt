@@ -16,9 +16,7 @@ import org.jsoup.nodes.TextNode
 import org.jsoup.parser.Tag
 import org.jsoup.select.Elements
 import timber.log.Timber
-import java.util.*
 import java.util.regex.Pattern
-import kotlin.collections.ArrayList
 import kotlin.properties.Delegates
 
 private val MULTI_LINE_REGEX = Pattern.compile("(<br>\n*){3,}")
@@ -536,7 +534,7 @@ private fun fetchPostsOnTopic(table: Element, topic: Topic): List<Post> {
         if (isStartOfNewPost(datum)) { // PARSE COMMENT HEADING
             val commentId: String = datum.selectFirst("a").attr("name")
             var authorName: String? = null
-            var authorHref: String? = null
+//            var authorHref: String? = null
             var isMale: Boolean? = null
             val postHref = datum.select("a")[3].attr("href") // post href is 4th <a> tag
             try {
@@ -553,7 +551,7 @@ private fun fetchPostsOnTopic(table: Element, topic: Topic): List<Post> {
                     }
                 }
                 authorName = datum.selectFirst("a.user").text()
-                authorHref = datum.selectFirst("a.user").attr("href").substringAfter("/")
+//                authorHref = datum.selectFirst("a.user").attr("href").substringAfter("/")
             } catch (e: Exception) {
                 // In some special cases, for deleted users e.g. https://www.nairaland.com/nobody
                 for (node in datum.childNodes()) {
@@ -562,7 +560,7 @@ private fun fetchPostsOnTopic(table: Element, topic: Topic): List<Post> {
                     ) { // assumes text is in the form: "by XXXXXX:" ... hence start at index 3 and ignore the last char
                         val text: String = node.text().trim()
                         authorName = text.substring(3, text.length - 1)
-                        authorHref = authorName.toLowerCase(Locale.ENGLISH)
+//                        authorHref = authorName.toLowerCase(Locale.ENGLISH)
                         break
                     }
                 }
@@ -672,7 +670,7 @@ private fun parsePostBody(tableData: Element): PostBody {
 
                 // find blockQuotes that "actually" quote a nairaland post
                 val blockQuotes = element.select("blockquote")
-                for ((position, blockQuote) in blockQuotes.withIndex()) {
+                for ((_, blockQuote) in blockQuotes.withIndex()) {
                     // check if blockQuote element has an anchor tag as its first element
                     // this is usually the link to the quoted text
                     val children = blockQuote.children()
@@ -687,7 +685,7 @@ private fun parsePostBody(tableData: Element): PostBody {
                             if (node != null && node.outerHtml().trim() == ":") {
                                 node.remove()
                             }
-                            postBody.addQuote(position, elem.attr("href"))
+                            postBody.addQuote(elem.attr("href"))
                         }
                     }
                 }
@@ -768,7 +766,6 @@ private fun parseSharedPostHeader(td: Element): SharedPostHeader {
     val postTime: Long
     var sharer: User? = null
     val shareMeta: String
-    val shareTime: Long
 
     /*
        TOPIC, AUTHOR
@@ -977,7 +974,7 @@ private class PostBody(val id: String) {
     var parentQuotes: MutableList<String> = mutableListOf()
     var images: ArrayList<String> = ArrayList()
 
-    fun addQuote(position: Int, href: String) {
+    fun addQuote(href: String) {
         parentQuotes.add(href)
     }
 }

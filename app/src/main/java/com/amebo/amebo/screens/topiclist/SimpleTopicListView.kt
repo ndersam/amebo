@@ -22,7 +22,6 @@ import com.amebo.core.domain.BaseTopicListDataPage
 import com.amebo.core.domain.Sort
 import com.amebo.core.domain.TopicList
 import com.google.android.material.snackbar.Snackbar
-import timber.log.Timber
 import java.lang.ref.WeakReference
 
 open class SimpleTopicListView(

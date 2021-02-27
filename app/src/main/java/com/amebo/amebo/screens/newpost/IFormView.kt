@@ -32,5 +32,6 @@ interface IFormView {
         fun showRules()
         fun submit()
         val canSubmit: Boolean
+        val canShowKeyboard: Boolean
     }
 }

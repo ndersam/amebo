@@ -16,11 +16,13 @@
         android:orientation="horizontal">
 
 
-        <ImageView
+        <com.amebo.amebo.common.widgets.AutoTintImageButton
             android:id="@+id/btnPrevPage"
             android:layout_width="48dp"
             android:layout_height="48dp"
+            android:background="?selectableItemBackgroundBorderless"
             android:enabled="false"
+            android:scaleType="fitCenter"
             android:src="@drawable/ic_keyboard_arrow_left_24dp"
             android:tint="@color/button_color_primary_bg_selector"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -97,10 +99,12 @@
             app:layout_goneMarginStart="@dimen/small"
             tools:text="1356" />
 
-        <ImageView
+        <com.amebo.amebo.common.widgets.AutoTintImageButton
             android:id="@+id/btnNextPage"
             android:layout_width="48dp"
             android:layout_height="48dp"
+            android:background="?selectableItemBackgroundBorderless"
+            android:scaleType="fitCenter"
             android:src="@drawable/ic_keyboard_arrow_right_24dp"
             android:tint="@color/button_color_primary_bg_selector"
             app:layout_constraintBottom_toBottomOf="parent"

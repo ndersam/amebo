@@ -4,16 +4,13 @@ import android.os.Bundle
 import androidx.core.os.bundleOf
 import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
-import androidx.core.widget.doOnTextChanged
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.setFragmentResult
 import com.amebo.amebo.R
 import com.amebo.amebo.common.EventObserver
 import com.amebo.amebo.common.FragKeys
 import com.amebo.amebo.common.Resource
-import com.amebo.amebo.common.extensions.hideKeyboard
-import com.amebo.amebo.common.extensions.htmlFromText
-import com.amebo.amebo.common.extensions.snack
-import com.amebo.amebo.common.extensions.viewBinding
+import com.amebo.amebo.common.extensions.*
 import com.amebo.amebo.common.fragments.BaseFragment
 import com.amebo.amebo.databinding.ReportPostScreenBinding
 import com.amebo.core.domain.PostListDataPage
@@ -42,9 +39,9 @@ class ReportPostScreen : BaseFragment(R.layout.report_post_screen) {
         }
         binding.toolbar.setNavigationOnClickListener { router.back() }
 
-        binding.editBody.doOnTextChanged { text, _, _, _ ->
+        binding.editBody.doAfterTextChanged { text ->
             viewModel.data.reason = text.toString()
-            requireActivity().invalidateOptionsMenu()
+            invalidateOptionsMenu()
         }
         binding.txtRules.htmlFromText(requireContext().openRawAsString(R.raw.rules))
         binding.postBody.htmlFromText(post.text)
@@ -83,6 +80,7 @@ class ReportPostScreen : BaseFragment(R.layout.report_post_screen) {
 
     private fun handleFormLoadContent(data: ReportPostFormData) {
         binding.editBody.setText(data.reason)
+        invalidateOptionsMenu()
         setPostExpanded()
     }
 
@@ -106,7 +104,9 @@ class ReportPostScreen : BaseFragment(R.layout.report_post_screen) {
     }
 
     private fun invalidateOptionsMenu() {
-        binding.toolbar.menu.findItem(R.id.submit).isEnabled = viewModel.canSubmit
+        val submit = binding.toolbar.menu.findItem(R.id.submit)
+        submit.isEnabled = viewModel.canSubmit
+        submit.applyEnableTint(requireContext())
     }
 
     private fun setPostExpanded() {

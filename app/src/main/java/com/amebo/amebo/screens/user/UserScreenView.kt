@@ -169,13 +169,17 @@ class UserScreenView(
     }
 
     fun onFollowUserError(error: Resource.Error<User.Data>) {
-        // TODO
+        snack(error.cause.getMessage(context))
     }
 
     fun onFollowUserSuccess(success: Resource.Success<User.Data>) {
         user.data = success.content
         onDataAvailable()
-        snack(context.getString(R.string.now_following, user.name))
+        if (success.content.isFollowing) {
+            snack(context.getString(R.string.now_following, user.name))
+        } else {
+            snack(context.getString(R.string.unfollowed_x, user.name))
+        }
     }
 
     private fun snack(msg: String) {

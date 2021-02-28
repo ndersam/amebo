@@ -30,8 +30,6 @@ class Badge(
     }
 
 
-
-
 }
 
 /**
@@ -44,7 +42,6 @@ private class BadgeDrawableBadge(context: Context) : Drawable() {
     private val mTextPaint: Paint
     private val mTxtRect = Rect()
     private var mCount = ""
-    private var mWillDraw = false
 
     init {
         val theme = context.asTheme()
@@ -76,7 +73,7 @@ private class BadgeDrawableBadge(context: Context) : Drawable() {
     }
 
     override fun draw(canvas: Canvas) {
-        if (!mWillDraw) {
+        if (mCount.isEmpty()) {
             return
         }
         val bounds = bounds
@@ -112,8 +109,6 @@ private class BadgeDrawableBadge(context: Context) : Drawable() {
       */
     fun setCount(count: String) {
         mCount = count
-        // Only draw a badge if there are notifications.
-        mWillDraw = count.isNotEmpty() && !count.equals("0", ignoreCase = true)
         invalidateSelf()
     }
 

@@ -153,7 +153,7 @@
                     app:tint="?colorOnPrimary" />
 
 
-                <com.amebo.amebo.common.widgets.AutoTintImageButton
+                <ImageButton
                     android:id="@+id/btnMore"
                     android:layout_width="0dp"
                     android:layout_height="0dp"

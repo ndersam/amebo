@@ -12,6 +12,7 @@ import com.amebo.amebo.common.fragments.BaseFragment
 import com.amebo.amebo.databinding.SearchScreenBinding
 import com.amebo.core.domain.Board
 import com.amebo.core.domain.SearchQuery
+import com.amebo.core.domain.Session
 import com.amebo.core.domain.TopicList
 
 class SearchScreen : BaseFragment(R.layout.search_screen), SearchView.Listener {
@@ -133,6 +134,8 @@ class SearchScreen : BaseFragment(R.layout.search_screen), SearchView.Listener {
         hideKeyboard()
         router.toTopicList(topicList)
     }
+
+    override fun getSession(): Session? = null
 
     override fun dismissFollowedBoardHint() {
         pref.showFollowedBoardHint = false

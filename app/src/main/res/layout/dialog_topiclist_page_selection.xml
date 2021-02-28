@@ -106,7 +106,8 @@
                         android:enabled="false"
                         android:scaleType="fitCenter"
                         android:src="@drawable/ic_keyboard_arrow_left_24dp"
-                        android:tint="@color/button_color_primary_bg_selector" />
+                        android:tint="@color/button_color_primary_bg_selector"
+                        app:enabledTint="?colorPrimary" />
 
                     <androidx.legacy.widget.Space
                         android:layout_width="0dp"
@@ -162,7 +163,8 @@
                         android:background="?selectableItemBackgroundBorderless"
                         android:scaleType="fitCenter"
                         android:src="@drawable/ic_keyboard_arrow_right_24dp"
-                        android:tint="@color/button_color_primary_bg_selector" />
+                        android:tint="@color/button_color_primary_bg_selector"
+                        app:enabledTint="?colorPrimary" />
 
                     <androidx.legacy.widget.Space
                         android:layout_width="0dp"

@@ -1,15 +1,12 @@
 package com.amebo.amebo.common.extensions
 
-import android.app.Activity
 import android.content.Context
 import android.graphics.Point
 import android.os.Build
-import android.util.DisplayMetrics
 import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
-import android.widget.FrameLayout
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
@@ -17,8 +14,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.viewbinding.ViewBinding
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
@@ -79,6 +74,8 @@ fun Fragment.hideKeyboard() {
     val currentFocus = requireActivity().currentFocus
     currentFocus?.let {
         mgr.hideSoftInputFromWindow(currentFocus.windowToken, 0)
+    } ?: run {
+        mgr.hideSoftInputFromWindow(view?.windowToken, 0)
     }
 }
 

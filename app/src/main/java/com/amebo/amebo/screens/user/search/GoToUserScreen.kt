@@ -5,6 +5,7 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import androidx.core.widget.doOnTextChanged
 import com.amebo.amebo.R
+import com.amebo.amebo.common.extensions.hideKeyboard
 import com.amebo.amebo.common.extensions.showKeyboard
 import com.amebo.amebo.common.extensions.viewBinding
 import com.amebo.amebo.common.fragments.InjectableBaseDialogFragment
@@ -21,7 +22,10 @@ class GoToUserScreen : InjectableBaseDialogFragment(R.layout.search_user_screen)
         binding.btnGo.setOnClickListener {
             gotoUserProfile(searchTerm)
         }
-        binding.btnCancel.setOnClickListener { dismiss() }
+        binding.btnCancel.setOnClickListener {
+            hideKeyboard()
+            dismiss()
+        }
 
         binding.searchBox.doOnTextChanged { _, _, _, _ ->
             binding.btnGo.isEnabled = isValidUsername(searchTerm)
@@ -39,6 +43,7 @@ class GoToUserScreen : InjectableBaseDialogFragment(R.layout.search_user_screen)
     }
 
     private fun gotoUserProfile(username: String) {
+        hideKeyboard()
         router.toUser(User(username))
         dismiss()
     }

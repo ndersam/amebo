@@ -35,6 +35,15 @@ class TopicListAdapter(
                     ItemExploreTopiclistAdapterBinding.inflate(layoutInflater, parent, false)
                 )
             }
+            TYPE_MULTI_BOARDS -> {
+                MultiBoardsVH(
+                    ItemExploreTopiclistAdapterBinding.inflate(
+                        layoutInflater,
+                        parent,
+                        false
+                    )
+                )
+            }
             else -> TopicListSectionVH(
                 ItemExploreTopiclistAdapterBinding.inflate(layoutInflater, parent, false)
             )
@@ -47,6 +56,7 @@ class TopicListAdapter(
         is Item.TopicListsItem -> TYPE_TOPIC_LISTS
         is Item.AllBoardsItem -> TYPE_ALL_BOARDS_TITLE
         Item.RecentItem -> TYPE_RECENT_SECTION
+        is Item.MultiBoards -> TYPE_MULTI_BOARDS
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
@@ -62,6 +72,10 @@ class TopicListAdapter(
             is Item.RecentItem -> {
                 val vh = holder as HistorySectionVH
                 vh.bind(listener)
+            }
+            is Item.MultiBoards -> {
+                val vh = holder as MultiBoardsVH
+                vh.bind(item.data, listener)
             }
         }
     }
@@ -99,8 +113,7 @@ class TopicListAdapter(
         } else {
             // multi-boards
             items.add(
-                Item.TopicListsItem(
-                    R.string.multi_boards,
+                Item.MultiBoards(
                     if (listener.isLoggedIn)
                         listOf(Featured, Trending, NewTopics, FollowedBoards, FollowedTopics)
                     else
@@ -129,6 +142,7 @@ class TopicListAdapter(
         class TopicListsItem(@StringRes val title: Int, val data: List<TopicList>) : Item()
         object RecentItem : Item()
         object AllBoardsItem : Item()
+        class MultiBoards(val data: List<TopicList>) : Item()
     }
 
     class TopicListSectionVH(private val binding: ItemExploreTopiclistAdapterBinding) :
@@ -149,6 +163,25 @@ class TopicListAdapter(
             binding.recyclerView.layoutManager = layoutManager
             binding.recyclerView.adapter =
                 TopicListSectionAdapter(title, data, listener, onDismissNoBoardItem)
+            binding.recyclerView.setHasFixedSize(true)
+        }
+    }
+
+    class MultiBoardsVH(private val binding: ItemExploreTopiclistAdapterBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        val layoutManager = FlexboxLayoutManager(binding.root.context)
+
+        init {
+            layoutManager.flexDirection = FlexDirection.ROW
+            layoutManager.justifyContent = JustifyContent.FLEX_START
+        }
+
+        fun bind(
+            data: List<TopicList>,
+            listener: Listener,
+        ) {
+            binding.recyclerView.layoutManager = layoutManager
+            binding.recyclerView.adapter = MultiBoardsAdapter(listener, data)
             binding.recyclerView.setHasFixedSize(true)
         }
     }
@@ -177,7 +210,8 @@ class TopicListAdapter(
         }
     }
 
-    interface Listener : TopicListSectionAdapter.Listener, HistorySectionAdapter.Listener {
+    interface Listener : TopicListSectionAdapter.Listener, HistorySectionAdapter.Listener,
+        MultiBoardsAdapter.Listener {
         val isLoggedIn: Boolean
         val showFollowedBoardHint: Boolean
         fun onAllBoardsClicked() {}
@@ -188,5 +222,6 @@ class TopicListAdapter(
         private const val TYPE_ALL_BOARDS_TITLE = 0
         private const val TYPE_TOPIC_LISTS = 1
         private const val TYPE_RECENT_SECTION = 2
+        private const val TYPE_MULTI_BOARDS = 3
     }
 }

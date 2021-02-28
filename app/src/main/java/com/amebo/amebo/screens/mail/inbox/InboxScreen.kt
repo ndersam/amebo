@@ -12,7 +12,6 @@ import com.amebo.amebo.common.extensions.viewBinding
 import com.amebo.amebo.common.fragments.AuthenticationRequired
 import com.amebo.amebo.common.fragments.BaseFragment
 import com.amebo.amebo.databinding.InboxScreenBinding
-import com.amebo.amebo.screens.accounts.UserManagementViewModel
 import com.amebo.core.domain.DismissMailNotificationForm
 import com.amebo.core.domain.Session
 import com.amebo.core.domain.User
@@ -25,7 +24,6 @@ import com.google.android.flexbox.FlexboxLayoutManager
 class InboxScreen : BaseFragment(R.layout.inbox_screen), AuthenticationRequired,
     ItemAdapter.Listener {
     private val binding by viewBinding(InboxScreenBinding::bind)
-    private val userManagementViewModel by activityViewModels<UserManagementViewModel>()
     private var adapter: ItemAdapter? = null
 
     private val viewModel by viewModels<InboxScreenViewModel>()

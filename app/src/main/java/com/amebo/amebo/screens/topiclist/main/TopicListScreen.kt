@@ -9,10 +9,7 @@ import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.amebo.amebo.R
-import com.amebo.amebo.common.EventObserver
-import com.amebo.amebo.common.FragKeys
-import com.amebo.amebo.common.Resource
-import com.amebo.amebo.common.asTheme
+import com.amebo.amebo.common.*
 import com.amebo.amebo.common.extensions.dpToPx
 import com.amebo.amebo.common.extensions.viewBinding
 import com.amebo.amebo.common.fragments.BackPressable
@@ -59,6 +56,13 @@ open class TopicListScreen : BaseTopicListScreen(R.layout.topic_list_screen),
             viewLifecycleOwner,
             EventObserver(::onUnFollowTopicEvent)
         )
+
+        val drawable = Badge(requireContext(), R.drawable.ic_explore_24dp)
+        binding.btnMore.setImageDrawable(drawable.icon)
+        userManagementViewModel.sessionEvent.observe(viewLifecycleOwner, {
+            val showNotification = it.followedBoards > 0 || it.followedTopics > 0
+            drawable.setCount(if (showNotification) " " else "")
+        })
     }
 
     private fun onFollowedBoardEvent(content: Resource<Pair<Board, Boolean>>) {

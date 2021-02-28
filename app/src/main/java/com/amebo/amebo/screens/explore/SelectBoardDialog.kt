@@ -18,6 +18,7 @@ import com.amebo.amebo.databinding.SelectBoardDialogBinding
 import com.amebo.amebo.screens.explore.adapters.SearchAdapter
 import com.amebo.amebo.screens.explore.adapters.TopicListAdapter
 import com.amebo.core.domain.Board
+import com.amebo.core.domain.Session
 import com.amebo.core.domain.TopicList
 
 class SelectBoardDialog : InjectableBaseDialogFragment(R.layout.select_board_dialog),
@@ -69,6 +70,8 @@ class SelectBoardDialog : InjectableBaseDialogFragment(R.layout.select_board_dia
     override fun onTopicListClicked(topicList: TopicList) {
         onBoardSelected(topicList as Board)
     }
+
+    override fun getSession(): Session? = null
 
     override fun dismissFollowedBoardHint() {
         pref.showFollowedBoardHint = false

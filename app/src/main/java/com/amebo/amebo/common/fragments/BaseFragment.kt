@@ -61,7 +61,7 @@ abstract class BaseFragment(layoutRes: Int) : Fragment(layoutRes), Injectable, H
         }
 
 
-    private val userManagementViewModel by activityViewModels<UserManagementViewModel>()
+    val userManagementViewModel by activityViewModels<UserManagementViewModel>()
 
     init {
         lifecycleScope.launchWhenStarted {

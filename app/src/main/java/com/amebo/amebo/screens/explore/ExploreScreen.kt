@@ -22,8 +22,10 @@ import com.amebo.amebo.common.routing.Router
 import com.amebo.amebo.common.routing.RouterFactory
 import com.amebo.amebo.databinding.ExploreScreenBinding
 import com.amebo.amebo.di.Injectable
+import com.amebo.amebo.screens.accounts.UserManagementViewModel
 import com.amebo.core.domain.Board
 import com.amebo.core.domain.SearchQuery
+import com.amebo.core.domain.Session
 import com.amebo.core.domain.TopicList
 import com.github.heyalex.bottomdrawer.BottomDrawerDialog
 import com.github.heyalex.bottomdrawer.BottomDrawerFragment
@@ -49,7 +51,8 @@ class ExploreScreen : BottomDrawerFragment(), Injectable, ExploreView.Listener {
     @Inject
     lateinit var pref: Pref
 
-    private val viewModel by viewModels<ExploreScreenViewModel>(this)
+    private val viewModel by viewModels<ExploreScreenViewModel> { this }
+    private val userManagementViewModel by viewModels<UserManagementViewModel> { requireActivity() }
     private val binding by viewBinding(ExploreScreenBinding::bind)
     private lateinit var exploreView: ExploreView
 
@@ -93,6 +96,9 @@ class ExploreScreen : BottomDrawerFragment(), Injectable, ExploreView.Listener {
             viewLifecycleOwner,
             EventObserver(::onFetchedFollowedBoards)
         )
+        userManagementViewModel.sessionEvent.observe(viewLifecycleOwner, {
+            binding.rvBoards.adapter?.notifyDataSetChanged()
+        })
 
         viewModel.loadBoards()
     }
@@ -137,11 +143,14 @@ class ExploreScreen : BottomDrawerFragment(), Injectable, ExploreView.Listener {
 
     override fun onRecentTopicsClicked() = router.toTopicHistory()
 
+    override fun getSession(): Session? {
+        return userManagementViewModel.sessionEvent.value
+    }
 
-    inline fun <reified T : ViewModel> viewModels(owner: ViewModelStoreOwner) =
+    inline fun <reified T : ViewModel> viewModels(crossinline owner: () -> ViewModelStoreOwner) =
         lazy {
             T::class.java.let { clazz ->
-                ViewModelProvider(owner, viewModelFactory).get(clazz)
+                ViewModelProvider(owner(), viewModelFactory).get(clazz)
             }
         }
 }

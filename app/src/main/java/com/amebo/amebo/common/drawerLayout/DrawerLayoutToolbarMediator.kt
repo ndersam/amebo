@@ -24,7 +24,9 @@ object DrawerLayoutToolbarMediator {
         )
         val badge = Badge(fragment.requireContext())
         fragment.activityViewModels<UserManagementViewModel>().value.sessionEvent.observe(fragment.viewLifecycleOwner) {
-            badge.setCount(if (it.count > 0) " " else "")
+            val hasNotifications =
+                it.mentions > 0 || it.likesAndShares > 0 || it.sharedWithMe > 0 || it.following > 0
+            badge.setCount(if (hasNotifications) " " else "")
         }
 
         drawerLayout.addDrawerListener(actionBarDrawerToggle)

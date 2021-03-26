@@ -210,7 +210,7 @@ class TopicScreen : BasePostListScreen<Topic>(R.layout.topic_screen), BackPressa
     }
 
     override fun handledBackPress(): Boolean {
-        if (binding.drawerLayout.isDrawerOpen(GravityCompat.END)) {
+        if (view != null && binding.drawerLayout.isDrawerOpen(GravityCompat.END)) {
             binding.drawerLayout.closeDrawer(GravityCompat.END)
             return true
         }

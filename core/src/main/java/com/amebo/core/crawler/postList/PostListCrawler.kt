@@ -267,7 +267,13 @@ internal fun parseTimelinePosts(soup: Document, pageNumber: Int): TimelinePostsL
     var pageElem = table.previousElementSibling().previousElementSibling()
     if (!pageElem.isTag("p"))
         pageElem = pageElem.nextElementSibling()
-    val lastPage = pageElem.selectFirst("b:last-of-type").text().toInt() - 1
+    val lastPageElem = pageElem.selectFirst("b:last-of-type")
+        ?: return TimelinePostsListDataPage(
+            posts,
+            pageNumber,
+            0
+        )
+    val lastPage = (lastPageElem.text().toInt() - 1).coerceAtLeast(0)
 
 
     var idx = 0
@@ -328,7 +334,7 @@ internal fun parseSharedPosts(soup: Document, pageNumber: Int): SharedPostsListD
     var pageElem = table.previousElementSibling().previousElementSibling()
     if (!pageElem.isTag("p"))
         pageElem = pageElem.nextElementSibling()
-    val lastPage = pageElem.selectFirst("b:last-of-type").text().toInt() - 1
+    val lastPage = (pageElem.selectFirst("b:last-of-type").text().toInt() - 1).coerceAtLeast(0)
 
 
     var idx = 0
@@ -384,15 +390,33 @@ internal fun parseSharedPosts(soup: Document, pageNumber: Int): SharedPostsListD
 
 internal fun parseLikesAndShares(soup: Document, pageNumber: Int): LikedOrSharedPostListDataPage {
     val posts = mutableListOf<Post>()
+    var numShares = 0
+    var numLikes = 0
 
     // Num likes? shares?
-    val elems = soup.select("body > div > table:nth-of-type(2) b")
-    // e.g. 283 total likes
-    val numLikes = elems.first().text().split(" ").first().trim().toInt()
-    // e.g. 283 total shares
-    val numShares = elems[1].text().split(" ").first().trim().toInt()
+    soup.select("body > div > table:nth-of-type(2) b").forEach {
+        val text = it.text().trim()
+        // e.g. 283 total shares
+        if (text.endsWith("total shares", ignoreCase = true)) {
+            numShares = text.split(" ").first().trim().toInt()
+        }
+        // e.g. 283 total likes
+        else if (text.endsWith("total likes", ignoreCase = true)) {
+            numLikes = text.split(" ").first().trim().toInt()
+        }
+    }
 
     val table = soup.selectFirst("body > div > table:nth-of-type(3)")
+    // 'table of posts' has no id, so if this has an Id, it's definitely not the right table
+    if (table.id().isNotBlank()) {
+        return LikedOrSharedPostListDataPage(
+            emptyList(),
+            pageNumber,
+            pageNumber,
+            numLikes,
+            numShares
+        )
+    }
     val tRows = table.select("tr td")
         ?: // No posts
         return LikedOrSharedPostListDataPage(
@@ -670,7 +694,7 @@ private fun parsePostBody(tableData: Element): PostBody {
 
                 // find blockQuotes that "actually" quote a nairaland post
                 val blockQuotes = element.select("blockquote")
-                for ((_, blockQuote) in blockQuotes.withIndex()) {
+                for (blockQuote in blockQuotes) {
                     // check if blockQuote element has an anchor tag as its first element
                     // this is usually the link to the quoted text
                     val children = blockQuote.children()

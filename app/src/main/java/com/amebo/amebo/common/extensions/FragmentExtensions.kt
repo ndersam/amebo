@@ -32,6 +32,7 @@ class FragmentViewBindingDelegate<T : ViewBinding>(
 
                     viewLifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
                         override fun onDestroy(owner: LifecycleOwner) {
+                            viewLifecycleOwner.lifecycle.removeObserver(this)
                             binding = null
                         }
                     })
@@ -47,6 +48,8 @@ class FragmentViewBindingDelegate<T : ViewBinding>(
                 fragment.viewLifecycleOwnerLiveData.removeObserver(
                     viewLifecycleOwnerLiveDataObserver
                 )
+                binding = null
+                fragment.lifecycle.removeObserver(this)
             }
         })
     }

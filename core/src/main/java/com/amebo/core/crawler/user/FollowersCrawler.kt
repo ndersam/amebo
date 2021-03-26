@@ -8,6 +8,9 @@ import org.jsoup.nodes.Document
 internal fun parseFollowers(soup: Document): List<User> {
     val users = mutableListOf<User>()
     soup.select("html body div.body table:nth-of-type(2) tbody tr td")?.forEach {
+        if (it.text().trim() == "You have no followers at this time") {
+            return@forEach
+        }
         val userElem = it.selectFirst("b a")
         val genderStr: String? =
             it.selectFirst("b span.m")?.text() ?: it.selectFirst("b span.f")?.text()

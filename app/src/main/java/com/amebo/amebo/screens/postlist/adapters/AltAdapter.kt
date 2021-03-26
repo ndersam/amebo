@@ -1,33 +1,35 @@
 package com.amebo.amebo.screens.postlist.adapters
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
+import com.amebo.amebo.common.widgets.OuchView
 import com.amebo.amebo.databinding.ItemPostListAltContentBinding
 import com.amebo.core.domain.ErrorResponse
 
+@SuppressLint("NotifyDataSetChanged")
 class AltAdapter(private val listener: Listener) : RecyclerView.Adapter<AltAdapter.ViewHolder>() {
 
-    private var cause: ErrorResponse? = null
-    private var isLoading: Boolean = false
+    private var state: State? = null
 
     fun setLoading() {
-        cause = null
-        isLoading = true
+        state = State.Loading
         notifyDataSetChanged()
     }
 
     fun setError(cause: ErrorResponse) {
-        this.cause = cause
-        isLoading = false
+        state = State.Error(cause)
         notifyDataSetChanged()
     }
 
-    // TODO: Handle isEmpty
     fun clear(isEmpty: Boolean = false) {
-        isLoading = false
-        cause = null
+        state = if (isEmpty) {
+            State.Empty
+        } else {
+            null
+        }
         notifyDataSetChanged()
     }
 
@@ -40,13 +42,17 @@ class AltAdapter(private val listener: Listener) : RecyclerView.Adapter<AltAdapt
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        when {
-            cause is ErrorResponse -> holder.setError(cause!!)
-            isLoading -> holder.setLoading()
+        when (val state = state) {
+            State.Empty -> holder.setEmpty()
+            State.Loading -> holder.setLoading()
+            is State.Error -> holder.setError(state.cause)
+            null -> {
+                /* do nothing */
+            }
         }
     }
 
-    override fun getItemCount(): Int = if (isLoading || cause != null) 1 else 0
+    override fun getItemCount(): Int = if (state != null) 1 else 0
 
 
     class ViewHolder(
@@ -72,6 +78,18 @@ class AltAdapter(private val listener: Listener) : RecyclerView.Adapter<AltAdapt
             binding.ouchView.isVisible = true
             binding.ouchView.setState(cause)
         }
+
+        fun setEmpty() {
+            binding.progress.isVisible = false
+            binding.ouchView.isVisible = true
+            binding.ouchView.setState(OuchView.State.Empty)
+        }
+    }
+
+    private sealed class State {
+        object Empty : State()
+        object Loading : State()
+        class Error(val cause: ErrorResponse) : State()
     }
 
     interface Listener {

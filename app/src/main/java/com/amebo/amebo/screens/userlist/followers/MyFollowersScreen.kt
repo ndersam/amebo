@@ -7,12 +7,14 @@ import com.amebo.amebo.common.Resource
 import com.amebo.amebo.common.drawerLayout.DrawerLayoutToolbarMediator
 import com.amebo.amebo.common.extensions.snack
 import com.amebo.amebo.common.extensions.viewBinding
+import com.amebo.amebo.common.fragments.AuthenticationRequired
 import com.amebo.amebo.common.fragments.BaseFragment
 import com.amebo.amebo.databinding.MyFollowersScreenBinding
 import com.amebo.amebo.screens.userlist.ItemAdapter
 import com.amebo.core.domain.User
 
-class MyFollowersScreen : BaseFragment(R.layout.my_followers_screen), ItemAdapter.Listener {
+class MyFollowersScreen : BaseFragment(R.layout.my_followers_screen), AuthenticationRequired,
+    ItemAdapter.Listener {
 
     private val viewModel by viewModels<MyFollowersScreenViewModel>()
     private val binding by viewBinding(MyFollowersScreenBinding::bind)

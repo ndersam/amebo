@@ -1,6 +1,7 @@
 package com.amebo.core.apis.util
 
 import com.amebo.core.domain.ResultWrapper
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.haroldadmin.cnradapter.NetworkResponse
 
 /**
@@ -67,6 +68,8 @@ open class NetworkResponseConverter<T : Any, U : Any, R, S>(private val networkR
                 }
             }
         } catch (e: Exception) {
+            FirebaseCrashlytics.getInstance()
+                .log("Parse Exception: StackTrace=${e.stackTraceToString()}")
             checkNotNull(onUnknownError)
             ResultWrapper.Failure(onUnknownError!!(e))
         }

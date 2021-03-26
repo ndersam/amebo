@@ -118,7 +118,7 @@ open class TopicListScreen : BaseTopicListScreen(R.layout.topic_list_screen),
     }
 
     override fun handledBackPress(): Boolean {
-        if (binding.root.isDrawerOpen(GravityCompat.END)) {
+        if (view != null && binding.root.isDrawerOpen(GravityCompat.END)) {
             binding.root.closeDrawer(GravityCompat.END)
             return true
         }

@@ -13,8 +13,8 @@ import com.amebo.amebo.common.extensions.viewBinding
 import com.amebo.amebo.common.fragments.BaseBottomSheetDialogFragment
 import com.amebo.amebo.databinding.PostlistPageNavigationDialogBinding
 
-class PostListPageNavigationDialog : BaseBottomSheetDialogFragment() {
-    override val layoutRes = R.layout.postlist_page_navigation_dialog
+class PostListPageNavigationDialog :
+    BaseBottomSheetDialogFragment(R.layout.postlist_page_navigation_dialog) {
 
     private val binding: PostlistPageNavigationDialogBinding by viewBinding(
         PostlistPageNavigationDialogBinding::bind

@@ -4,6 +4,7 @@ import android.view.inputmethod.EditorInfo
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import com.amebo.amebo.R
+import com.amebo.amebo.common.extensions.cursorAtEnd
 import com.amebo.amebo.common.extensions.getTitle
 import com.amebo.amebo.databinding.DialogTopiclistPageSelectionBinding
 import com.amebo.core.domain.BaseTopicListDataPage
@@ -74,6 +75,7 @@ class TopicListPageSelectionDialogView(
                         num - 1
                     }
                     binding.editPage.setText(newNum.toString())
+                    binding.editPage.cursorAtEnd()
                 }
             }
         }
@@ -84,6 +86,7 @@ class TopicListPageSelectionDialogView(
             } else { // set first page
                 binding.editPage.setText("1")
             }
+            binding.editPage.cursorAtEnd()
             true
         }
 

@@ -5,10 +5,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import com.amebo.amebo.common.Pref
+import com.amebo.amebo.common.asTheme
 import com.amebo.amebo.common.routing.Router
 import com.amebo.amebo.common.routing.RouterFactory
 import com.amebo.amebo.di.Injectable
@@ -17,7 +19,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import javax.inject.Inject
 
-abstract class BaseBottomSheetDialogFragment : BottomSheetDialogFragment(), Injectable {
+abstract class BaseBottomSheetDialogFragment(val layoutRes: Int) : BottomSheetDialogFragment(),
+    Injectable {
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
@@ -31,7 +34,11 @@ abstract class BaseBottomSheetDialogFragment : BottomSheetDialogFragment(), Inje
     lateinit var pref: Pref
 
     lateinit var behaviour: BottomSheetBehavior<View>
-    abstract val layoutRes: Int
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setStyle(DialogFragment.STYLE_NORMAL, requireContext().asTheme().bottomSheetDialogThemeRes)
+    }
 
     final override fun onCreateView(
         inflater: LayoutInflater,

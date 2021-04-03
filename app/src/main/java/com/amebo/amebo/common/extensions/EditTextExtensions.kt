@@ -6,8 +6,7 @@ import android.view.MenuItem
 import android.widget.EditText
 
 fun EditText.showKeyboard(cursorAtEnd: Boolean = true) {
-    requestFocus()
-    context.contextShowKeyboard()
+    focusAndShowKeyboard()
     if (cursorAtEnd) {
         cursorAtEnd()
     }

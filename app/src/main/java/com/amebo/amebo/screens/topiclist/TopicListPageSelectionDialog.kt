@@ -6,22 +6,18 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.setFragmentResult
 import com.amebo.amebo.R
 import com.amebo.amebo.common.FragKeys
-import com.amebo.amebo.common.Pref
 import com.amebo.amebo.common.extensions.viewBinding
-import com.amebo.amebo.common.fragments.BaseBottomSheetFragment
+import com.amebo.amebo.common.fragments.BaseBottomSheetDialogFragment
 import com.amebo.amebo.databinding.DialogTopiclistPageSelectionBinding
 import com.amebo.amebo.di.Injectable
 import com.amebo.core.domain.BaseTopicListDataPage
 import com.amebo.core.domain.TopicList
-import javax.inject.Inject
 
 
 class TopicListPageSelectionDialog :
-    BaseBottomSheetFragment(R.layout.dialog_topiclist_page_selection),
+    BaseBottomSheetDialogFragment(R.layout.dialog_topiclist_page_selection),
     TopicListPageSelectionDialogView.Listener, Injectable {
 
-    @Inject
-    lateinit var pref: Pref
 
     companion object {
         private const val PAGE = "page"

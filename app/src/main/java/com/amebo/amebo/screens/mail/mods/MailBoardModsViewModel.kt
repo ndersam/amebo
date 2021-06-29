@@ -5,7 +5,7 @@ import com.amebo.core.Nairaland
 import com.amebo.core.domain.BoardsDataPage
 import com.amebo.core.domain.ErrorResponse
 import com.amebo.core.domain.MailBoardModsForm
-import com.amebo.core.domain.ResultWrapper
+import com.github.michaelbull.result.Result
 import javax.inject.Inject
 
 class MailBoardModsViewModel @Inject constructor(private val nairaland: Nairaland) :
@@ -18,11 +18,11 @@ class MailBoardModsViewModel @Inject constructor(private val nairaland: Nairalan
         initializeFormLoading()
     }
 
-    override suspend fun doSubmitForm(): ResultWrapper<BoardsDataPage, ErrorResponse> {
+    override suspend fun doSubmitForm(): Result<BoardsDataPage, ErrorResponse> {
         return nairaland.sources.submissions.newMail(form!!)
     }
 
-    override suspend fun doLoadForm(): ResultWrapper<MailBoardModsForm, ErrorResponse> {
+    override suspend fun doLoadForm(): Result<MailBoardModsForm, ErrorResponse> {
         return nairaland.sources.forms.mailBoardMods(boardId)
     }
 

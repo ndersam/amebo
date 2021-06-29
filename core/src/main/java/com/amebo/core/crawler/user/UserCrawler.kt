@@ -1,16 +1,20 @@
 package com.amebo.core.crawler.user
 
-import com.amebo.core.CoreUtils.currentDate
-import com.amebo.core.CoreUtils.currentYear
-import com.amebo.core.CoreUtils.timeRegisteredToStamp
-import com.amebo.core.CoreUtils.toTimeStamp
+import com.amebo.core.common.CoreUtils.currentDate
+import com.amebo.core.common.CoreUtils.currentYear
+import com.amebo.core.common.CoreUtils.timeRegisteredToStamp
+import com.amebo.core.common.CoreUtils.toTimeStamp
 import com.amebo.core.crawler.DateTimeParser
 import com.amebo.core.crawler.ParseException
 import com.amebo.core.crawler.isTag
 import com.amebo.core.crawler.topicList.parseOtherTopics
 import com.amebo.core.domain.Board
+import com.amebo.core.domain.ErrorResponse
 import com.amebo.core.domain.Gender
 import com.amebo.core.domain.User
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.TextNode
@@ -26,6 +30,7 @@ private val USER_ID = Pattern.compile("member=(\\d+)")
 private val SPACES = Pattern.compile("\\s+")
 private val STH_ON_STH = Pattern.compile("\\S*On\\S*")
 
+// TODO: Catch parsing exceptions on this page
 /**
  * Returns a new User object with same name and url as {@param user0} with updated statistics
  *
@@ -35,7 +40,7 @@ private val STH_ON_STH = Pattern.compile("\\S*On\\S*")
 @Throws(ParseException::class)
 fun fetchUserData(
     soup: Document
-): User.Data {
+): Result<User.Data, ErrorResponse> {
 
     val userData = User.Data()
     val imageBuilder = UserImageBuilder()
@@ -51,7 +56,7 @@ fun fetchUserData(
         }
     }
     userData.image = imageBuilder.build()
-    return userData
+    return Ok(userData)
 
 }
 
@@ -60,7 +65,7 @@ private fun parseUserData(
     data: User.Data,
     table: Element,
     imageBuilder: UserImageBuilder
-) {
+) : Result<Unit, ErrorResponse> {
 
     val tRows = table.select("tbody tr td")
     // User Profile Information
@@ -83,8 +88,15 @@ private fun parseUserData(
         data.topicCount = header.text().split(SPACES)
             .toTypedArray()[2]
             .toInt() // text is of form "View All 1054 Topics"
-        data.latestTopics.addAll(parseOtherTopics(tRows))
+
+        data.latestTopics.addAll(
+            when(val result = parseOtherTopics(tRows)) {
+                is Ok -> result.value
+                is Err -> return result
+            }
+        )
     }
+    return Ok(Unit)
 }
 
 @Throws(ParseException::class)

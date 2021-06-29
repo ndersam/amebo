@@ -3,7 +3,7 @@ import java.lang.Integer;
 CREATE TABLE postListPages (
     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     topic_id TEXT NOT NULL,
-    page INTEGER as Integer NOT NULL,
+    page INTEGER AS Integer NOT NULL,
     data TEXT NOT NULL,
     timestamp INTEGER NOT NULL,
     user_slug TEXT,

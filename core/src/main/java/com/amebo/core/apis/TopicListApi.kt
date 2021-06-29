@@ -1,38 +1,40 @@
 package com.amebo.core.apis
 
-import com.amebo.core.domain.ErrorResponse
-import com.haroldadmin.cnradapter.NetworkResponse
 import org.jsoup.nodes.Document
+import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path
 
-interface TopicListApi {
+internal interface TopicListApi {
 
     @GET("{board}/{sort}/{page}")
-    suspend fun fetchBoardSoup(
+    fun fetchBoardSoup(
         @Path("board") board: String,
         @Path("sort") sort: String,
         @Path("page") page: Int
-    ): NetworkResponse<Document, ErrorResponse>
+    ): Call<Document>
 
 
     @GET("links/{page}")
-    suspend fun fetchFeaturedSoup(@Path("page") page: Int): NetworkResponse<Document, ErrorResponse>
+    fun fetchFeaturedSoup(@Path("page") page: Int): Call<Document>
 
     @GET("trending/{page}")
-    suspend fun fetchTrendingSoup(@Path("page") page: Int): NetworkResponse<Document, ErrorResponse>
+    fun fetchTrendingSoup(@Path("page") page: Int): Call<Document>
 
 
     @GET("topics/{page}")
-    suspend fun fetchNewSoup(@Path("page") page: Int): NetworkResponse<Document, ErrorResponse>
+    fun fetchNewSoup(@Path("page") page: Int): Call<Document>
 
 
     @GET("followedboards/{sort}/{page}")
-    suspend fun fetchFollowedBoardTopics(@Path("sort") sort: String, @Path("page") page: Int): NetworkResponse<Document, ErrorResponse>
+    fun fetchFollowedBoardTopics(
+        @Path("sort") sort: String,
+        @Path("page") page: Int
+    ): Call<Document>
 
     @GET("followed/{page}")
-    suspend fun fetchFollowedTopics(@Path("page") page: Int): NetworkResponse<Document, ErrorResponse>
+    fun fetchFollowedTopics(@Path("page") page: Int): Call<Document>
 
     @GET("{username}/topics/{page}")
-    suspend fun fetchUserTopics(@Path("username") username: String, @Path("page") page: Int): NetworkResponse<Document, ErrorResponse>
+    fun fetchUserTopics(@Path("username") username: String, @Path("page") page: Int): Call<Document>
 }

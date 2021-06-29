@@ -2,9 +2,9 @@ import java.lang.Integer;
 
 CREATE TABLE topicListPages (
     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    topiclist_id INTEGER  as Integer NOT NULL,
-    sort INTEGER as Integer,
-    page INTEGER as Integer NOT NULL,
+    topiclist_id INTEGER  AS Integer NOT NULL,
+    sort INTEGER AS Integer,
+    page INTEGER AS Integer NOT NULL,
     data TEXT NOT NULL,
     timestamp INTEGER NOT NULL,
     user_slug TEXT,
@@ -15,7 +15,7 @@ CREATE TABLE topicListPages (
 );
 
 CREATE TABLE topicListSort (
-    id INTEGER as Integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+    id INTEGER AS Integer NOT NULL PRIMARY KEY AUTOINCREMENT,
     value TEXT NOT NULL UNIQUE
 );
 

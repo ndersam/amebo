@@ -1,107 +1,80 @@
 package com.amebo.core.data.datasources.impls
 
-import android.net.ParseException
 import android.net.Uri
-import com.amebo.core.Values
 import com.amebo.core.apis.FormApi
-import com.amebo.core.crawler.TopicLockedException
+import com.amebo.core.common.Either
+import com.amebo.core.common.Values
+import com.amebo.core.common.extensions.RawResponse
+import com.amebo.core.common.extensions.awaitResult
+import com.amebo.core.common.extensions.awaitResultResponse
 import com.amebo.core.crawler.form.*
 import com.amebo.core.crawler.isHomeUrl
 import com.amebo.core.crawler.topicList.parseTopicUrl
 import com.amebo.core.data.CoroutineContextProvider
 import com.amebo.core.data.datasources.FormDataSource
 import com.amebo.core.domain.*
-import com.amebo.core.extensions.map
-import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
 import kotlinx.coroutines.withContext
 import org.jsoup.nodes.Document
-import retrofit2.Response
-import java.io.IOException
 import java.net.URLEncoder
 import javax.inject.Inject
 
-
-class FormDataSourceImpl @Inject constructor(
+internal class FormDataSourceImpl @Inject constructor(
     private val api: FormApi,
     private val context: CoroutineContextProvider
 ) : FormDataSource {
 
-    private val log get() = FirebaseCrashlytics.getInstance()::log
 
-    override suspend fun newPost(topicId: String): ResultWrapper<ResultWrapper<NewPostForm, AreYouMuslimDeclarationForm>, ErrorResponse> =
+    override suspend fun newPost(topicId: String): Result<Either<NewPostForm, AreYouMuslimDeclarationForm>, ErrorResponse> =
         withContext(context.IO) {
-            try {
-                val resp = api.newPost(topicId)
-                checkIfMuslim(resp, ::parseNewPost)
-            } catch (e: IOException) {
-                ResultWrapper.failure(ErrorResponse.Network)
-            } catch (e: TopicLockedException) {
-                ResultWrapper.failure(ErrorResponse.TopicLocked)
-            } catch (e: Exception) {
-                log(e.stackTrace.joinToString { "\n" })
-                ResultWrapper.failure(ErrorResponse.Parse)
-            }
+            api.newPost(topicId)
+                .awaitResultResponse { resp, soup ->
+                    checkIfMuslim(resp, soup, ::parseNewPost)
+                }
         }
 
-    override suspend fun getQuotablePostContent(quotablePost: QuotablePost): ResultWrapper<String, ErrorResponse> =
+    override suspend fun getQuotablePostContent(quotablePost: QuotablePost): Result<String, ErrorResponse> =
         withContext(context.IO) {
             val parseResult = parseTopicUrl(quotablePost.url)!!
-            try {
-                val content = api.getPost(
-                    postID = quotablePost.id, session = quotablePost.session,
-                    referer = Values.URL + "/newpost?topic=${parseResult.topicId}&post=${quotablePost.id}"
-                )
-                ResultWrapper.Success(content)
-            } catch (e: IOException) {
-                ResultWrapper.Failure(ErrorResponse.Network)
+            api.getPost(
+                postID = quotablePost.id, session = quotablePost.session,
+                referer = Values.URL + "/newpost?topic=${parseResult.topicId}&post=${quotablePost.id}"
+            ).awaitResult {
+                Ok(it)
             }
         }
 
-    override suspend fun modifyPost(post: SimplePost): ResultWrapper<ResultWrapper<ModifyForm, AreYouMuslimDeclarationForm>, ErrorResponse> =
+    override suspend fun modifyPost(post: SimplePost): Result<Either<ModifyForm, AreYouMuslimDeclarationForm>, ErrorResponse> =
         withContext(context.IO) {
-            try {
-                val uri = Uri.parse(post.editUrl)
-                val redirect = uri.getQueryParameter("redirect")!!
-                val postId = uri.getQueryParameter("post")!!
-                val resp = api.modifyPost(redirect, postId)
-                checkIfMuslim(resp, ::parseModifyPost)
-            } catch (e: IOException) {
-                ResultWrapper.failure(ErrorResponse.Network)
-            } catch (e: TopicLockedException) {
-                ResultWrapper.failure(ErrorResponse.TopicLocked)
-            } catch (e: Exception) {
-                ResultWrapper.failure(ErrorResponse.Parse)
-            }
+            val uri = Uri.parse(post.editUrl)
+            val redirect = uri.getQueryParameter("redirect")!!
+            val postId = uri.getQueryParameter("post")!!
+            api.modifyPost(redirect, postId)
+                .awaitResultResponse { resp, soup ->
+                    checkIfMuslim(resp, soup, ::parseModifyPost)
+                }
         }
 
-    override suspend fun newTopic(boardId: Int): ResultWrapper<ResultWrapper<NewTopicForm, AreYouMuslimDeclarationForm>, ErrorResponse> =
+    override suspend fun newTopic(boardId: Int): Result<Either<NewTopicForm, AreYouMuslimDeclarationForm>, ErrorResponse> =
         withContext(context.IO) {
-            try {
-                val resp = api.newTopic(boardId)
-                checkIfMuslim(resp, ::parseNewTopic)
-            } catch (e: IOException) {
-                ResultWrapper.failure(ErrorResponse.Network)
-            } catch (e: Exception) {
-                ResultWrapper.failure(ErrorResponse.Parse)
-            }
+            api.newTopic(boardId)
+                .awaitResultResponse { resp, result ->
+                    checkIfMuslim(resp, result, ::parseNewTopic)
+                }
         }
 
-    override suspend fun quotePost(post: SimplePost): ResultWrapper<ResultWrapper<NewPostForm, AreYouMuslimDeclarationForm>, ErrorResponse> =
+    override suspend fun quotePost(post: SimplePost): Result<Either<NewPostForm, AreYouMuslimDeclarationForm>, ErrorResponse> =
         withContext(context.IO) {
-            try {
-                val resp = api.quote(post.topic.id.toString(), post.id)
-                checkIfMuslim(resp, ::parseNewPost)
-            } catch (e: IOException) {
-                ResultWrapper.failure(ErrorResponse.Network)
-            } catch (e: TopicLockedException) {
-                ResultWrapper.failure(ErrorResponse.TopicLocked)
-            } catch (e: Exception) {
-                ResultWrapper.failure(ErrorResponse.Parse)
-            }
+            api.quote(post.topic.id.toString(), post.id)
+                .awaitResultResponse { resp, soup ->
+                    checkIfMuslim(resp, soup, ::parseNewPost)
+                }
         }
 
     @Suppress("BlockingMethodInNonBlockingContext")
-    override suspend fun reportPost(post: SimplePost): ResultWrapper<ReportPostForm, ErrorResponse> {
+    override suspend fun reportPost(post: SimplePost): Result<ReportPostForm, ErrorResponse> {
         val uri = Uri.parse(post.reportUrl)
         val redirect = uri.getQueryParameter("redirect")!!
         val postId = uri.getQueryParameter("post")!!
@@ -118,74 +91,46 @@ class FormDataSourceImpl @Inject constructor(
                 )
             }&session=${session}"
         )
-        return ResultWrapper.success(form)
+        return Ok(form)
     }
 
 
-    override suspend fun mailUser(user: User): ResultWrapper<MailUserForm, ErrorResponse> =
+    override suspend fun mailUser(user: User): Result<MailUserForm, ErrorResponse> =
         withContext(context.IO) {
-            try {
-                api.mailUser(user.slug).map({
-                    parseMailToUserForm(it.body)
-                }, {
-                    ResultWrapper.failure(ErrorResponse.Network)
-                })
-            } catch (e: Exception) {
-                ResultWrapper.failure(ErrorResponse.Parse)
-            }
+            api.mailUser(user.slug)
+                .awaitResult {
+                    parseMailToUserForm(it)
+                }
         }
 
-    override suspend fun mailSuperMods(): ResultWrapper<MailSuperModsForm, ErrorResponse> =
+    override suspend fun mailSuperMods(): Result<MailSuperModsForm, ErrorResponse> =
         withContext(context.IO) {
-            try {
-                api.mailSuperMods().map({
-                    parseMailSuperModsForm(it.body)
-                }, {
-                    ResultWrapper.failure(ErrorResponse.Network)
-                })
-            } catch (e: Exception) {
-                ResultWrapper.failure(ErrorResponse.Parse)
-            }
+            api.mailSuperMods()
+                .awaitResult { parseMailSuperModsForm(it) }
         }
 
-    override suspend fun mailBoardMods(boardId: Int): ResultWrapper<MailBoardModsForm, ErrorResponse> =
+    override suspend fun mailBoardMods(boardId: Int): Result<MailBoardModsForm, ErrorResponse> =
         withContext(context.IO) {
-            try {
-                api.mailBoardMods(boardId).map({
-                    parseMailBoardModsForm(it.body)
-                }, {
-                    ResultWrapper.failure(ErrorResponse.Network)
-                })
-            } catch (e: Exception) {
-                ResultWrapper.failure(ErrorResponse.Parse)
-            }
+            api.mailBoardMods(boardId)
+                .awaitResult { parseMailBoardModsForm(it) }
         }
 
-    override suspend fun editProfile(): ResultWrapper<EditProfileForm, ErrorResponse> =
+    override suspend fun editProfile(): Result<EditProfileForm, ErrorResponse> =
         withContext(context.IO) {
-            try {
-                ResultWrapper.success(parseEditProfile(api.editProfile()))
-            } catch (e: IOException) {
-                ResultWrapper.failure(ErrorResponse.Network)
-            } catch (e: ParseException) {
-                ResultWrapper.failure(ErrorResponse.Parse)
-            }
+            api.editProfile()
+                .awaitResult { Ok(parseEditProfile(it)) }
         }
 
     private fun <T : Form> checkIfMuslim(
-        resp: Response<Document>,
-        parser: (Document) -> ResultWrapper<T, AreYouMuslimDeclarationForm>
-    ): ResultWrapper<ResultWrapper<T, AreYouMuslimDeclarationForm>, ErrorResponse> {
-        return if (resp.isSuccessful) {
-            val soup = resp.body()!!
-            // if redirect to home ==> user declared as muslim
-            if (isHomeUrl(resp)) {
-                ResultWrapper.failure(ErrorResponse.Muslim)
-            } else {
-                ResultWrapper.success(parser(soup))
-            }
+        resp: RawResponse,
+        soup: Document,
+        parser: (Document) -> Result<Either<T, AreYouMuslimDeclarationForm>, ErrorResponse>
+    ): Result<Either<T, AreYouMuslimDeclarationForm>, ErrorResponse> {
+        // if redirect to home ==> user declared as muslim
+        return if (isHomeUrl(resp)) {
+            Err(ErrorResponse.Muslim)
         } else {
-            ResultWrapper.failure(ErrorResponse.Network)
+            parser(soup)
         }
     }
 }

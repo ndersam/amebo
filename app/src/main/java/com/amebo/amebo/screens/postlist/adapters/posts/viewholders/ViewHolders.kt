@@ -8,7 +8,7 @@ import com.amebo.amebo.databinding.ItemDeletedPostBinding
 import com.amebo.amebo.databinding.ItemFooterBinding
 import com.amebo.amebo.screens.postlist.adapters.PostListAdapterListener
 import com.amebo.amebo.screens.postlist.adapters.posts.PostItemVHListener
-import com.amebo.core.CoreUtils
+import com.amebo.core.common.CoreUtils
 import com.amebo.core.domain.SimplePost
 
 

@@ -6,15 +6,17 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.amebo.amebo.common.Event
+import com.amebo.amebo.common.Pref
+import com.amebo.amebo.common.Resource
 import com.amebo.amebo.common.extensions.getBitmap
 import com.amebo.amebo.common.extensions.getBitmapOriginal
 import com.amebo.amebo.common.extensions.getPath
 import com.amebo.amebo.common.extensions.toResource
-import com.amebo.amebo.common.Event
-import com.amebo.amebo.common.Pref
-import com.amebo.amebo.common.Resource
 import com.amebo.core.Nairaland
 import com.amebo.core.domain.*
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -86,12 +88,12 @@ class EditAccountScreenViewModel @Inject constructor(
             _displayPhotoEvent.value = Event(Resource.Loading(existingDisplayPhoto))
 
             val resource = when (val result = nairaland.sources.accounts.displayPhoto(user)) {
-                is ResultWrapper.Success -> {
-                    existingDisplayPhoto = result.data
+                is Ok -> {
+                    existingDisplayPhoto = result.value
                     Resource.Success(existingDisplayPhoto!!)
                 }
-                is ResultWrapper.Failure -> {
-                    Resource.Error(cause = result.data, content = existingDisplayPhoto)
+                is Err -> {
+                    Resource.Error(cause = result.error, content = existingDisplayPhoto)
                 }
             }
             _displayPhotoEvent.value = Event(resource)
@@ -140,8 +142,8 @@ class EditAccountScreenViewModel @Inject constructor(
         viewModelScope.launch {
             _editProfileFormEvent.value = Event(Resource.Loading(editProfileFormData))
             val resource = when (val result = nairaland.sources.forms.editProfile()) {
-                is ResultWrapper.Success -> {
-                    editProfileForm = result.data
+                is Ok -> {
+                    editProfileForm = result.value
                     editProfileForm?.let {
                         editProfileFormData =
                             EditProfileFormData(
@@ -159,8 +161,8 @@ class EditAccountScreenViewModel @Inject constructor(
                     }
                     Resource.Success(editProfileFormData!!)
                 }
-                is ResultWrapper.Failure -> {
-                    Resource.Error(result.data, editProfileFormData)
+                is Err -> {
+                    Resource.Error(result.error, editProfileFormData)
                 }
             }
             _editProfileFormEvent.value = Event(resource)

@@ -1,6 +1,6 @@
 package com.amebo.core.crawler
 
-import com.amebo.core.Values
+import com.amebo.core.common.Values
 import com.amebo.core.crawler.topicList.parseTopicUrl
 import com.amebo.core.domain.Topic
 import com.amebo.core.domain.TopicFeed

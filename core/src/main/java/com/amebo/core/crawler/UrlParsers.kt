@@ -1,10 +1,10 @@
 package com.amebo.core.crawler
 
 import android.net.Uri
+import com.amebo.core.common.extensions.RawResponse
 import com.amebo.core.domain.Board
 import com.amebo.core.domain.BoardUrlParseResult
 import com.amebo.core.domain.FollowedBoardPageUrlParseResult
-import retrofit2.Response
 
 internal fun parseBoardUrl(url: String): BoardUrlParseResult {
     val uri = Uri.parse(url)
@@ -20,8 +20,8 @@ internal fun parseFollowedBoardPageUrl(url: String): FollowedBoardPageUrlParseRe
     return FollowedBoardPageUrlParseResult(uri.pathSegments[1], page)
 }
 
-internal fun isHomeUrl(response: Response<*>): Boolean {
-    val uri = Uri.parse(response.raw().request.url.toString())
+internal fun isHomeUrl(response: RawResponse): Boolean {
+    val uri = Uri.parse(response.request.url.toString())
     uri.getQueryParameter("board")
     return uri.pathSegments.size == 0
 }

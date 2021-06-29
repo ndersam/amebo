@@ -7,7 +7,7 @@ import dagger.Module
 
 @Suppress("UNUSED")
 @Module
-abstract class DataSourcesModule {
+internal abstract class DataSourcesModule {
     @Binds
     abstract fun bindTopicListDataSource(topicListDataSourceImpl: TopicListDataSourceImpl): TopicListDataSource
 

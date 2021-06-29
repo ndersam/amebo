@@ -1,9 +1,9 @@
 package com.amebo.core.di
 
 import com.amebo.core.BuildConfig
-import com.amebo.core.Values
-import com.amebo.core.apis.util.SoupConverterFactory
+import com.amebo.core.apis.SoupConverterFactory
 import com.amebo.core.auth.Authenticator
+import com.amebo.core.common.Values
 import com.amebo.core.domain.NairalandSessionObservable
 import com.amebo.core.domain.User
 import com.haroldadmin.cnradapter.NetworkResponseAdapterFactory
@@ -20,7 +20,7 @@ import retrofit2.converter.scalars.ScalarsConverterFactory
 
 
 @Module
-class NetworkModule {
+internal class NetworkModule {
     @Provides
     fun provideRetrofit(cookieJar: CookieJar, soupConverterFactory: SoupConverterFactory) =
         makeRetrofit(

@@ -14,7 +14,7 @@ import com.amebo.amebo.R
 import com.amebo.amebo.common.*
 import com.amebo.amebo.common.extensions.*
 import com.amebo.amebo.databinding.UserScreenBinding
-import com.amebo.core.CoreUtils
+import com.amebo.core.common.CoreUtils
 import com.amebo.core.domain.Board
 import com.amebo.core.domain.Topic
 import com.amebo.core.domain.User

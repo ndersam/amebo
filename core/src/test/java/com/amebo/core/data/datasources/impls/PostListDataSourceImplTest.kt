@@ -1,39 +1,66 @@
 package com.amebo.core.data.datasources.impls
 
 import com.amebo.core.data.datasources.PostListDataSource
-import com.amebo.core.domain.ResultWrapper
-import com.amebo.core.domain.SimplePost
-import com.amebo.core.domain.Topic
+import com.amebo.core.di.real.DaggerTestCoreComponent
+import com.amebo.core.domain.*
+import com.github.michaelbull.result.Ok
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
-import javax.inject.Inject
 
 class PostListDataSourceImplTest {
-    @Inject
     lateinit var data: PostListDataSource
 
     @Before
     fun before() {
-        //DaggerTestComponent.create().inject(this)
+        val component = DaggerTestCoreComponent.builder()
+            .observable(NairalandSessionObservable())
+            .build()
+        data = component.postListDataSource()
     }
 
     @Test
-    fun `test correctly receives data`(){
-        val topic = Topic(
-            "Victim Of A Failed System A Story About 2 Great Nigerians",
-            5671637,
-            "victim-failed-system-story-2"
-        )
+    fun topic(){
        runBlocking {
+
+           val topic = Topic(
+               "Victim Of A Failed System A Story About 2 Great Nigerians",
+               5671637,
+               "victim-failed-system-story-2"
+           )
+
            val res = data.fetch(topic, 0)
-           println(res.isSuccess)
-           if (res is ResultWrapper.Success){
-               val post = res.data.data.first() as SimplePost
+           assertThat(res).isInstanceOf(Ok::class.java)
+           if (res is Ok){
+               val post = res.value.data.first() as SimplePost
                println(post.text)
            }
        }
     }
 
+    @Test
+    fun `new posts`() {
+        runBlocking {
+            val res = data.fetch(RecentPosts, 0)
+            assertThat(res).isInstanceOf(Ok::class.java)
+            if (res is Ok){
+                val post = res.value.data.first() as TimelinePost
+                println(post.post.text)
+            }
+        }
+    }
 
+    @Test
+    fun `search query`() {
+        runBlocking {
+            val query = SearchQuery("Buhari", false, false, null)
+            val res = data.fetch(query, 0)
+            assertThat(res).isInstanceOf(Ok::class.java)
+            if (res is Ok){
+                val post = res.value.data.first() as TimelinePost
+                println(post.post.text)
+            }
+        }
+    }
 }

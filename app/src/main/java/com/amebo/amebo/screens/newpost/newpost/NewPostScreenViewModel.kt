@@ -10,7 +10,10 @@ import com.amebo.amebo.common.extensions.toResource
 import com.amebo.amebo.screens.newpost.FormViewModel
 import com.amebo.amebo.screens.newpost.NewPostFormData
 import com.amebo.core.Nairaland
+import com.amebo.core.common.Either
 import com.amebo.core.domain.*
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -38,14 +41,14 @@ class NewPostScreenViewModel @Inject constructor(nairaland: Nairaland, applicati
         initialize()
     }
 
-    override suspend fun doFetchFormData(): ResultWrapper<ResultWrapper<NewPostForm, AreYouMuslimDeclarationForm>, ErrorResponse> {
+    override suspend fun doFetchFormData(): Result<Either<NewPostForm, AreYouMuslimDeclarationForm>, ErrorResponse> {
         val result = if (post == null) {
             nairaland.sources.forms.newPost(topic.id.toString())
         } else {
             nairaland.sources.forms.quotePost(post!!)
         }
-        if (result is ResultWrapper.Success && result.data is ResultWrapper.Success) {
-            val form = (result.data as ResultWrapper.Success<NewPostForm>).data
+        if (result is Ok && result.value is Either.Left) {
+            val form = (result.value as Either.Left<NewPostForm>).data
             _posts = form.quotablePosts
         }
 
@@ -67,7 +70,7 @@ class NewPostScreenViewModel @Inject constructor(nairaland: Nairaland, applicati
         }
     }
 
-    override suspend fun doSubmitFormData(form: NewPostForm): ResultWrapper<PostListDataPage, ErrorResponse> {
+    override suspend fun doSubmitFormData(form: NewPostForm): Result<PostListDataPage, ErrorResponse> {
         return nairaland.sources.submissions.newPost(form)
     }
 }

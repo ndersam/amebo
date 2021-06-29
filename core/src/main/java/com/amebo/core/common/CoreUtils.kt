@@ -1,7 +1,8 @@
-package com.amebo.core
+package com.amebo.core.common
 
 import android.net.Uri
-import com.amebo.core.crawler.topicList.parseTopicUrlOrThrow
+import com.amebo.core.Database
+import com.amebo.core.crawler.topicList.parseTopicUrl
 import com.amebo.core.domain.Board
 import com.amebo.core.domain.Topic
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -101,23 +102,19 @@ object CoreUtils {
     fun isPostUrl(string: String) = string.startsWith("/post/")
 
     fun topicUrl(url: String): Topic? {
-        return try {
-            if (isNotNairalandUrl(url)) {
-                return null
-            }
-            val result = parseTopicUrlOrThrow(url)
-            // Anyway to get de-slug slug??
-            Topic(
-                title = result.slug,
-                id = result.topicId,
-                slug = result.slug,
-                linkedPage = result.page,
-                refPost = result.refPost,
-                isOldUrl = result.isOldUrl
-            )
-        } catch (e: Exception) {
-            null
+        if (isNotNairalandUrl(url)) {
+            return null
         }
+        val result = parseTopicUrl(url) ?: return null
+        // Anyway to get de-slug slug??
+        return Topic(
+            title = result.slug,
+            id = result.topicId,
+            slug = result.slug,
+            linkedPage = result.page,
+            refPost = result.refPost,
+            isOldUrl = result.isOldUrl
+        )
     }
 
     private fun isNotNairalandUrl(url: String): Boolean {

@@ -10,8 +10,8 @@ import android.view.View
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.core.text.HtmlCompat
-import com.amebo.core.CoreUtils
-import com.amebo.core.Values
+import com.amebo.core.common.CoreUtils
+import com.amebo.core.common.Values
 import com.amebo.core.domain.Board
 import com.amebo.core.domain.Topic
 

@@ -1,5 +1,6 @@
 package com.amebo.core.crawler.form
 
+import com.amebo.core.common.Either
 import com.amebo.core.crawler.TestCase
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertEquals
@@ -19,7 +20,7 @@ class FormCrawlerTest: TestCase() {
     fun newPost() {
         for (case in fetchTestCases("/forms/cases.json")) {
             val soup = fetchDocument("/forms/data/" + case["file"]!!)
-            val form = parseNewPost(soup).asSuccess.data
+            val form = (parseNewPost(soup).component1()!! as Either.Left).data
             assertEquals(case["session"]!!, form.session)
             assertEquals(case["body"]!!, form.body)
             assertEquals(case["maxpost"]!!.toInt(), form.maxPost)

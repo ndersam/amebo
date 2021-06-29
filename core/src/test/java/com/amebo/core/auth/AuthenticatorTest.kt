@@ -1,15 +1,15 @@
 package com.amebo.core.auth
 
 import com.amebo.core.BuildConfig
-import com.amebo.core.Values
 import com.amebo.core.apis.AuthServiceApi
+import com.amebo.core.common.Values
 import com.amebo.core.common.openAsDocument
 import com.amebo.core.data.CoroutineContextProvider
 import com.amebo.core.di.mocks.DaggerTestComponent
 import com.amebo.core.domain.ErrorResponse
-import com.amebo.core.domain.ResultWrapper
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
 import com.google.common.truth.Truth.assertThat
-import com.haroldadmin.cnradapter.NetworkResponse
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.Dispatchers
@@ -37,7 +37,7 @@ class AuthenticatorTest {
         fun testLoginWorks() {
             runBlocking {
                 val result = auth.login(BuildConfig.TEST_USER, BuildConfig.TEST_PASSWORD)
-                assertThat(result.isSuccess).isTrue()
+                assertThat(result is Ok).isTrue()
             }
         }
     }
@@ -58,8 +58,8 @@ class AuthenticatorTest {
             setResponse("/auth/many_failed_login_attempts.html")
 
             val result = auth.login("", "")
-            assertThat(result is ResultWrapper.Failure && result.data is ErrorResponse.Unknown).isTrue()
-            val data = (result as ResultWrapper.Failure).data
+            assertThat(result is Err && result.error is ErrorResponse.Unknown).isTrue()
+            val data = (result as Err).error
             if (data is ErrorResponse.Unknown) {
                 assertThat(data.msg).isEqualTo("too many failed login attempts. please wait for up to 5 minutes")
             }
@@ -72,7 +72,7 @@ class AuthenticatorTest {
                 setResponse("/auth/wrong_username_or_password.html")
 
                 val result = auth.login("", "")
-                assertThat(result is ResultWrapper.Failure && result.data is ErrorResponse.Login)
+                assertThat(result is Err && result.error is ErrorResponse.Login)
             }
         }
 
@@ -85,9 +85,7 @@ class AuthenticatorTest {
         }
 
         private class MockAuthServiceApi(
-            var gotoLoginResp: NetworkResponse<Document, ErrorResponse> = NetworkResponse.Success(
-                mock()
-            ),
+            var gotoLoginResp: Call<Document> = mock(),
             var loginCall: Call<Document> = mock(),
             var visitCall: Call<Document> = mock()
         ) : AuthServiceApi {
@@ -99,7 +97,7 @@ class AuthenticatorTest {
                 agent: String
             ): Call<Document> = loginCall
 
-            override suspend fun gotoLogin(): NetworkResponse<Document, ErrorResponse> =
+            override  fun gotoLogin(): Call<Document> =
                 gotoLoginResp
 
             override fun visit(url: String): Call<Document> = visitCall

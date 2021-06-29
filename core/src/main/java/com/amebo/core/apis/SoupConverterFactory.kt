@@ -1,4 +1,4 @@
-package com.amebo.core.apis.util
+package com.amebo.core.apis
 
 import com.amebo.core.crawler.SessionParser
 import com.amebo.core.domain.NairalandSessionObservable
@@ -14,14 +14,14 @@ import java.lang.reflect.Type
 /**
  * If user is signed in, pass in a sessionObserver
  */
-class SoupConverterFactory(private val nairalandSessionObservable: NairalandSessionObservable? = null) :
+internal class SoupConverterFactory(private val nairalandSessionObservable: NairalandSessionObservable? = null) :
     Converter.Factory() {
 
     override fun responseBodyConverter(
         type: Type,
         annotations: Array<Annotation>,
         retrofit: Retrofit
-    ): Converter<ResponseBody, *>? {
+    ): Converter<ResponseBody, *> {
         return SoupConverter(
             nairalandSessionObservable
         )

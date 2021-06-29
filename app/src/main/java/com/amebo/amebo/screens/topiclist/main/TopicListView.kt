@@ -56,7 +56,7 @@ class TopicListView(
                 binding.drawer.inflate(),
                 listener
             )
-            binding.toolbar.menu.findItem(R.id.followBoard).isVisible = topicList is Board
+//            binding.toolbar.menu.findItem(R.id.followBoard).isVisible = topicList is Board
         } else {
             binding.root.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, GravityCompat.END)
         }

@@ -3,19 +3,19 @@ package com.amebo.core.data.datasources.impls
 import androidx.annotation.RestrictTo
 import com.amebo.core.Database
 import com.amebo.core.apis.TopicListApi
-import com.amebo.core.crawler.ParseException
-import com.amebo.core.crawler.UnauthorizedAccessException
+import com.amebo.core.common.extensions.awaitResult
 import com.amebo.core.crawler.topicList.*
 import com.amebo.core.data.CoroutineContextProvider
 import com.amebo.core.data.datasources.TopicListDataSource
 import com.amebo.core.domain.*
-import com.amebo.core.extensions.map
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.onSuccess
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import javax.inject.Inject
 
-class TopicListDataSourceImpl @Inject constructor(
+internal class TopicListDataSourceImpl @Inject constructor(
     private val user: User?,
     private val api: TopicListApi,
     private val database: Database,
@@ -37,7 +37,7 @@ class TopicListDataSourceImpl @Inject constructor(
         topicList: TopicList,
         page: Int,
         sort: Sort?
-    ): ResultWrapper<BaseTopicListDataPage, ErrorResponse> = withContext(context.IO) {
+    ): Result<BaseTopicListDataPage, ErrorResponse> = withContext(context.IO) {
         val response = when (topicList) {
             is Featured -> api.fetchFeaturedSoup(page)
             is Board -> api.fetchBoardSoup(topicList.url, sort!!.value, page)
@@ -48,33 +48,28 @@ class TopicListDataSourceImpl @Inject constructor(
             is NewTopics -> api.fetchNewSoup(page)
         }
 
-        try {
-            response.map({
-                val document = it.body
-                val data = parseResponseBody(topicList, document, page)
-                // saving body here, after parsing is successful (no exceptions thrown)
-                saveTopicListDataPage(topicList, sort, page, it.body.outerHtml())
-                ResultWrapper.Success(data)
-            },
-                {
-                    ResultWrapper.Failure(ErrorResponse.Network)
-                })
-        } catch (e: ParseException) {
-            ResultWrapper.failure(ErrorResponse.Parse)
-        } catch (e: UnauthorizedAccessException) {
-            ResultWrapper.failure(ErrorResponse.UnAuthorized)
+        response.awaitResult {
+            parseResponseBody(topicList, it, page)
+                .onSuccess { _ ->
+                    // saving body here, after parsing is successful (no exceptions thrown)
+                    saveTopicListDataPage(topicList, sort, page, it.outerHtml())
+                }
         }
     }
 
-    private fun parseResponseBody(topicList: TopicList, document: Document, page: Int) =
+    private fun parseResponseBody(
+        topicList: TopicList,
+        document: Document,
+        page: Int
+    ): Result<BaseTopicListDataPage, ErrorResponse> =
         when (topicList) {
-            is Featured -> parseFeaturedTopics(document, page)
-            is Board -> parseBoardTopics(document, page, topicList)
-            is FollowedBoards -> parseFollowedBoards(document, page)
-            is FollowedTopics -> parseFollowedTopics(document, page)
-            is Trending -> parseTrendingTopics(document, page)
-            is UserTopics -> parseUserTopics(document, page)
-            is NewTopics -> parseNewTopics(document, page)
+            is Featured -> document.parseFeaturedTopics(page)
+            is Board -> document.parseBoardTopics(page, topicList)
+            is FollowedBoards -> document.parseFollowedBoards(page)
+            is FollowedTopics -> document.parseFollowedTopics(page)
+            is Trending -> document.parseTrendingTopics(page)
+            is UserTopics -> document.parseUserTopics(page)
+            is NewTopics -> document.parseNewTopics(page)
         }
 
 
@@ -102,6 +97,7 @@ class TopicListDataSourceImpl @Inject constructor(
             user_slug = user?.slug
         ).executeAsOneOrNull()) {
             is String -> parseResponseBody(topicList, Jsoup.parse(data), page)
+                .component1()
             else -> null
         }
     }
@@ -133,7 +129,7 @@ class TopicListDataSourceImpl @Inject constructor(
                 else -> {
                     database.topicListPagesQueries.updateTopicListPage(
                         timestamp = System.currentTimeMillis(),
-                        data = data,
+                        data_ = data,
                         id = dataPage.id
                     )
                     return@transaction
@@ -164,7 +160,7 @@ class TopicListDataSourceImpl @Inject constructor(
             database.topicListPagesQueries.insertTopicListPage(
                 topiclist_id = topicListId,
                 page = page,
-                data = data,
+                data_ = data,
                 timestamp = System.currentTimeMillis(),
                 sort = sortId,
                 user_slug = user?.slug

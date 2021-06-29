@@ -9,7 +9,8 @@ import com.amebo.amebo.common.Resource
 import com.amebo.core.Nairaland
 import com.amebo.core.domain.AreYouMuslimDeclarationForm
 import com.amebo.core.domain.Form
-import com.amebo.core.domain.ResultWrapper
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,10 +24,10 @@ class MuslimDeclarationScreenViewModel @Inject constructor(private val nairaland
             _submissionEvent.value = Event(Resource.Loading())
 
             when (val result = nairaland.sources.submissions.areYouMuslim(form)) {
-                is ResultWrapper.Success -> {
+                is Ok -> {
                     _submissionEvent.value = Event(
                         Resource.Success(
-                            when (val postForm = result.data) {
+                            when (val postForm = result.value) {
                                 is Form -> {
                                     SubmissionResult.Confirmed(postForm)
                                 }
@@ -35,8 +36,8 @@ class MuslimDeclarationScreenViewModel @Inject constructor(private val nairaland
                         )
                     )
                 }
-                is ResultWrapper.Failure -> {
-                    _submissionEvent.value = Event(Resource.Error(result.data))
+                is Err -> {
+                    _submissionEvent.value = Event(Resource.Error(result.error))
                 }
             }
         }

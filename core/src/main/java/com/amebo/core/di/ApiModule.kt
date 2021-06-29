@@ -6,7 +6,7 @@ import dagger.Provides
 import retrofit2.Retrofit
 
 @Module
-class ApiModule {
+internal class ApiModule {
     @Provides
     fun provideTopicListApi(retrofit: Retrofit): TopicListApi =
         retrofit.create(TopicListApi::class.java)

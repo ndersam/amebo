@@ -2,6 +2,8 @@ package com.amebo.core.data.datasources.impls
 
 import com.amebo.core.Database
 import com.amebo.core.apis.PostListApi
+import com.amebo.core.common.extensions.awaitResult
+import com.amebo.core.common.extensions.awaitResultResponse
 import com.amebo.core.crawler.postList.parseLikesAndShares
 import com.amebo.core.crawler.postList.parseSharedPosts
 import com.amebo.core.crawler.postList.parseTimelinePosts
@@ -9,15 +11,13 @@ import com.amebo.core.crawler.postList.parseTopicPosts
 import com.amebo.core.data.CoroutineContextProvider
 import com.amebo.core.data.datasources.PostListDataSource
 import com.amebo.core.domain.*
-import com.amebo.core.extensions.map
-import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.onSuccess
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
-import timber.log.Timber
-import java.io.IOException
 import javax.inject.Inject
 
-class PostListDataSourceImpl @Inject constructor(
+internal class PostListDataSourceImpl @Inject constructor(
     private val user: User?,
     private val api: PostListApi,
     private val context: CoroutineContextProvider,
@@ -27,7 +27,7 @@ class PostListDataSourceImpl @Inject constructor(
     override suspend fun fetch(
         postList: PostList,
         page: Int
-    ): ResultWrapper<PostListDataPage, ErrorResponse> = withContext(context.IO) {
+    ): Result<PostListDataPage, ErrorResponse> = withContext(context.IO) {
         when (postList) {
             is Topic -> fetchTopicPosts(postList, page)
             is UserPosts -> fetchUserPosts(postList, page)
@@ -54,7 +54,7 @@ class PostListDataSourceImpl @Inject constructor(
                     user_slug = user?.slug
                 )
                     .executeAsOneOrNull()) {
-                is String -> parseTopicPosts(Jsoup.parse(data), postList, page)
+                is String -> Jsoup.parse(data).parseTopicPosts(postList, page).component1()
                 else -> null
             }
         }
@@ -62,90 +62,77 @@ class PostListDataSourceImpl @Inject constructor(
     private suspend fun fetchTopicPosts(
         topic: Topic,
         page: Int
-    ): ResultWrapper<PostListDataPage, ErrorResponse> =
-        api.fetchTopicPosts(topic.id.toString(), topic.slug, page).map({
-            val data = parseTopicPosts(it.body, topic, page).apply {
-                postToScrollTo = topic.refPost
+    ): Result<PostListDataPage, ErrorResponse> =
+        api.fetchTopicPosts(topic.id.toString(), topic.slug, page).awaitResult { soup ->
+            soup.parseTopicPosts(topic, page).onSuccess {
+                it.apply {
+                    postToScrollTo = topic.refPost
+                }
+                // save to db after parsing is successful
+                saveTopicPostListData(topic, soup.outerHtml(), page)
             }
-            // save to db after parsing is successful
-            saveTopicPostListData(topic, it.body.outerHtml(), page)
-            ResultWrapper.Success(data)
-        }, {
-            ResultWrapper.Failure(ErrorResponse.Network)
-        })
+        }
 
     private suspend fun fetchUserPosts(
         userPosts: UserPosts,
         page: Int
-    ): ResultWrapper<PostListDataPage, ErrorResponse> =
-        api.fetchUserPosts(userPosts.user.slug, page).map({
-            ResultWrapper.Success(parseTimelinePosts(it.body, page))
-        }, {
-            ResultWrapper.Failure(ErrorResponse.Network)
-        })
+    ): Result<PostListDataPage, ErrorResponse> =
+        api.fetchUserPosts(userPosts.user.slug, page)
+            .awaitResult {
+                it.parseTimelinePosts("/${userPosts.user.slug}/posts/$page", page)
+            }
 
     private suspend fun fetchRecentPosts(
         page: Int
-    ): ResultWrapper<PostListDataPage, ErrorResponse> = api.fetchRecent(page)
-        .map(
-            { ResultWrapper.Success(parseTimelinePosts(it.body, page)) },
-            { ResultWrapper.Failure(ErrorResponse.Network) }
-        )
+    ): Result<PostListDataPage, ErrorResponse> = api.fetchRecent(page)
+        .awaitResult { it.parseTimelinePosts("/recent/$page", page) }
 
     private suspend fun fetchPostsByPeopleYouAreFollowing(
         page: Int
-    ): ResultWrapper<PostListDataPage, ErrorResponse> = api.fetchFollowing(page)
-        .map(
-            { ResultWrapper.Success(parseTimelinePosts(it.body, page)) },
-            { ResultWrapper.Failure(ErrorResponse.Network) }
-        )
+    ): Result<PostListDataPage, ErrorResponse> = api.fetchFollowing(page)
+        .awaitResult { it.parseTimelinePosts("/following/$page", page) }
 
     private suspend fun fetchMyLikes(
         page: Int
-    ): ResultWrapper<PostListDataPage, ErrorResponse> = api.fetchMyLikes(page)
-        .map(
-            { ResultWrapper.Success(parseTimelinePosts(it.body, page)) },
-            { ResultWrapper.Failure(ErrorResponse.Network) }
-        )
+    ): Result<PostListDataPage, ErrorResponse> = api.fetchMyLikes(page)
+        .awaitResult { it.parseTimelinePosts("/mylikes/$page", page) }
 
     private suspend fun fetchMyShares(
         page: Int
-    ): ResultWrapper<PostListDataPage, ErrorResponse> = api.fetchMyShares(page)
-        .map(
-            { ResultWrapper.Success(parseTimelinePosts(it.body, page)) },
-            { ResultWrapper.Failure(ErrorResponse.Network) }
-        )
+    ): Result<PostListDataPage, ErrorResponse> = api.fetchMyShares(page)
+        .awaitResult { it.parseTimelinePosts("/myshares/$page", page) }
 
-    private suspend fun fetchPostsSharedWithMe(page: Int): ResultWrapper<PostListDataPage, ErrorResponse> =
+    private suspend fun fetchPostsSharedWithMe(page: Int): Result<PostListDataPage, ErrorResponse> =
         api.fetchPostsSharedWithMe(page)
-            .map(
-                { ResultWrapper.Success(parseSharedPosts(it.body, page)) },
-                { ResultWrapper.Failure(ErrorResponse.Network) }
-            )
+            .awaitResult { it.parseSharedPosts(page) }
 
-    private suspend fun fetchLikesAndShares(page: Int): ResultWrapper<PostListDataPage, ErrorResponse> =
+    private suspend fun fetchLikesAndShares(page: Int): Result<PostListDataPage, ErrorResponse> =
         api.fetchLikesAndShares(page)
-            .map(
-                { ResultWrapper.Success(parseLikesAndShares(it.body, page)) },
-                { ResultWrapper.Failure(ErrorResponse.Network) }
-            )
+            .awaitResult { it.parseLikesAndShares(page) }
 
     private suspend fun fetchMentions(
         mentions: Mentions,
         page: Int
-    ): ResultWrapper<PostListDataPage, ErrorResponse> = if (page == 0) {
-        api.fetchMentionsPageOne()
-    } else {
-        api.fetchMentions(mentions.user.slug, page)
-    }.map(
-        { ResultWrapper.Success(parseTimelinePosts(it.body, page)) },
-        { ResultWrapper.Failure(ErrorResponse.Network) }
-    )
+    ): Result<PostListDataPage, ErrorResponse> = when (page) {
+        0 -> {
+            api.fetchMentionsPageOne()
+        }
+        else -> {
+            api.fetchMentions(mentions.user.slug, page)
+        }
+    }.awaitResult {
+        it.parseTimelinePosts(
+            when (page) {
+                0 -> "/mentions"
+                else -> "/search/${mentions.user.slug}/0/0/0/$page"
+            }, page
+        )
+    }
 
     private suspend fun search(
         query: SearchQuery,
         page: Int
-    ): ResultWrapper<PostListDataPage, ErrorResponse> {
+    ): Result<PostListDataPage, ErrorResponse> {
         val topicsOnly = if (query.onlyShowTopicPosts) 1 else 0
         val imagesOnly = if (query.onlyShowImages) 1 else 0
         return api.fetchSearchResults(
@@ -154,9 +141,12 @@ class PostListDataSourceImpl @Inject constructor(
             topicsOnly,
             imagesOnly,
             page
-        ).map({ ResultWrapper.Success(parseTimelinePosts(it.body, page)) },
-            { ResultWrapper.Failure(ErrorResponse.Network) }
-        )
+        ).awaitResult {
+            it.parseTimelinePosts(
+                "/search/${query.query}/$topicsOnly/${query.board?.id ?: 0}/$imagesOnly/$page",
+                page
+            )
+        }
     }
 
     override suspend fun allViewedTopicIds(): MutableSet<Int> = withContext(context.IO) {
@@ -224,25 +214,12 @@ class PostListDataSourceImpl @Inject constructor(
         }
     }
 
-    override suspend fun fetchPageWithPost(postId: String): ResultWrapper<TopicPostListDataPage, ErrorResponse> =
+    override suspend fun fetchPageWithPost(postId: String): Result<TopicPostListDataPage, ErrorResponse> =
         withContext(context.IO) {
-            try {
-                val response = api.fetchPageWithPost(postId)
-                if (response.isSuccessful) {
-                    val url = response.raw().request.url.toString()
-                    val document = response.body()!!
-                    ResultWrapper.success(parseTopicPosts(document, url))
-                } else {
-                    ResultWrapper.failure(ErrorResponse.Network)
+            api.fetchPageWithPost(postId)
+                .awaitResultResponse { resp, result ->
+                    parseTopicPosts(result, resp.request.url.toString())
                 }
-            } catch (e: IOException) {
-                ResultWrapper.failure(ErrorResponse.Network)
-            } catch (e: Exception) {
-                Timber.e(e)
-                FirebaseCrashlytics.getInstance()
-                    .log("Couldn't fetch page with postId: '$postId'. Exception=$e")
-                ResultWrapper.failure(ErrorResponse.Parse)
-            }
         }
 
     private fun saveTopicPostListData(topic: Topic, data: String, page: Int) {
@@ -256,7 +233,7 @@ class PostListDataSourceImpl @Inject constructor(
             ).executeAsOneOrNull()) {
                 is Long -> {
                     database.postListPagesQueries.update(
-                        data = data,
+                        data_ = data,
                         timestamp = System.currentTimeMillis(),
                         id = dataId
                     )
@@ -281,7 +258,7 @@ class PostListDataSourceImpl @Inject constructor(
                 topic_id = topic.id.toString(),
                 timestamp = System.currentTimeMillis(),
                 page = page,
-                data = data,
+                data_ = data,
                 user_slug = user?.slug
             )
         }

@@ -5,20 +5,21 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
 import com.amebo.core.Database
 import com.amebo.core.apis.TopicListApi
+import com.amebo.core.common.extensions.awaitResult
 import com.amebo.core.crawler.topicList.parseFollowedBoards
 import com.amebo.core.data.CoroutineContextProvider
 import com.amebo.core.data.datasources.BoardDataSource
 import com.amebo.core.domain.Board
 import com.amebo.core.domain.ErrorResponse
-import com.amebo.core.domain.ResultWrapper
 import com.amebo.core.domain.TopicListSorts
-import com.amebo.core.extensions.map
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.map
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Inject
 
-class BoardDataSourceImpl @Inject constructor(
+internal class BoardDataSourceImpl @Inject constructor(
     private val db: Database,
     private val src: SourceDatabase,
     private val topicListApi: TopicListApi,
@@ -68,15 +69,14 @@ class BoardDataSourceImpl @Inject constructor(
         }
     }
 
-    override suspend fun fetchFollowedBoards(): ResultWrapper<List<Board>, ErrorResponse> =
+    override suspend fun fetchFollowedBoards(): Result<List<Board>, ErrorResponse> =
         withContext(context.IO) {
             // the sort doesn't really matter, and the page number as long as it's valid
-            topicListApi.fetchFollowedBoardTopics(TopicListSorts.CREATION.value, 0).map({
-                val dataPage = parseFollowedBoards(it.body, 0)
-                ResultWrapper.success(dataPage.boards.map { itt -> itt.first }.toList())
-            }, {
-                ResultWrapper.failure(ErrorResponse.Network)
-            })
+            topicListApi.fetchFollowedBoardTopics(TopicListSorts.CREATION.value, 0)
+                .awaitResult { document ->
+                    document.parseFollowedBoards(0)
+                        .map { it.boards.map { itt -> itt.first }.toList() }
+                }
         }
 
 

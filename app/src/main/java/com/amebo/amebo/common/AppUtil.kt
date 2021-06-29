@@ -24,7 +24,7 @@ import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.amebo.amebo.R
 import com.amebo.amebo.common.extensions.runWithDeepLinkingDisabled
 import com.amebo.amebo.common.extensions.setColor
-import com.amebo.core.CoreUtils
+import com.amebo.core.common.CoreUtils
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import kotlinx.coroutines.Dispatchers

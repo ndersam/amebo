@@ -1,14 +1,14 @@
 package com.amebo.core.apis
 
 import org.jsoup.nodes.Document
-import retrofit2.Response
+import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Url
 
-interface MiscApi {
+internal interface MiscApi {
     @GET
-    suspend fun visitPage(@Url url: String): Response<Document>
+    fun visitPage(@Url url: String): Call<Document>
 
     @GET("feed")
-    suspend fun fetchFeed(): String
+    fun fetchFeed(): Call<String>
 }

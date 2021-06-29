@@ -1,11 +1,14 @@
 package com.amebo.core.data.datasources.impls
 
 import com.amebo.core.apis.FormApi
+import com.amebo.core.common.extensions.awaitResult
 import com.amebo.core.di.NetworkModule
 import com.amebo.core.di.TestSessionCookieJar
 import com.amebo.core.di.TestSessionCookieModule
 import com.amebo.core.domain.NairalandSessionObservable
 import com.amebo.core.domain.User
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.onSuccess
 import com.google.common.truth.Truth.assertThat
 import dagger.Component
 import dagger.Module
@@ -29,13 +32,16 @@ class FormDataSourceImplTest {
     @Test
     fun get_post(): Unit = runBlocking {
         val api = retrofit.create(FormApi::class.java)
-        val result = api.getPost(
+        api.getPost(
             postID = "96105107",
             session = TestSessionCookieJar.session,
             referer = "https://www.nairaland.com/newpost?topic=6259418&post=96105107"
-        )
-        assertThat(result).startsWith("[quote")
-        assertThat(result).endsWith("[/quote]")
+        ).awaitResult { Ok(it)}
+            .onSuccess {
+                assertThat(it).startsWith("[quote")
+                assertThat(it).endsWith("[/quote]")
+            }
+
     }
 }
 

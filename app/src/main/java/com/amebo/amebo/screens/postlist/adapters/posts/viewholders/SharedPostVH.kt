@@ -5,7 +5,7 @@ import com.amebo.amebo.common.Pref
 import com.amebo.amebo.databinding.ItemSharedPostBinding
 import com.amebo.amebo.screens.postlist.adapters.PostListAdapterListener
 import com.amebo.amebo.screens.postlist.adapters.posts.PostItem
-import com.amebo.core.CoreUtils
+import com.amebo.core.common.CoreUtils
 import com.bumptech.glide.RequestManager
 
 class SharedPostVH(

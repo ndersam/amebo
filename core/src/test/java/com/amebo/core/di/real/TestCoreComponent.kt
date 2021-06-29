@@ -4,10 +4,13 @@ import com.amebo.amebo.data.local.Cookie
 import com.amebo.amebo.data.local.UserAccountData
 import com.amebo.core.Database
 import com.amebo.core.Nairaland
+import com.amebo.core.auth.AuthService
+import com.amebo.core.auth.Authenticator
 import com.amebo.core.data.cookies.CookieStore
+import com.amebo.core.data.datasources.PostListDataSource
+import com.amebo.core.data.datasources.TopicListDataSource
 import com.amebo.core.data.datasources.impls.BoardDataSourceImpl
 import com.amebo.core.di.*
-import com.amebo.core.di.tests.TestCookieModule
 import com.amebo.core.domain.NairalandSessionObservable
 import com.amebo.core.domain.User
 import com.nhaarman.mockitokotlin2.mock
@@ -29,10 +32,18 @@ import javax.inject.Singleton
         DataSourcesModule::class,
         AuthModule::class,
         NetworkModule::class,
-        TestCookieModule::class
+        CookieModule::class
     ]
 )
 interface TestCoreComponent {
+    fun postListDataSource(): PostListDataSource
+
+    fun topicListDataSource(): TopicListDataSource
+
+    fun authenticator(): Authenticator
+
+    fun authService(): AuthService
+
     @Component.Builder
     interface Builder {
 
@@ -50,11 +61,13 @@ interface TestCoreComponent {
 
 @Module
 internal class TestDatabaseModule {
+    @Singleton
     @Provides
     fun provideDatabase(): SqlDriver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY).apply {
         Database.Schema.create(this)
     }
 
+    @Singleton
     @Provides
     fun provideCookieAdapter(): Cookie.Adapter = Cookie.Adapter(
         cookieAdapter = object : ColumnAdapter<CookieStore, String> {
@@ -65,6 +78,7 @@ internal class TestDatabaseModule {
         }
     )
 
+    @Singleton
     @Provides
     fun provideDelightfulDatabase(driver: SqlDriver, cookie: Cookie.Adapter): Database =
         Database(

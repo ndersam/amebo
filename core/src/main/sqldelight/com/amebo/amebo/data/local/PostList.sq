@@ -1,9 +1,9 @@
 import java.lang.Integer;
 
 CREATE TABLE postLists (
-    id INTEGER as Integer NOT NULL PRIMARY KEY AUTOINCREMENT,
-    type_id INTEGER as Integer NOT NULL,
-    topic_id INTEGER as Integer,
+    id INTEGER AS Integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+    type_id INTEGER AS Integer NOT NULL,
+    topic_id INTEGER AS Integer,
     FOREIGN KEY(topic_id) REFERENCES topic(topic_id),
     UNIQUE(type_id, topic_id)
 );

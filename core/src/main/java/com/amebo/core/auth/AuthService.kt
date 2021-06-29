@@ -3,26 +3,24 @@ package com.amebo.core.auth
 import android.annotation.SuppressLint
 import com.amebo.core.Database
 import com.amebo.core.domain.ErrorResponse
-import com.amebo.core.domain.ResultWrapper
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.map
+import com.github.michaelbull.result.onSuccess
 import javax.inject.Inject
 
-class AuthService @Inject constructor(
+class AuthService @Inject internal constructor(
     private val authenticator: Authenticator,
     private val db: Database
 ) {
     @SuppressLint("DefaultLocale")
-    suspend fun login(username: String, password: String): ResultWrapper<Unit, ErrorResponse> {
+    suspend fun login(username: String, password: String): Result<Unit, ErrorResponse> {
         return authenticator.login(username, password)
-            .either(
-                {
-                    db.cookieQueries.insert(username.toLowerCase(), it.data)
-                    db.userAccountQueries.insert(
-                        username, username.toLowerCase(),
-                        isLoggedIn = true
-                    )
-                    ResultWrapper.Success(Unit)
-                },
-                { it }
-            )
+            .onSuccess {
+                db.cookieQueries.insert(username.toLowerCase(), it)
+                db.userAccountQueries.insert(
+                    username, username.toLowerCase(),
+                    isLoggedIn = true
+                )
+            }.map {  }
     }
 }

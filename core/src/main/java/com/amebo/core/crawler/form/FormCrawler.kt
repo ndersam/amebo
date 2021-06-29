@@ -1,50 +1,59 @@
 package com.amebo.core.crawler.form
 
 import android.net.Uri
+import com.amebo.core.common.Either
 import com.amebo.core.crawler.ParseException
-import com.amebo.core.crawler.TopicLockedException
 import com.amebo.core.domain.*
+import com.github.michaelbull.result.*
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
 import org.jsoup.nodes.TextNode
 import java.net.URLDecoder
 
-internal fun parsePostForm(soup: Document, url: String): Form? {
+internal fun parsePostForm(soup: Document, url: String): Result<Form?, ErrorResponse> {
     val uri = Uri.parse(url)!!
-    if (uri.pathSegments.size == 0){
-        return null
+    if (uri.pathSegments.size == 0) {
+        return Ok(null)
     }
-    return when(val segment = uri.pathSegments.first()){
-        "newpost" -> parseNewPost(soup).asSuccess.data
-        "newtopic" -> parseNewTopic(soup).asSuccess.data
-        "modifypost" -> parseModifyPost(soup).asSuccess.data
+    return when (val segment = uri.pathSegments.first()) {
+        "newpost" -> parseNewPost(soup)
+        "newtopic" -> parseNewTopic(soup)
+        "modifypost" -> parseModifyPost(soup)
         else -> throw ParseException("Could not understand uri $segment")
+    }.map {
+        when(it) {
+          is Either.Left -> it.data
+          else -> null
+        }
     }
 }
 
-internal fun parseNewPost(soup: Document): ResultWrapper<NewPostForm, AreYouMuslimDeclarationForm> {
-    throwIfTopicLocked(soup)
-    val muslim = parseMuslimDeclarationIfExists(soup)
-    if (muslim != null) {
-        return ResultWrapper.failure(muslim)
-    }
-    val body = soup.selectFirst("#body").text()
-    val maxPost = soup.selectFirst("input[name=\"max_post\"]").attr("value").toInt()
-    val topic = soup.selectFirst("input[name=\"topic\"]").attr("value")!!
-    val title = soup.selectFirst("input[name=\"title\"]").attr("value")!!
-    val session = soup.selectFirst("input[name=\"session\"]").attr("value")!!
-    val tBody: Element? = soup.selectFirst("table[summary=\"posts\"] tbody")
-    return ResultWrapper.success(
-        NewPostForm(
-            body = body,
-            maxPost = maxPost,
-            topic = topic,
-            title = title,
-            session = session,
-            quotablePosts = if (tBody == null) emptyList() else fetchQuotablePosts(tBody)
-        )
-    )
+internal fun parseNewPost(soup: Document): Result<Either<NewPostForm, AreYouMuslimDeclarationForm>, ErrorResponse> {
+    return throwIfTopicLocked(soup)
+        .map {
+            val muslim = parseMuslimDeclarationIfExists(soup)
+            if (muslim != null) {
+                Either.Right(muslim)
+            }
+
+            val body = soup.selectFirst("#body").text()
+            val maxPost = soup.selectFirst("input[name=\"max_post\"]").attr("value").toInt()
+            val topic = soup.selectFirst("input[name=\"topic\"]").attr("value")!!
+            val title = soup.selectFirst("input[name=\"title\"]").attr("value")!!
+            val session = soup.selectFirst("input[name=\"session\"]").attr("value")!!
+            val tBody: Element? = soup.selectFirst("table[summary=\"posts\"] tbody")
+            Either.Left(
+                NewPostForm(
+                    body = body,
+                    maxPost = maxPost,
+                    topic = topic,
+                    title = title,
+                    session = session,
+                    quotablePosts = if (tBody == null) emptyList() else fetchQuotablePosts(tBody)
+                )
+            )
+        }
 }
 
 internal fun fetchQuotablePosts(tBody: Element): List<QuotablePost> {
@@ -105,22 +114,22 @@ internal fun fetchQuotablePosts(tBody: Element): List<QuotablePost> {
     }
 }
 
-internal fun parseNewTopic(soup: Document): ResultWrapper<NewTopicForm, AreYouMuslimDeclarationForm> {
+internal fun parseNewTopic(soup: Document): Result<Either<NewTopicForm, AreYouMuslimDeclarationForm>, ErrorResponse> {
     val muslim = parseMuslimDeclarationIfExists(soup)
     if (muslim != null) {
-        return ResultWrapper.failure(muslim)
+        return Ok(Either.Right(muslim))
     }
     val body = soup.selectFirst("#body").text()
     val postFormTitle = soup.selectFirst("#postformtitle").attr("value")
     val board = soup.selectFirst("input[name=\"board\"]").attr("value").toInt()
     val session = soup.selectFirst("input[name=\"session\"]").attr("value")!!
-    return ResultWrapper.success(
-        NewTopicForm(
+    return Ok(
+        Either.Left(NewTopicForm(
             body = body,
             board = board,
             title = postFormTitle,
             session = session
-        )
+        ))
     )
 }
 
@@ -207,19 +216,17 @@ internal fun parseEditProfile(soup: Document): EditProfileForm {
 }
 
 
-internal fun parseMailToUserForm(soup: Document): ResultWrapper<MailUserForm, ErrorResponse> {
-
-
+internal fun parseMailToUserForm(soup: Document): Result<MailUserForm, ErrorResponse> {
     val sessionElem: Element? = soup.selectFirst("#postform > input[name=session]")
     if (sessionElem == null) {
         val title = soup.selectFirst("body > div > h2").text()
         if (title.equals("You have sent too many anonymous mails. Please wait.", true)) {
-            return ResultWrapper.failure(ErrorResponse.TooManyAnonymousMails)
+            return Err(ErrorResponse.TooManyAnonymousMails)
         }
         if (title.equals("Insufficent Permissions For Mailing 1", true)) {
-            return ResultWrapper.failure(ErrorResponse.InsufficientMailingPermissions)
+            return Err(ErrorResponse.InsufficientMailingPermissions)
         }
-        return ResultWrapper.failure(ErrorResponse.Unknown(title))
+        return Err(ErrorResponse.Unknown(title))
     }
     val session = sessionElem.attr("value")!!
     val recipientName = soup.selectFirst("#postform > input[name=recipient_name]").attr("value")!!
@@ -232,7 +239,7 @@ internal fun parseMailToUserForm(soup: Document): ResultWrapper<MailUserForm, Er
         canSendEmail = false
     }
 
-    return ResultWrapper.success(
+    return Ok(
         MailUserForm(
             session = session,
             recipientName = recipientName,
@@ -244,21 +251,21 @@ internal fun parseMailToUserForm(soup: Document): ResultWrapper<MailUserForm, Er
 }
 
 
-internal fun parseMailSuperModsForm(soup: Document): ResultWrapper<MailSuperModsForm, ErrorResponse> {
+internal fun parseMailSuperModsForm(soup: Document): Result<MailSuperModsForm, ErrorResponse> {
     val sessionElem: Element? = soup.selectFirst("#postform > input[name=session]")
     if (sessionElem == null) {
         val title = soup.selectFirst("body > div > h2").text()
         if (title.equals("please go back and try again in about 5 minutes", true)) {
-            return ResultWrapper.failure(ErrorResponse.TooManyModEmails)
+            return Err(ErrorResponse.TooManyModEmails)
         }
-        return ResultWrapper.failure(ErrorResponse.Unknown(title))
+        return Err(ErrorResponse.Unknown(title))
     }
     val session = sessionElem.attr("value")!!
     val subject: String? = null
     val body = soup.selectFirst("#body").text() ?: ""
 
 
-    return ResultWrapper.success(
+    return Ok(
         MailSuperModsForm(
             session = session,
             body = body,
@@ -267,21 +274,21 @@ internal fun parseMailSuperModsForm(soup: Document): ResultWrapper<MailSuperMods
     )
 }
 
-internal fun parseMailBoardModsForm(soup: Document): ResultWrapper<MailBoardModsForm, ErrorResponse> {
+internal fun parseMailBoardModsForm(soup: Document): Result<MailBoardModsForm, ErrorResponse> {
     val sessionElem: Element? = soup.selectFirst("#postform > input[name=session]")
     if (sessionElem == null) {
         val title = soup.selectFirst("body > div > h2").text()
         if (title.equals("please go back and try again in about 5 minutes", true)) {
-            return ResultWrapper.failure(ErrorResponse.TooManyModEmails)
+            return Err(ErrorResponse.TooManyModEmails)
         }
-        return ResultWrapper.failure(ErrorResponse.Unknown(title))
+        return Err(ErrorResponse.Unknown(title))
     }
     val session = sessionElem.attr("value")!!
     val subject: String? = null
     val body = soup.selectFirst("#body").text() ?: ""
     val boardId = soup.selectFirst("#postform > input[name=board]").attr("value").toInt()
 
-    return ResultWrapper.success(
+    return Ok(
         MailBoardModsForm(
             session = session,
             body = body,
@@ -291,42 +298,59 @@ internal fun parseMailBoardModsForm(soup: Document): ResultWrapper<MailBoardMods
     )
 }
 
-internal fun parseModifyPost(soup: Document): ResultWrapper<ModifyForm, AreYouMuslimDeclarationForm> {
-    throwIfTopicLocked(soup)
-    val muslim = parseMuslimDeclarationIfExists(soup)
-    if (muslim != null) {
-        return ResultWrapper.failure(muslim)
-    }
-    val body = soup.selectFirst("#body").text()
-    val titleElem = soup.select("input[name=\"title\"]").firstOrNull()!!
-    val titleEditable = titleElem.attr("type")!! != "hidden"
-    val title = titleElem.attr("value")!!
-    val session = soup.selectFirst("#session").attr("value")!!
-    val post = soup.selectFirst("input[name=\"post\"]").attr("value")!!
-    val redirect =
-        URLDecoder.decode(soup.selectFirst("input[name=\"redirect\"]").attr("value")!!, "UTF-8")
+internal fun parseModifyPost(soup: Document): Result<Either<ModifyForm, AreYouMuslimDeclarationForm>, ErrorResponse> {
+    return throwIfTopicLocked(soup)
+        .map {
+            val muslim = parseMuslimDeclarationIfExists(soup)
+            if (muslim != null) {
+                Either.Right(muslim)
+            }
+
+            val body = soup.selectFirst("#body").text()
+            val titleElem = soup.select("input[name=\"title\"]").firstOrNull()!!
+            val titleEditable = titleElem.attr("type")!! != "hidden"
+            val title = titleElem.attr("value")!!
+            val session = soup.selectFirst("#session").attr("value")!!
+            val post = soup.selectFirst("input[name=\"post\"]").attr("value")!!
+            val redirect =
+                URLDecoder.decode(
+                    soup.selectFirst("input[name=\"redirect\"]").attr("value")!!,
+                    "UTF-8"
+                )
 
 
-    val attachments = mutableListOf<Attachment>()
-    soup.select("form[action=\"/do_removeattachment\"]")?.forEach {
-        val session = it.selectFirst("input[name=\"session\"]").attr("value")!!
-        val post = it.selectFirst("input[name=\"post\"]").attr("value")!!
-        val attachment = it.selectFirst("input[name=\"attachment\"]").attr("value")!!
-        val redirect = it.selectFirst("input[name=\"redirect\"]").attr("value")!!
-        val name = (it.selectFirst("input[type=\"submit\"]").previousSibling() as TextNode).text()
-        attachments.add(Attachment(name, attachment.toLong(), post.toLong(), session, redirect))
-    }
-    return ResultWrapper.success(
-        ModifyForm(
-            body = body,
-            title = title,
-            titleEditable = titleEditable,
-            post = post.toLong(),
-            redirect = redirect,
-            session = session,
-            attachments = attachments
-        )
-    )
+            val attachments = mutableListOf<Attachment>()
+            soup.select("form[action=\"/do_removeattachment\"]")?.forEach {
+                val session = it.selectFirst("input[name=\"session\"]").attr("value")!!
+                val post = it.selectFirst("input[name=\"post\"]").attr("value")!!
+                val attachment = it.selectFirst("input[name=\"attachment\"]").attr("value")!!
+                val redirect = it.selectFirst("input[name=\"redirect\"]").attr("value")!!
+                val name =
+                    (it.selectFirst("input[type=\"submit\"]").previousSibling() as TextNode).text()
+                attachments.add(
+                    Attachment(
+                        name,
+                        attachment.toLong(),
+                        post.toLong(),
+                        session,
+                        redirect
+                    )
+                )
+            }
+            Either.Left(
+                ModifyForm(
+                    body = body,
+                    title = title,
+                    titleEditable = titleEditable,
+                    post = post.toLong(),
+                    redirect = redirect,
+                    session = session,
+                    attachments = attachments
+                )
+            )
+        }
+
+
 }
 
 internal fun parseLikeShareUrl(url: String): LikeShareUrlParseResult {
@@ -400,9 +424,10 @@ internal fun parseMuslimDeclarationIfExists(soup: Document): AreYouMuslimDeclara
     return null
 }
 
-private fun throwIfTopicLocked(soup: Document) {
+private fun throwIfTopicLocked(soup: Document): Result<Unit, ErrorResponse> {
     val closed = soup.selectFirst("div.body h2")
     if (closed != null && closed.text().trim().equals("topic locked", ignoreCase = true)) {
-        throw TopicLockedException
+        return Err(ErrorResponse.TopicLocked)
     }
+    return Ok(Unit)
 }

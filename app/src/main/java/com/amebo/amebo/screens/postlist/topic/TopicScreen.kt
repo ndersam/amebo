@@ -15,7 +15,7 @@ import com.amebo.amebo.common.fragments.BackPressable
 import com.amebo.amebo.databinding.TopicScreenBinding
 import com.amebo.amebo.screens.postlist.BasePostListScreen
 import com.amebo.amebo.screens.postlist.components.IPostListView
-import com.amebo.core.CoreUtils
+import com.amebo.core.common.CoreUtils
 import com.amebo.core.domain.PostListDataPage
 import com.amebo.core.domain.SimplePost
 import com.amebo.core.domain.Topic
@@ -126,7 +126,7 @@ class TopicScreen : BasePostListScreen<Topic>(R.layout.topic_screen), BackPressa
     private fun invalidateMenu() {
         val menu = binding.toolbar.menu
         val itemFollow = menu.findItem(R.id.toggle_follow)!!
-        itemFollow.isVisible = pref.isLoggedIn
+        itemFollow.isVisible = pref.isLoggedIn && viewModel.dataExists
         setFollowing(
             itemFollow,
             viewModel.isFollowing

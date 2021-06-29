@@ -3,7 +3,7 @@ package com.amebo.amebo.common
 import android.graphics.drawable.Drawable
 import android.text.Html
 import android.widget.TextView
-import com.amebo.core.Values
+import com.amebo.core.common.Values
 
 class ImageGetter(private val textView: TextView, imageGetterState: ImageGetterState) :
     Html.ImageGetter {

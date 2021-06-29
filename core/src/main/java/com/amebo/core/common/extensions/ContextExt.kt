@@ -1,4 +1,4 @@
-package com.amebo.core.extensions
+package com.amebo.core.common.extensions
 
 import android.content.Context
 import androidx.annotation.RawRes

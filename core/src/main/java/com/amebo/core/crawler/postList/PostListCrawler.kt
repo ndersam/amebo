@@ -1,14 +1,16 @@
 package com.amebo.core.crawler.postList
 
 import android.os.Build
-import com.amebo.core.CoreUtils
-import com.amebo.core.Values
+import com.amebo.core.common.CoreUtils
+import com.amebo.core.common.Values
 import com.amebo.core.crawler.DateTimeParser
 import com.amebo.core.crawler.ParseException
+import com.amebo.core.crawler.errorResponse
 import com.amebo.core.crawler.isTag
 import com.amebo.core.crawler.topicList.parseTopicUrl
 import com.amebo.core.crawler.topicList.parseTopicUrlOrThrow
 import com.amebo.core.domain.*
+import com.github.michaelbull.result.*
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
@@ -32,472 +34,514 @@ private fun sharesHTMLId(postId: String) = SHARES_SELECTOR + postId
 private const val DEFAULT_HIGHLIGHT_COLOR = "#f9a825"
 
 
-internal fun parseUnknownPostList(soup: Document, url: String): PostListDataPage {
+internal fun Document.parseUnknownPostList(
+    url: String
+): Result<PostListDataPage, ErrorResponse> {
     val topic = parseTopicUrl(url, find = false)
     if (topic != null) {
-        return parseTopicPosts(soup, url).apply { postToScrollTo = topic.refPost }
+        return parseTopicPosts(this, url).onSuccess {
+            it.apply { postToScrollTo = topic.refPost }
+        }
     }
 
     val likesAndShares = parseLikesAndSharesUrl(url)
     if (likesAndShares != null) {
-        return parseLikesAndShares(soup, likesAndShares.page).apply {
-            postToScrollTo = likesAndShares.refPost
+        return parseLikesAndShares(likesAndShares.page).onSuccess {
+            it.apply {
+                postToScrollTo = likesAndShares.refPost
+            }
         }
     }
 
     val shared = parseSharedPostUrl(url)
     if (shared != null) {
-        return parseSharedPosts(soup, shared.page).apply { postToScrollTo = shared.refPost }
+        return parseSharedPosts(shared.page).onSuccess {
+            it.apply { postToScrollTo = shared.refPost }
+        }
     }
 
     // assumed others must be a simple timeline post
     // e.g. search result, mentions or recent or user posts ... etc
     val postListResult = parsePostListPattern(url)
     if (postListResult != null) {
-        return parseTimelinePosts(soup, postListResult.page).apply {
-            postToScrollTo = postListResult.refPost
+        return parseTimelinePosts(url, postListResult.page).onSuccess {
+            it.apply {
+                postToScrollTo = postListResult.refPost
+            }
         }
     }
-
-    throw IllegalArgumentException("Unknown post list with url=$url")
-}
-
-internal fun parseTopicPosts(soup: Document, topicUrl: String): TopicPostListDataPage {
-    val result = parseTopicUrlOrThrow(topicUrl)
-    val topic = Topic(
-        title = result.slug,
-        id = result.topicId,
-        isOldUrl = result.isOldUrl,
-        linkedPage = result.page,
-        slug = result.slug,
-        refPost = result.refPost
-    )
-    return parseTopicPosts(soup, topic, result.page)
+    return Err(errorResponse(url, Exception("Unknown post list with url=$url")))
 }
 
 internal fun parseTopicPosts(
     soup: Document,
+    topicUrl: String
+): Result<TopicPostListDataPage, ErrorResponse> {
+    return parseTopicUrlOrThrow(topicUrl)
+        .map { result ->
+            result to Topic(
+                title = result.slug,
+                id = result.topicId,
+                isOldUrl = result.isOldUrl,
+                linkedPage = result.page,
+                slug = result.slug,
+                refPost = result.refPost
+            )
+        }
+        .flatMap {
+            soup.parseTopicPosts(it.second, it.first.page)
+        }
+}
+
+internal fun Document.parseTopicPosts(
     originalTopic: Topic,
     pageNo: Int
-): TopicPostListDataPage {
-    // val session: Session = SessionParser.parse(soup.selectFirst("#up"))
-    var topic = {
-        val titleElem: Element = soup.selectFirst("html body div.body h2")
-        var title: String = titleElem.text()
-        var dash = title.lastIndexOf("-") - 1
-        if (dash > -1) {
-            dash = title.lastIndexOf("-", startIndex = dash)
-            title = title.substring(0, dash).trim()
-        }
-        originalTopic.copy(title = title)
-    }()
-
-
-    // FETCH posts
-    val table = soup.selectFirst("table[summary=\"posts\"]")
-        ?:
-        // Hidden topic e.g. https://www.nairaland.com/4928836/madagascar-pochard-worlds-rarest-bird
-        // ... when viewed without logging in
-        return TopicPostListDataPage(
-            topic = topic,
-            views = 0,
-            isHiddenFromUser = true,
-            last = 0,
-            page = 0,
-            data = emptyList(),
-            usersViewing = emptyList(),
-            isFollowingTopic = false,
-            followOrUnFollowTopicUrl = null,
-            isClosed = false
-        )
-
-    val postList = fetchPostsOnTopic(table, topic)
-    var viewCount: Int? = null
-    val boards = mutableListOf<Board>()
-    var isFollowingTopic = false
-    var followOrUnFollowTopicUrl: String? = null
-
-    // Find forums that topic is posted in
-    val nodes: List<Node> = soup.selectFirst(FORUMS_SELECTOR).childNodes()
-    val anchors: MutableList<Element> = ArrayList()
-    for (node in nodes) {
-        if (node is TextNode) { // VIEW_COUNT
-            val matcher = VIEW_COUNT_REGEX.matcher(node.wholeText)
-            if (matcher.find()) {
-                viewCount = matcher.group(1)!!.toInt()
+): Result<TopicPostListDataPage, ErrorResponse> {
+    return runCatching {
+        var topic = run {
+            val titleElem: Element = this.selectFirst("html body div.body h2")
+            var title: String = titleElem.text()
+            var dash = title.lastIndexOf("-") - 1
+            if (dash > -1) {
+                dash = title.lastIndexOf("-", startIndex = dash)
+                title = title.substring(0, dash).trim()
             }
-        } else if (node is Element) {
-            anchors.add(node)
+            originalTopic.copy(title = title)
         }
-    }
-    /*
-    Related topics
-     */
-    val relatedTopicsElem = soup.selectFirst("body > div > p.bold").nextElementSibling()
-    val relatedTopics = mutableListOf<Topic>()
-    var index = 0
-    while (index < relatedTopicsElem.childNodeSize() && relatedTopicsElem.childNode(index) !is Element) {
-        index++
-    }
-    while (index < relatedTopicsElem.childNodeSize() && relatedTopicsElem.isTag("p")) {
-        var node = relatedTopicsElem.childNode(index)
-        if (node is Element) {
-            // e.g. (2), (33)
-            val isPageNum = node.text().matches(NUMBER_IN_PAREN_REGEX)
-            if (node.tagName() == "a" && !isPageNum) {
-                val result = parseTopicUrl(node.attr("href"))
-                if (result != null) {
-                    relatedTopics.add(
-                        Topic(
-                            title = node.text(),
-                            slug = result.slug,
-                            id = result.topicId,
-                            linkedPage = result.page,
-                            isOldUrl = result.isOldUrl,
-                            refPost = result.refPost
+
+        // FETCH posts
+        val table = this.selectFirst("table[summary=\"posts\"]")
+            ?:
+            // Hidden topic e.g. https://www.nairaland.com/4928836/madagascar-pochard-worlds-rarest-bird
+            // ... when viewed without logging in
+            return@runCatching TopicPostListDataPage(
+                topic = topic,
+                views = 0,
+                isHiddenFromUser = true,
+                last = 0,
+                page = 0,
+                data = emptyList(),
+                usersViewing = emptyList(),
+                isFollowingTopic = false,
+                followOrUnFollowTopicUrl = null,
+                isClosed = false
+            )
+
+        val postList = fetchPostsOnTopic(table, topic)
+        var viewCount: Int? = null
+        val boards = mutableListOf<Board>()
+        var isFollowingTopic = false
+        var followOrUnFollowTopicUrl: String? = null
+
+        // Find forums that topic is posted in
+        val nodes: List<Node> = this.selectFirst(FORUMS_SELECTOR).childNodes()
+        val anchors: MutableList<Element> = ArrayList()
+        for (node in nodes) {
+            if (node is TextNode) { // VIEW_COUNT
+                val matcher = VIEW_COUNT_REGEX.matcher(node.wholeText)
+                if (matcher.find()) {
+                    viewCount = matcher.group(1)!!.toInt()
+                }
+            } else if (node is Element) {
+                anchors.add(node)
+            }
+        }
+        /*
+        Related topics
+         */
+        val relatedTopicsElem = this.selectFirst("body > div > p.bold").nextElementSibling()
+        val relatedTopics = mutableListOf<Topic>()
+        var index = 0
+        while (index < relatedTopicsElem.childNodeSize() && relatedTopicsElem.childNode(index) !is Element) {
+            index++
+        }
+        while (index < relatedTopicsElem.childNodeSize() && relatedTopicsElem.isTag("p")) {
+            var node = relatedTopicsElem.childNode(index)
+            if (node is Element) {
+                // e.g. (2), (33)
+                val isPageNum = node.text().matches(NUMBER_IN_PAREN_REGEX)
+                if (node.tagName() == "a" && !isPageNum) {
+                    val result = parseTopicUrl(node.attr("href"))
+                    if (result != null) {
+                        relatedTopics.add(
+                            Topic(
+                                title = node.text(),
+                                slug = result.slug,
+                                id = result.topicId,
+                                linkedPage = result.page,
+                                isOldUrl = result.isOldUrl,
+                                refPost = result.refPost
+                            )
                         )
+                        // note..
+                        index++
+                    }
+                }
+            }
+
+            node = relatedTopicsElem.childNode(index)
+            if (!(node is TextNode && node.text().trim() == "/")) {
+                break
+            }
+            index++
+        }
+        // Related topics beneath list of posts
+        this.select("div.nocopy > p:nth-of-type(2) > a").forEach {
+            val result = parseTopicUrl(it.attr("href"))
+            if (result != null) {
+                relatedTopics.add(
+                    Topic(
+                        title = it.text(),
+                        slug = result.slug,
+                        id = result.topicId,
+                        linkedPage = result.page,
+                        isOldUrl = result.isOldUrl,
+                        refPost = result.refPost
                     )
-                    // note..
-                    index++
+                )
+            }
+        }
+
+
+        /*
+          Boards
+         */
+        val start = if (anchors.size > 2) 1 else 0
+        val end = anchors.size - 1
+        for (i in end - 1 downTo start) {
+            val elem: Element = anchors[i]
+            // workaround for old topics like
+            // https://www.nairaland.com/1049481/how-place-targeted-ads-nairaland
+            // ... that have page number anchors as sibling elements to board names
+            val url = elem.attr("href").substringAfter("/")
+            if (elem.text().trim().matches(NUMBER_IN_PAREN_REGEX).not() && url.contains('/')
+                    .not()
+            ) {
+                boards.add(Board(elem.text(), url))
+            }
+        }
+        if (boards.isNotEmpty()) {
+            topic.mainBoard = boards[0]
+        }
+
+        /*
+          Page information
+        */
+        var lastPage = 0
+        val pageInfo =
+            table.previousElementSibling().previousElementSibling()  // True if an add is present
+                ?: table.parent().previousElementSibling()
+        val children = pageInfo.children()
+        for (idx in children.indices.reversed()) {
+            val elem: Element = children[idx]
+            // page number tags
+            // e.g. <a>(2)</a> .... <b>(1)</b>
+            if (elem.isTag("b") || elem.isTag("a") &&
+                elem.attr("href").startsWith("/" + topic.id)
+            ) {
+                lastPage = elem.text().substring(1, elem.text().length - 1)
+                    .toInt() - 1 // -1 bcos pages are zero-index
+                break
+            } else if (elem.isTag("a") && elem.attr("href").contains("followtopic?")) {
+                isFollowingTopic = !elem.text().trim().equals("follow", true)
+                followOrUnFollowTopicUrl = elem.attr("href")
+            }
+        }
+        // IsPageClosed?
+        val closedElemParent = table.nextElementSibling() ?: table.parent().nextElementSibling()
+        val closedElem = closedElemParent.selectFirst("p img[src=\"/icons/closed.gif\"]")
+
+        if (pageNo == 0 && postList.isNotEmpty()) {
+            val firstPost = (postList.first() as SimplePost)
+            topic = topic.copy(timestamp = firstPost.timestamp, author = firstPost.author)
+        }
+
+        TopicPostListDataPage(
+            topic = topic,
+            views = viewCount!!,
+            isHiddenFromUser = false,
+            last = lastPage,
+            page = pageNo,
+            data = postList,
+            isFollowingTopic = isFollowingTopic,
+            followOrUnFollowTopicUrl = followOrUnFollowTopicUrl,
+            usersViewing = emptyList(),
+            isClosed = closedElem != null,
+            relatedTopics = relatedTopics
+        )
+    }.mapError { errorResponse("/${originalTopic.id}/${originalTopic.slug}/${pageNo}", it) }
+}
+
+internal fun Document.parseTimelinePosts(
+    url: String,
+    pageNumber: Int
+): Result<TimelinePostsListDataPage, ErrorResponse> {
+    return runCatching {
+        val posts = mutableListOf<Post>()
+
+        val table = selectFirst("body > div > table:nth-of-type(2)")
+        val tRows = table.select("tr td")
+            ?: // No posts
+            return@runCatching TimelinePostsListDataPage(emptyList(), pageNumber, pageNumber)
+
+        /*
+            Page information
+             */
+        var pageElem = table.previousElementSibling().previousElementSibling()
+        if (!pageElem.isTag("p"))
+            pageElem = pageElem.nextElementSibling()
+        val lastPageElem = pageElem.selectFirst("b:last-of-type")
+            ?: return@runCatching TimelinePostsListDataPage(
+                posts,
+                pageNumber,
+                0
+            )
+        val lastPage = (lastPageElem.text().toInt() - 1).coerceAtLeast(0)
+
+
+        var idx = 0
+        while (idx < tRows.size) {
+            val td = tRows[idx++]
+            when {
+                isStartOfNewPost(td) -> {
+                    val header = when (val headerResult = parseTimelineItemHeader(td)) {
+                        is Ok -> headerResult.value
+                        is Err -> return Err(headerResult.error)
+                    }
+                    val postBody = parsePostBody(
+                        tRows[idx++].selectFirst("td")
+                    )
+                    val post = SimplePost(
+                        author = header.author,
+                        topic = header.topic,
+                        isLiked = postBody.isLiked,
+                        isShared = postBody.isShared,
+                        likeUrl = postBody.likeUrl,
+                        shareUrl = postBody.shareUrl,
+                        timestamp = header.timestamp,
+                        images = postBody.images,
+                        text = postBody.text,
+                        id = postBody.id,
+                        likes = postBody.likes,
+                        shares = postBody.shares,
+                        parentQuotes = postBody.parentQuotes,
+                        editUrl = postBody.modifyPostURL,
+                        reportUrl = postBody.reportPostURL,
+                        url = header.linkedUrl
+                    )
+                    val timelinePost = TimelinePost(header.isMainPost, post)
+                    posts.add(timelinePost)
+                }
+                isBlankPost(td) -> {
+                    posts.add(DeletedPost(td.selectFirst("a").attr("name")))
+                }
+                else -> {
+                    Timber.e("[ERROR] This should never happen")
+                }
+            }
+        }
+        TimelinePostsListDataPage(
+            posts,
+            pageNumber,
+            lastPage
+        )
+    }
+        .mapError { errorResponse(url, it) }
+}
+
+internal fun Document.parseSharedPosts(
+    pageNumber: Int
+): Result<SharedPostsListDataPage, ErrorResponse> {
+    return runCatching {
+        val posts = mutableListOf<Post>()
+        val table = selectFirst("body > div > table:nth-of-type(2)")
+        val tRows = table.select("tr td")
+            ?: // No posts
+            return@runCatching SharedPostsListDataPage(emptyList(), pageNumber, pageNumber)
+
+        /*
+            Page information
+             */
+        var pageElem = table.previousElementSibling().previousElementSibling()
+        if (!pageElem.isTag("p"))
+            pageElem = pageElem.nextElementSibling()
+        val lastPage = (pageElem.selectFirst("b:last-of-type").text().toInt() - 1).coerceAtLeast(0)
+
+
+        var idx = 0
+        while (idx < tRows.size) {
+            val td = tRows[idx++]
+            when {
+                isStartOfNewPost(td) -> {
+                    val header = when (val result = parseSharedPostHeader(td)) {
+                        is Ok -> result.value
+                        is Err -> return result
+                    }
+                    val postBody = parsePostBody(
+                        tRows[idx++].selectFirst("td")
+                    )
+                    val post = SimplePost(
+                        author = header.author,
+                        topic = header.topic,
+                        isLiked = postBody.isLiked,
+                        isShared = postBody.isShared,
+                        likeUrl = postBody.likeUrl,
+                        shareUrl = postBody.shareUrl,
+                        timestamp = header.timestamp,
+                        images = postBody.images,
+                        text = postBody.text,
+                        id = postBody.id,
+                        likes = postBody.likes,
+                        shares = postBody.shares,
+                        parentQuotes = postBody.parentQuotes,
+                        editUrl = postBody.modifyPostURL,
+                        reportUrl = postBody.reportPostURL,
+                        url = header.linkedUrl
+                    )
+                    val sharedPost = SharedPost(
+                        header.sharer,
+                        header.sharerInfo,
+                        header.timestampShared,
+                        header.isMainPost,
+                        post
+                    )
+                    posts.add(sharedPost)
+                }
+                isBlankPost(td) -> {
+                    posts.add(DeletedPost(td.selectFirst("a").attr("name")))
+                }
+                else -> {
+                    Timber.e("[ERROR] This should never happen")
+                }
+            }
+        }
+        SharedPostsListDataPage(
+            posts,
+            pageNumber,
+            lastPage
+        )
+    }
+        .mapError { errorResponse("/shared/$pageNumber", it) }
+}
+
+internal fun Document.parseLikesAndShares(
+    pageNumber: Int
+): Result<LikedOrSharedPostListDataPage, ErrorResponse> {
+    return runCatching {
+        val posts = mutableListOf<Post>()
+        var numShares = 0
+        var numLikes = 0
+
+        // Num likes? shares?
+        this.select("body > div > table:nth-of-type(2) b").forEach {
+            val text = it.text().trim()
+            // e.g. 283 total shares
+            if (text.endsWith("total shares", ignoreCase = true)) {
+                numShares = text.split(" ").first().trim().toInt()
+            }
+            // e.g. 283 total likes
+            else if (text.endsWith("total likes", ignoreCase = true)) {
+                numLikes = text.split(" ").first().trim().toInt()
+            }
+        }
+
+        val table = this.selectFirst("body > div > table:nth-of-type(3)")
+        // 'table of posts' has no id, so if this has an Id, it's definitely not the right table
+        if (table.id().isNotBlank()) {
+            return@runCatching LikedOrSharedPostListDataPage(
+                emptyList(),
+                pageNumber,
+                pageNumber,
+                numLikes,
+                numShares
+            )
+        }
+        val tRows = table.select("tr td")
+            ?: // No posts
+            return@runCatching LikedOrSharedPostListDataPage(
+                emptyList(),
+                pageNumber,
+                pageNumber,
+                numLikes,
+                numShares
+            )
+
+        /*
+            Page information
+             */
+        var pageElem = table.previousElementSibling().previousElementSibling()
+        if (!pageElem.isTag("p"))
+            pageElem = pageElem.nextElementSibling()
+        val lastPage = pageElem.selectFirst("b:last-of-type").text().toInt() - 1
+
+
+        var idx = 0
+        while (idx < tRows.size) {
+            val td = tRows[idx++]
+            when {
+                isStartOfNewPost(td) -> {
+                    val header = when (val result = parseLikesAndSharesHeader(td)) {
+                        is Ok -> result.value
+                        is Err -> return result
+                    }
+                    val postBody = parsePostBody(
+                        tRows[idx++].selectFirst("td")
+                    )
+                    val post = SimplePost(
+                        author = header.author,
+                        topic = header.topic,
+                        isLiked = postBody.isLiked,
+                        isShared = postBody.isShared,
+                        likeUrl = postBody.likeUrl,
+                        shareUrl = postBody.shareUrl,
+                        timestamp = header.timestamp,
+                        images = postBody.images,
+                        text = postBody.text,
+                        id = postBody.id,
+                        likes = postBody.likes,
+                        shares = postBody.shares,
+                        parentQuotes = postBody.parentQuotes,
+                        editUrl = postBody.modifyPostURL,
+                        reportUrl = postBody.reportPostURL,
+                        url = header.linkedUrl
+                    )
+                    val sharedPost = LikedOrSharedPost(
+                        post = post,
+                        timestamp = header.timestampLikedOrShared,
+                        isMainPost = header.isMainPost,
+                        kind = if (header.info.equals("shared", true)) {
+                            val sharerName = header.nameOfSharer!!
+                            val sharer =
+                                if (sharerName.equals("you", true)) null else User(sharerName)
+                            LikedOrSharedPost.Kind.Shared(isYou = sharer == null, sharer = sharer)
+                        } else {
+                            LikedOrSharedPost.Kind.Liked
+                        }
+                    )
+                    posts.add(sharedPost)
+                }
+                isBlankPost(td) -> {
+                    posts.add(DeletedPost(td.selectFirst("a").attr("name")))
+                }
+                else -> {
+                    Timber.e("[ERROR] This should never happen")
                 }
             }
         }
 
-        node = relatedTopicsElem.childNode(index)
-        if (!(node is TextNode && node.text().trim() == "/")) {
-            break
-        }
-        index++
-    }
-    // Related topics beneath list of posts
-    soup.select("div.nocopy > p:nth-of-type(2) > a").forEach {
-        val result = parseTopicUrl(it.attr("href"))
-        if (result != null) {
-            relatedTopics.add(
-                Topic(
-                    title = it.text(),
-                    slug = result.slug,
-                    id = result.topicId,
-                    linkedPage = result.page,
-                    isOldUrl = result.isOldUrl,
-                    refPost = result.refPost
-                )
-            )
-        }
-    }
 
-
-    /*
-      Boards
-     */
-    val start = if (anchors.size > 2) 1 else 0
-    val end = anchors.size - 1
-    for (i in end - 1 downTo start) {
-        val elem: Element = anchors[i]
-        // workaround for old topics like
-        // https://www.nairaland.com/1049481/how-place-targeted-ads-nairaland
-        // ... that have page number anchors as sibling elements to board names
-        val url = elem.attr("href").substringAfter("/")
-        if (elem.text().trim().matches(NUMBER_IN_PAREN_REGEX).not() && url.contains('/').not()) {
-            boards.add(Board(elem.text(), url))
-        }
-    }
-    if (boards.isNotEmpty()) {
-        topic.mainBoard = boards[0]
-    }
-
-    /*
-      Page information
-    */
-    var lastPage = 0
-    val pageInfo =
-        table.previousElementSibling().previousElementSibling()  // True if an add is present
-            ?: table.parent().previousElementSibling()
-    val children = pageInfo.children()
-    for (idx in children.indices.reversed()) {
-        val elem: Element = children[idx]
-        // page number tags
-        // e.g. <a>(2)</a> .... <b>(1)</b>
-        if (elem.isTag("b") || elem.isTag("a") &&
-            elem.attr("href").startsWith("/" + topic.id)
-        ) {
-            lastPage = elem.text().substring(1, elem.text().length - 1)
-                .toInt() - 1 // -1 bcos pages are zero-index
-            break
-        } else if (elem.isTag("a") && elem.attr("href").contains("followtopic?")) {
-            isFollowingTopic = !elem.text().trim().equals("follow", true)
-            followOrUnFollowTopicUrl = elem.attr("href")
-        }
-    }
-    // IsPageClosed?
-    val closedElemParent = table.nextElementSibling() ?: table.parent().nextElementSibling()
-    val closedElem = closedElemParent.selectFirst("p img[src=\"/icons/closed.gif\"]")
-
-    if (pageNo == 0 && postList.isNotEmpty()) {
-        val firstPost = (postList.first() as SimplePost)
-        topic = topic.copy(timestamp = firstPost.timestamp, author = firstPost.author)
-    }
-
-    return TopicPostListDataPage(
-        topic = topic,
-        views = viewCount!!,
-        isHiddenFromUser = false,
-        last = lastPage,
-        page = pageNo,
-        data = postList,
-        isFollowingTopic = isFollowingTopic,
-        followOrUnFollowTopicUrl = followOrUnFollowTopicUrl,
-        usersViewing = emptyList(),
-        isClosed = closedElem != null,
-        relatedTopics = relatedTopics
-    )
-}
-
-internal fun parseTimelinePosts(soup: Document, pageNumber: Int): TimelinePostsListDataPage {
-    val posts = mutableListOf<Post>()
-
-    val table = soup.selectFirst("body > div > table:nth-of-type(2)")
-    val tRows = table.select("tr td")
-        ?: // No posts
-        return TimelinePostsListDataPage(emptyList(), pageNumber, pageNumber)
-
-    /*
-        Page information
-         */
-    var pageElem = table.previousElementSibling().previousElementSibling()
-    if (!pageElem.isTag("p"))
-        pageElem = pageElem.nextElementSibling()
-    val lastPageElem = pageElem.selectFirst("b:last-of-type")
-        ?: return TimelinePostsListDataPage(
+        LikedOrSharedPostListDataPage(
             posts,
             pageNumber,
-            0
-        )
-    val lastPage = (lastPageElem.text().toInt() - 1).coerceAtLeast(0)
-
-
-    var idx = 0
-    while (idx < tRows.size) {
-        val td = tRows[idx++]
-        when {
-            isStartOfNewPost(td) -> {
-                val header = parseTimelineItemHeader(td)
-                val postBody = parsePostBody(
-                    tRows[idx++].selectFirst("td")
-                )
-                val post = SimplePost(
-                    author = header.author,
-                    topic = header.topic,
-                    isLiked = postBody.isLiked,
-                    isShared = postBody.isShared,
-                    likeUrl = postBody.likeUrl,
-                    shareUrl = postBody.shareUrl,
-                    timestamp = header.timestamp,
-                    images = postBody.images,
-                    text = postBody.text,
-                    id = postBody.id,
-                    likes = postBody.likes,
-                    shares = postBody.shares,
-                    parentQuotes = postBody.parentQuotes,
-                    editUrl = postBody.modifyPostURL,
-                    reportUrl = postBody.reportPostURL,
-                    url = header.linkedUrl
-                )
-                val timelinePost = TimelinePost(header.isMainPost, post)
-                posts.add(timelinePost)
-            }
-            isBlankPost(td) -> {
-                posts.add(DeletedPost(td.selectFirst("a").attr("name")))
-            }
-            else -> {
-                Timber.e("[ERROR] This should never happen")
-            }
-        }
-    }
-    return TimelinePostsListDataPage(
-        posts,
-        pageNumber,
-        lastPage
-    )
-}
-
-internal fun parseSharedPosts(soup: Document, pageNumber: Int): SharedPostsListDataPage {
-    val posts = mutableListOf<Post>()
-    val table = soup.selectFirst("body > div > table:nth-of-type(2)")
-    val tRows = table.select("tr td")
-        ?: // No posts
-        return SharedPostsListDataPage(emptyList(), pageNumber, pageNumber)
-
-    /*
-        Page information
-         */
-    var pageElem = table.previousElementSibling().previousElementSibling()
-    if (!pageElem.isTag("p"))
-        pageElem = pageElem.nextElementSibling()
-    val lastPage = (pageElem.selectFirst("b:last-of-type").text().toInt() - 1).coerceAtLeast(0)
-
-
-    var idx = 0
-    while (idx < tRows.size) {
-        val td = tRows[idx++]
-        when {
-            isStartOfNewPost(td) -> {
-                val header = parseSharedPostHeader(td)
-                val postBody = parsePostBody(
-                    tRows[idx++].selectFirst("td")
-                )
-                val post = SimplePost(
-                    author = header.author,
-                    topic = header.topic,
-                    isLiked = postBody.isLiked,
-                    isShared = postBody.isShared,
-                    likeUrl = postBody.likeUrl,
-                    shareUrl = postBody.shareUrl,
-                    timestamp = header.timestamp,
-                    images = postBody.images,
-                    text = postBody.text,
-                    id = postBody.id,
-                    likes = postBody.likes,
-                    shares = postBody.shares,
-                    parentQuotes = postBody.parentQuotes,
-                    editUrl = postBody.modifyPostURL,
-                    reportUrl = postBody.reportPostURL,
-                    url = header.linkedUrl
-                )
-                val sharedPost = SharedPost(
-                    header.sharer,
-                    header.sharerInfo,
-                    header.timestampShared,
-                    header.isMainPost,
-                    post
-                )
-                posts.add(sharedPost)
-            }
-            isBlankPost(td) -> {
-                posts.add(DeletedPost(td.selectFirst("a").attr("name")))
-            }
-            else -> {
-                Timber.e("[ERROR] This should never happen")
-            }
-        }
-    }
-    return SharedPostsListDataPage(
-        posts,
-        pageNumber,
-        lastPage
-    )
-}
-
-internal fun parseLikesAndShares(soup: Document, pageNumber: Int): LikedOrSharedPostListDataPage {
-    val posts = mutableListOf<Post>()
-    var numShares = 0
-    var numLikes = 0
-
-    // Num likes? shares?
-    soup.select("body > div > table:nth-of-type(2) b").forEach {
-        val text = it.text().trim()
-        // e.g. 283 total shares
-        if (text.endsWith("total shares", ignoreCase = true)) {
-            numShares = text.split(" ").first().trim().toInt()
-        }
-        // e.g. 283 total likes
-        else if (text.endsWith("total likes", ignoreCase = true)) {
-            numLikes = text.split(" ").first().trim().toInt()
-        }
-    }
-
-    val table = soup.selectFirst("body > div > table:nth-of-type(3)")
-    // 'table of posts' has no id, so if this has an Id, it's definitely not the right table
-    if (table.id().isNotBlank()) {
-        return LikedOrSharedPostListDataPage(
-            emptyList(),
-            pageNumber,
-            pageNumber,
+            lastPage,
             numLikes,
             numShares
         )
     }
-    val tRows = table.select("tr td")
-        ?: // No posts
-        return LikedOrSharedPostListDataPage(
-            emptyList(),
-            pageNumber,
-            pageNumber,
-            numLikes,
-            numShares
-        )
-
-    /*
-        Page information
-         */
-    var pageElem = table.previousElementSibling().previousElementSibling()
-    if (!pageElem.isTag("p"))
-        pageElem = pageElem.nextElementSibling()
-    val lastPage = pageElem.selectFirst("b:last-of-type").text().toInt() - 1
-
-
-    var idx = 0
-    while (idx < tRows.size) {
-        val td = tRows[idx++]
-        when {
-            isStartOfNewPost(td) -> {
-                val header = parseLikesAndSharesHeader(td)
-                val postBody = parsePostBody(
-                    tRows[idx++].selectFirst("td")
-                )
-                val post = SimplePost(
-                    author = header.author,
-                    topic = header.topic,
-                    isLiked = postBody.isLiked,
-                    isShared = postBody.isShared,
-                    likeUrl = postBody.likeUrl,
-                    shareUrl = postBody.shareUrl,
-                    timestamp = header.timestamp,
-                    images = postBody.images,
-                    text = postBody.text,
-                    id = postBody.id,
-                    likes = postBody.likes,
-                    shares = postBody.shares,
-                    parentQuotes = postBody.parentQuotes,
-                    editUrl = postBody.modifyPostURL,
-                    reportUrl = postBody.reportPostURL,
-                    url = header.linkedUrl
-                )
-                val sharedPost = LikedOrSharedPost(
-                    post = post,
-                    timestamp = header.timestampLikedOrShared,
-                    isMainPost = header.isMainPost,
-                    kind = if (header.info.equals("shared", true)) {
-                        val sharerName = header.nameOfSharer!!
-                        val sharer = if (sharerName.equals("you", true)) null else User(sharerName)
-                        LikedOrSharedPost.Kind.Shared(isYou = sharer == null, sharer = sharer)
-                    } else {
-                        LikedOrSharedPost.Kind.Liked
-                    }
-                )
-                posts.add(sharedPost)
-            }
-            isBlankPost(td) -> {
-                posts.add(DeletedPost(td.selectFirst("a").attr("name")))
-            }
-            else -> {
-                Timber.e("[ERROR] This should never happen")
-            }
-        }
-    }
-
-
-    return LikedOrSharedPostListDataPage(
-        posts,
-        pageNumber,
-        lastPage,
-        numLikes,
-        numShares
-    )
+        .mapError { errorResponse("/likesandshares/$pageNumber", it) }
 }
 
-private fun parseTimelineItemHeader(td: Element): TimelineHeader {
-
+private fun parseTimelineItemHeader(td: Element): Result<TimelineHeader, ErrorResponse> {
     var postAuthor: User? = null
 
     /*
@@ -525,27 +569,29 @@ private fun parseTimelineItemHeader(td: Element): TimelineHeader {
     }
 
     val isSimpleComment = topicElem.text().startsWith("Re:")
-    val result = parseTopicUrlOrThrow(topicElem.attr("href"))
+    return parseTopicUrlOrThrow(topicElem.attr("href"))
+        .map { result ->
+            TimelineHeader().apply {
+                author = postAuthor ?: throw ParseException("Unable to fix author")
+                val boardUrl = if (boardElem.attr("href").startsWith("/"))
+                    boardElem.attr("href").substringAfter("/")
+                else boardElem.attr("href")
+                topic = Topic(
+                    title = if (isSimpleComment) topicElem.text().substring(3)
+                        .trim() else topicElem.text(),
+                    id = result.topicId,
+                    slug = result.slug,
+                    linkedPage = result.page,
+                    refPost = result.refPost,
+                    mainBoard = Board(boardElem.text(), boardUrl),
+                    isOldUrl = result.isOldUrl
+                )
+                timestamp = DateTimeParser.parse(td.selectFirst("td"))
+                isMainPost = !isSimpleComment
+                linkedUrl = postLink
+            }
+        }
 
-
-    return TimelineHeader().apply {
-        author = postAuthor ?: throw ParseException("Unable to fix author")
-        val boardUrl = if (boardElem.attr("href").startsWith("/"))
-            boardElem.attr("href").substringAfter("/")
-        else boardElem.attr("href")
-        topic = Topic(
-            title = if (isSimpleComment) topicElem.text().substring(3).trim() else topicElem.text(),
-            id = result.topicId,
-            slug = result.slug,
-            linkedPage = result.page,
-            refPost = result.refPost,
-            mainBoard = Board(boardElem.text(), boardUrl),
-            isOldUrl = result.isOldUrl
-        )
-        timestamp = DateTimeParser.parse(td.selectFirst("td"))
-        isMainPost = !isSimpleComment
-        linkedUrl = postLink
-    }
 }
 
 private fun fetchPostsOnTopic(table: Element, topic: Topic): List<Post> {
@@ -784,7 +830,7 @@ private fun parsePostBody(tableData: Element): PostBody {
 }
 
 @Throws(ParseException::class)
-private fun parseSharedPostHeader(td: Element): SharedPostHeader {
+private fun parseSharedPostHeader(td: Element): Result<SharedPostHeader, ErrorResponse> {
     val topic: Topic
     var postAuthor: User? = null
     val postTime: Long
@@ -802,15 +848,22 @@ private fun parseSharedPostHeader(td: Element): SharedPostHeader {
 
     // true if sharedPost was just a simple post on a Topic, i.e, not the "MainPost"
     val isSimpleComment = topicElem.text().startsWith("Re:")
-    val parseResult = parseTopicUrlOrThrow(topicElem.attr("href"))
-    topic = Topic(
-        title = if (isSimpleComment) topicElem.text().substring(4) else topicElem.text(),
-        id = parseResult.topicId,
-        slug = parseResult.slug,
-        isOldUrl = parseResult.isOldUrl,
-        refPost = parseResult.refPost,
-        linkedPage = parseResult.page
-    )
+    topic = when (val result = parseTopicUrlOrThrow(topicElem.attr("href"))
+        .map {
+            Topic(
+                title = if (isSimpleComment) topicElem.text().substring(4) else topicElem.text(),
+                id = it.topicId,
+                slug = it.slug,
+                isOldUrl = it.isOldUrl,
+                refPost = it.refPost,
+                linkedPage = it.page
+            )
+        }
+    ) {
+        is Ok -> result.value
+        is Err -> return result
+    }
+
     val boardUrl = if (boardElem.attr("href").startsWith("/"))
         boardElem.attr("href").substringAfter("/")
     else boardElem.attr("href")
@@ -889,21 +942,23 @@ private fun parseSharedPostHeader(td: Element): SharedPostHeader {
 //        Utils.toTimeStamp(time, Utils.currentDate(), Utils.currentYear().toString() + "")
 //    }
 
-    return SharedPostHeader().apply {
-        author = postAuthor
-        this.topic = topic
-        timestamp = postTime
-        this.sharer = sharer
-        this.sharerInfo = shareMeta
-        this.timestampShared = timeShared
-        linkedUrl = postLink
-        isMainPost = !isSimpleComment
-    }
+    return Ok(
+        SharedPostHeader().apply {
+            author = postAuthor
+            this.topic = topic
+            timestamp = postTime
+            this.sharer = sharer
+            this.sharerInfo = shareMeta
+            this.timestampShared = timeShared
+            linkedUrl = postLink
+            isMainPost = !isSimpleComment
+        }
+    )
 }
 
 
 @Throws(ParseException::class)
-private fun parseLikesAndSharesHeader(td: Element): LikesAndSharesHeader {
+private fun parseLikesAndSharesHeader(td: Element): Result<LikesAndSharesHeader, ErrorResponse> {
     val topic: Topic
     var postAuthor: User? = null
     val postTime: Long
@@ -920,7 +975,10 @@ private fun parseLikesAndSharesHeader(td: Element): LikesAndSharesHeader {
 
     // true if sharedPost was just a simple post on a Topic, i.e, not the "MainPost"
     val isSimpleComment = topicElem.text().startsWith("Re:")
-    val parseResult = parseTopicUrlOrThrow(topicElem.attr("href"))
+    val parseResult = when (val result = parseTopicUrlOrThrow(topicElem.attr("href"))) {
+        is Ok -> result.value
+        is Err -> return result
+    }
     topic = Topic(
         title = if (isSimpleComment) topicElem.text().substring(4) else topicElem.text(),
         id = parseResult.topicId,
@@ -969,16 +1027,18 @@ private fun parseLikesAndSharesHeader(td: Element): LikesAndSharesHeader {
     postTime = DateTimeParser.parse(dateTime)
 
 
-    return LikesAndSharesHeader().apply {
-        author = postAuthor
-        this.topic = topic
-        timestamp = postTime
-        this.info = info
-        this.timestampLikedOrShared = timestampLikedOrShared
-        linkedUrl = postLink
-        isMainPost = !isSimpleComment
-        this.nameOfSharer = nameOfSharer
-    }
+    return Ok(
+        LikesAndSharesHeader().apply {
+            author = postAuthor
+            this.topic = topic
+            timestamp = postTime
+            this.info = info
+            this.timestampLikedOrShared = timestampLikedOrShared
+            linkedUrl = postLink
+            isMainPost = !isSimpleComment
+            this.nameOfSharer = nameOfSharer
+        }
+    )
 }
 
 

@@ -10,6 +10,6 @@ class TopicListCrawlerTest : TestCase() {
     fun `board-works-just-fine`() {
         val document = fetchDocument("/topiclist/board-politics.html")
         val board = Board("Politics", "politics")
-        val page = parseBoardTopics(document, 0, board)
+        val page = document.parseBoardTopics(0, board)
     }
 }

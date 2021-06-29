@@ -20,9 +20,9 @@ import android.content.Context;
 import androidx.annotation.RestrictTo;
 import androidx.core.util.Predicate;
 
+import com.amebo.core.common.extensions.ContextExtKt;
 import com.amebo.core.converter.domain.Document;
 import com.amebo.core.converter.domain.TagNode;
-import com.amebo.core.extensions.ContextExtensionsKt;
 import com.samskivert.mustache.Mustache;
 import com.samskivert.mustache.Template;
 
@@ -152,7 +152,7 @@ public class BBCodeToHTMLTransformer implements Transformer {
 
         private String readTemplate(String filename) {
             try {
-                return ContextExtensionsKt.openRawAsString(context, filename);
+                return ContextExtKt.openRawAsString(context, filename);
             } catch (IOException e) {
                 e.printStackTrace();
             }

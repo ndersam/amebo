@@ -15,8 +15,9 @@ import com.amebo.amebo.common.AppUtil
 import com.amebo.amebo.common.Event
 import com.amebo.amebo.common.Resource
 import com.amebo.core.Nairaland
-import com.amebo.core.domain.ResultWrapper
 import com.amebo.core.domain.User
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -32,8 +33,8 @@ class PhotoSharedViewModel @Inject constructor(private val nairaland: Nairaland)
             _likePhotoEvent.value = Event(Resource.Loading(null))
             _likePhotoEvent.value = Event(
                 when(val result = nairaland.sources.submissions.likeProfilePhoto(like, user)){
-                    is ResultWrapper.Failure -> Resource.Error(result.data, null)
-                    is ResultWrapper.Success -> Resource.Success(LikeResult(like, result.data))
+                    is Err -> Resource.Error(result.error, null)
+                    is Ok -> Resource.Success(LikeResult(like, result.value))
                 }
             )
         }

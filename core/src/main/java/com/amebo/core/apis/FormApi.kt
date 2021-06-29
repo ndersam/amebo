@@ -1,59 +1,57 @@
 package com.amebo.core.apis
 
-import com.amebo.core.domain.ErrorResponse
-import com.haroldadmin.cnradapter.NetworkResponse
 import org.jsoup.nodes.Document
-import retrofit2.Response
+import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Path
 import retrofit2.http.Query
 
-interface FormApi {
+internal interface FormApi {
 
     @GET("newpost")
-    suspend fun newPost(@Query("topic") topicId: String): Response<Document>
+    fun newPost(@Query("topic") topicId: String): Call<Document>
 
     @GET("newpost")
-    suspend fun quote(
+    fun quote(
         @Query("topic") topicId: String,
         @Query("post") post: String
-    ): Response<Document>
+    ): Call<Document>
 
     /**
      * @param referer e.g. https://www.nairaland.com/newpost?topic=6259418&post=96105107
      */
     @GET("getpost")
-    suspend fun getPost(
+    fun getPost(
         @Query("post") postID: String,
         @Query("session") session: String,
         @Header("referer") referer: String
-    ): String
+    ): Call<String>
 
     @GET("newtopic")
-    suspend fun newTopic(@Query("board") board: Int): Response<Document>
+    fun newTopic(@Query("board") board: Int): Call<Document>
 
     @GET("modifypost")
-    suspend fun modifyPost(
+    fun modifyPost(
         @Query("redirect") redirect: String,
         @Query("post") post: String
-    ): Response<Document>
+    ): Call<Document>
 
     @GET("makereport")
-    suspend fun reportPost(
+    fun reportPost(
         @Query("post") post: String,
         @Query("redirect") redirect: String
-    ): Document
+    ): Call<Document>
 
     @GET("sendemail/{username}")
-    suspend fun mailUser(@Path("username") username: String): NetworkResponse<Document, ErrorResponse>
+    fun mailUser(@Path("username") username: String): Call<Document>
 
     @GET("mailsupermods")
-    suspend fun mailSuperMods(): NetworkResponse<Document, ErrorResponse>
+    fun mailSuperMods(): Call<Document>
 
     @GET("mailmods")
-    suspend fun mailBoardMods(@Query("board") boardId: Int): NetworkResponse<Document, ErrorResponse>
+    fun mailBoardMods(@Query("board") boardId: Int): Call<Document>
 
     @GET("editprofile")
-    suspend fun editProfile(): Document
+    fun editProfile(): Call<Document>
 }

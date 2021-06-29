@@ -3,15 +3,20 @@ package com.amebo.amebo.screens.newpost.newpost
 import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.amebo.amebo.data.TestData
-import com.amebo.amebo.di.TestNairalandProvider
 import com.amebo.amebo.common.Event
 import com.amebo.amebo.common.Resource
+import com.amebo.amebo.data.TestData
+import com.amebo.amebo.di.TestNairalandProvider
 import com.amebo.amebo.screens.imagepicker.ImageItem
 import com.amebo.amebo.screens.newpost.FormData
 import com.amebo.amebo.suite.MainCoroutineRule
 import com.amebo.core.Nairaland
-import com.amebo.core.domain.*
+import com.amebo.core.common.Either
+import com.amebo.core.domain.Attachment
+import com.amebo.core.domain.NewPostForm
+import com.amebo.core.domain.PostListDataPage
+import com.amebo.core.domain.SimplePost
+import com.github.michaelbull.result.Ok
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -71,7 +76,7 @@ class NewPostScreenViewModelTest {
         val captor = argumentCaptor<Event<Resource<FormData>>>()
         val postCaptor = argumentCaptor<SimplePost>()
         whenever(nairaland.sources.forms.quotePost(postCaptor.capture()))
-            .thenReturn(ResultWrapper.success(ResultWrapper.success(newPostForm)))
+            .thenReturn(Ok(Either.Left(newPostForm)))
 
         // action
         viewModel.initialize(post.topic, post)
@@ -110,11 +115,11 @@ class NewPostScreenViewModelTest {
 
         // for call from viewModel::initialize
         whenever(nairaland.sources.forms.newPost(topicIdCaptor.capture()))
-            .thenReturn(ResultWrapper.success(ResultWrapper.success(newPostForm)))
+            .thenReturn(Ok(Either.Left(newPostForm)))
 
         // capture form submitted
         whenever(nairaland.sources.submissions.newPost(newFormCaptor.capture()))
-            .thenReturn(ResultWrapper.success(TestData.newTopicPostList()))
+            .thenReturn(Ok(TestData.newTopicPostList()))
 
         viewModel.initialize(topic, null)
 
@@ -160,7 +165,7 @@ class NewPostScreenViewModelTest {
 
         val attachmentCaptor = argumentCaptor<Attachment>()
         whenever(nairaland.sources.submissions.removeAttachment(attachmentCaptor.capture()))
-            .thenReturn(ResultWrapper.success(Unit))
+            .thenReturn(Ok(Unit))
 
         // ACTION
         viewModel.updateImages(emptyList(), removedItems)
@@ -196,7 +201,7 @@ class NewPostScreenViewModelTest {
 
 
         whenever(nairaland.sources.submissions.removeAttachment(any()))
-            .thenReturn(ResultWrapper.success(Unit))
+            .thenReturn(Ok(Unit))
 
         // ACTION
         cases.forEach { newCount ->

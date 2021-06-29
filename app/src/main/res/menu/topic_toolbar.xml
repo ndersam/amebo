@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/toggle_follow"
@@ -7,6 +8,8 @@
         android:icon="@drawable/ic_follow_topic"
         android:iconTint="?colorOnPrimary"
         android:title="@string/follow_topic"
+        android:visible="false"
+        tools:visible="true"
         app:iconTint="?colorOnPrimary"
         app:showAsAction="ifRoom" />
 </menu>

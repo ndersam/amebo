@@ -13,10 +13,10 @@ import androidx.work.*
 import com.amebo.amebo.R
 import com.amebo.amebo.application.App
 import com.amebo.amebo.application.MainActivity
-import com.amebo.core.CoreUtils
 import com.amebo.core.Nairaland
-import com.amebo.core.domain.ResultWrapper
+import com.amebo.core.common.CoreUtils
 import com.amebo.core.domain.TopicFeed
+import com.github.michaelbull.result.Ok
 import kotlinx.coroutines.runBlocking
 import java.util.concurrent.TimeUnit
 
@@ -31,9 +31,9 @@ class FeedWorker(
         runBlocking {
             val result = nairaland.sources.misc.feed()
 
-            if (result is ResultWrapper.Success) {
+            if (result is Ok) {
                 isSuccess = true
-                notifyUser(result.data)
+                notifyUser(result.value)
             }
         }
         return if (isSuccess) Result.success() else Result.failure()
@@ -93,7 +93,8 @@ class FeedWorker(
     private fun notificationBody(topics: List<TopicFeed>): CharSequence {
         val topic = topics.first()
         return HtmlCompat.fromHtml(
-            "<b>${topic.topic.title}</b><br>${CoreUtils.cleanHTML(
+            "<b>${topic.topic.title}</b><br>${
+                CoreUtils.cleanHTML(
                 topic.summary
             )}", HtmlCompat.FROM_HTML_MODE_COMPACT
         )

@@ -4,7 +4,9 @@ import android.app.Application
 import com.amebo.amebo.screens.newpost.FormViewModel
 import com.amebo.amebo.screens.newpost.NewTopicFormData
 import com.amebo.core.Nairaland
+import com.amebo.core.common.Either
 import com.amebo.core.domain.*
+import com.github.michaelbull.result.Result
 import javax.inject.Inject
 
 class NewTopicScreenViewModel @Inject constructor(nairaland: Nairaland, application: Application) :
@@ -24,7 +26,7 @@ class NewTopicScreenViewModel @Inject constructor(nairaland: Nairaland, applicat
         initialize()
     }
 
-    override suspend fun doFetchFormData(): ResultWrapper<ResultWrapper<NewTopicForm, AreYouMuslimDeclarationForm>, ErrorResponse> {
+    override suspend fun doFetchFormData(): Result<Either<NewTopicForm, AreYouMuslimDeclarationForm>, ErrorResponse> {
         val board = formData.board
         checkNotNull(board)
         var boardId = board.id
@@ -34,7 +36,7 @@ class NewTopicScreenViewModel @Inject constructor(nairaland: Nairaland, applicat
         return nairaland.sources.forms.newTopic(boardId)
     }
 
-    override suspend fun doSubmitFormData(form: NewTopicForm): ResultWrapper<PostListDataPage, ErrorResponse> {
+    override suspend fun doSubmitFormData(form: NewTopicForm): Result<PostListDataPage, ErrorResponse> {
         return nairaland.sources.submissions.newTopic(form)
     }
 }

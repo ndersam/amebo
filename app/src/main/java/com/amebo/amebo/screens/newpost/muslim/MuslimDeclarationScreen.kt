@@ -11,8 +11,8 @@ import com.amebo.amebo.common.extensions.viewBinding
 import com.amebo.amebo.common.fragments.AuthenticationRequired
 import com.amebo.amebo.common.fragments.BaseFragment
 import com.amebo.amebo.databinding.MuslimDeclarationScreenBinding
+import com.amebo.core.common.extensions.openRawAsString
 import com.amebo.core.domain.AreYouMuslimDeclarationForm
-import com.amebo.core.extensions.openRawAsString
 
 class MuslimDeclarationScreen : BaseFragment(R.layout.muslim_declaration_screen),
     AuthenticationRequired {

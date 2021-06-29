@@ -18,7 +18,7 @@ import com.amebo.amebo.common.extensions.viewBinding
 import com.amebo.amebo.common.fragments.InjectableBaseDialogFragment
 import com.amebo.amebo.databinding.UserPreviewScreenBinding
 import com.amebo.amebo.screens.user.UserScreenViewModel
-import com.amebo.core.CoreUtils
+import com.amebo.core.common.CoreUtils
 import com.amebo.core.domain.User
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource

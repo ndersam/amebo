@@ -11,8 +11,8 @@ import com.amebo.amebo.common.Pref
 import com.amebo.amebo.common.Resource
 import com.amebo.amebo.common.extensions.toResource
 import com.amebo.core.Nairaland
-import com.amebo.core.domain.ResultWrapper
 import com.amebo.core.domain.User
+import com.github.michaelbull.result.Ok
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -73,8 +73,8 @@ class UserScreenViewModel @Inject constructor(
             _dataEvent.value = Event(Resource.Loading(userData))
 
             val response = nairaland.sources.users.fetchData(user)
-            if (response is ResultWrapper.Success) {
-                userData = response.data
+            if (response is Ok) {
+                userData = response.value
                 hasBeenLoaded = true
             }
             _dataEvent.value = Event(response.toResource(userData))

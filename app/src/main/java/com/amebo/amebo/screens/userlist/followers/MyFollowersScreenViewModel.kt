@@ -8,8 +8,8 @@ import com.amebo.amebo.common.Pref
 import com.amebo.amebo.common.Resource
 import com.amebo.amebo.common.extensions.toResource
 import com.amebo.core.Nairaland
-import com.amebo.core.domain.ResultWrapper
 import com.amebo.core.domain.User
+import com.github.michaelbull.result.Ok
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -42,8 +42,8 @@ class MyFollowersScreenViewModel @Inject constructor(
             _dataEvent.value = Event(Resource.Loading(users))
 
             val result = nairaland.sources.users.fetchFollowers()
-            if (result is ResultWrapper.Success) {
-                users = result.data
+            if (result is Ok) {
+                users = result.value
             }
             _dataEvent.value = Event(result.toResource(users))
         }

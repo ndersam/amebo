@@ -10,8 +10,9 @@ import com.amebo.amebo.common.extensions.toResource
 import com.amebo.core.Nairaland
 import com.amebo.core.domain.PostListDataPage
 import com.amebo.core.domain.ReportPostForm
-import com.amebo.core.domain.ResultWrapper
 import com.amebo.core.domain.SimplePost
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -40,12 +41,12 @@ class ReportPostSharedScreenViewModel @Inject constructor(private val nairaland:
         viewModelScope.launch {
             var form: ReportPostForm? = null
             when(val result = nairaland.sources.forms.reportPost(post)){
-                is ResultWrapper.Failure -> {
-                    _submissionEvent.value = Event(Resource.Error(result.data, null))
+                is Err -> {
+                    _submissionEvent.value = Event(Resource.Error(result.error, null))
                     return@launch
                 }
-                is ResultWrapper.Success -> {
-                    form = result.data
+                is Ok -> {
+                    form = result.value
                 }
             }
             form.reason = data.reason

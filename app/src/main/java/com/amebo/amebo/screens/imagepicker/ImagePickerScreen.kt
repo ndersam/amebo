@@ -16,7 +16,7 @@ import com.amebo.amebo.common.extensions.viewBinding
 import com.amebo.amebo.common.fragments.AuthenticationRequired
 import com.amebo.amebo.common.fragments.BaseFragment
 import com.amebo.amebo.databinding.ImagePickerScreenBinding
-import com.amebo.core.Values
+import com.amebo.core.common.Values
 import com.google.android.material.snackbar.Snackbar
 import timber.log.Timber
 import java.util.concurrent.atomic.AtomicBoolean

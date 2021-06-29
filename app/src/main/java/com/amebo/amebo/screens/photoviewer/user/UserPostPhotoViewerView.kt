@@ -3,14 +3,14 @@ package com.amebo.amebo.screens.photoviewer.user
 import androidx.annotation.PluralsRes
 import androidx.core.view.isVisible
 import com.amebo.amebo.R
-import com.amebo.amebo.databinding.FragmentUserPhotoViewerScreenBinding
 import com.amebo.amebo.common.Pref
 import com.amebo.amebo.common.Resource
+import com.amebo.amebo.databinding.FragmentUserPhotoViewerScreenBinding
 import com.amebo.amebo.screens.photoviewer.BasePhotoViewerView
 import com.amebo.amebo.screens.photoviewer.IPhotoViewerView
 import com.amebo.amebo.screens.photoviewer.ImagePagerAdapter
 import com.amebo.amebo.screens.photoviewer.LikeResult
-import com.amebo.core.CoreUtils
+import com.amebo.core.common.CoreUtils
 import com.amebo.core.domain.User
 import java.lang.ref.WeakReference
 

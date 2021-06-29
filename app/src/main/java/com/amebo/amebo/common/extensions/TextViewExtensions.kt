@@ -116,7 +116,7 @@ fun Spanned.quotedPostRanges(post: SimplePost): List<Pair<Int, Int>> {
 
         // Is quoted post
         post.let {
-            if (post.parentQuotes.contains(index)) {
+            if (post.parentQuotes.indices.contains(index)) {
                 items.add(start to end)
             }
         }

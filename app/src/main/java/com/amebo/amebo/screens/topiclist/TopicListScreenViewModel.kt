@@ -12,6 +12,8 @@ import com.amebo.amebo.common.Resource
 import com.amebo.amebo.common.extensions.toResource
 import com.amebo.core.Nairaland
 import com.amebo.core.domain.*
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -177,14 +179,14 @@ class TopicListScreenViewModel @Inject constructor(
 
         viewModelScope.launch {
             when (val result = nairaland.sources.submissions.unFollowBoard(dataPage, board)) {
-                is ResultWrapper.Success -> {
-                    manager.update(result.data)
+                is Ok -> {
+                    manager.update(result.value)
                     postMeta()
                     _dataPageEvent.value = Event(result.toResource(manager.dataPage))
                     _followingBoardEvent.value = Event(Resource.Success(board to false))
                 }
-                is ResultWrapper.Failure -> {
-                    _followingBoardEvent.value = Event(Resource.Error(result.data))
+                is Err -> {
+                    _followingBoardEvent.value = Event(Resource.Error(result.error))
                 }
             }
         }
@@ -213,14 +215,14 @@ class TopicListScreenViewModel @Inject constructor(
                 nairaland.sources.submissions.unFollowBoard(dataPage)
             }
             when (result) {
-                is ResultWrapper.Success -> {
-                    manager.update(result.data)
+                is Ok -> {
+                    manager.update(result.value)
                     postMeta()
                     _dataPageEvent.value = Event(result.toResource(manager.dataPage))
                     _followingBoardEvent.value = Event(Resource.Success(board to follow))
                 }
-                is ResultWrapper.Failure -> {
-                    _followingBoardEvent.value = Event(Resource.Error(result.data))
+                is Err -> {
+                    _followingBoardEvent.value = Event(Resource.Error(result.error))
                 }
             }
         }
@@ -259,8 +261,8 @@ class TopicListScreenViewModel @Inject constructor(
             indicateLoading()
 
             val result = nairaland.sources.topicLists.fetch(topicList, request.page, request.sort)
-            if (result is ResultWrapper.Success) {
-                manager.update(result.data)
+            if (result is Ok) {
+                manager.update(result.value)
                 postMeta()
             }
             _dataPageEvent.value = Event(result.toResource(manager.dataPage))

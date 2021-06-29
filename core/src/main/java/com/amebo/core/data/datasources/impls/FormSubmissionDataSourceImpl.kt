@@ -2,11 +2,12 @@ package com.amebo.core.data.datasources.impls
 
 import android.graphics.Bitmap
 import com.amebo.core.Database
-import com.amebo.core.Values
 import com.amebo.core.apis.FormSubmissionApi
 import com.amebo.core.apis.MiscApi
-import com.amebo.core.apis.util.onSuccess
-import com.amebo.core.crawler.ParseException
+import com.amebo.core.common.Values
+import com.amebo.core.common.extensions.RawResponse
+import com.amebo.core.common.extensions.awaitResult
+import com.amebo.core.common.extensions.awaitResultResponse
 import com.amebo.core.crawler.form.parseFollowBoardUrl
 import com.amebo.core.crawler.form.parseFollowTopicUrl
 import com.amebo.core.crawler.form.parseLikeShareUrl
@@ -20,28 +21,30 @@ import com.amebo.core.crawler.user.fetchUserData
 import com.amebo.core.data.CoroutineContextProvider
 import com.amebo.core.data.datasources.FormSubmissionDataSource
 import com.amebo.core.domain.*
-import com.amebo.core.extensions.map
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.onSuccess
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.jsoup.nodes.Document
-import retrofit2.Response
-import timber.log.Timber
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.util.*
 import javax.inject.Inject
+import kotlin.collections.set
 
 
-class FormSubmissionDataSourceImpl @Inject constructor(
+internal class FormSubmissionDataSourceImpl @Inject constructor(
     private val db: Database,
     private val api: FormSubmissionApi,
     private val miscApi: MiscApi,
     private val context: CoroutineContextProvider
 ) : FormSubmissionDataSource {
 
-    override suspend fun areYouMuslim(form: AreYouMuslimDeclarationForm): ResultWrapper<Form?, ErrorResponse> =
+    override suspend fun areYouMuslim(form: AreYouMuslimDeclarationForm): Result<Form?, ErrorResponse> =
         withContext(context.IO) {
             val fields = mutableMapOf<String, String>()
             if (form.accepted) {
@@ -51,24 +54,16 @@ class FormSubmissionDataSourceImpl @Inject constructor(
             }
             fields["session"] = form.session
             fields["redirect"] = form.redirect
-            try {
-                val resp = api.areYouMuslim(fields)
-                if (resp.isSuccessful) {
-                    ResultWrapper.success(
-                        parsePostForm(
-                            resp.body()!!,
-                            resp.raw().request.url.toString()
-                        )
+            api.areYouMuslim(fields)
+                .awaitResultResponse { resp, result ->
+                    parsePostForm(
+                        result,
+                        resp.request.url.toString()
                     )
-                } else {
-                    ResultWrapper.failure(ErrorResponse.Network)
                 }
-            } catch (e: IOException) {
-                ResultWrapper.failure(ErrorResponse.Network)
-            }
         }
 
-    override suspend fun modifyPost(form: ModifyForm): ResultWrapper<PostListDataPage, ErrorResponse> =
+    override suspend fun modifyPost(form: ModifyForm): Result<PostListDataPage, ErrorResponse> =
         withContext(context.IO) {
             val images =
                 images(
@@ -86,24 +81,16 @@ class FormSubmissionDataSourceImpl @Inject constructor(
                         addPart(it)
                     }
                 }
-            val resp = api.modifyPost(
+            api.modifyPost(
                 body = builder.build(),
                 referer = Values.URL + "/modifypost?redirect=" +
                         form.redirect + "&post=" + form.post.toInt()
-            )
-            try {
-                if (resp.isSuccessful) {
-                    val document = resp.body()!!
-                    val url = resp.raw().request.url.toString()
-                    return@withContext ResultWrapper.success(parseUnknownPostList(document, url))
-                }
-                return@withContext ResultWrapper.failure(ErrorResponse.Network)
-            } catch (e: ParseException) {
-                return@withContext ResultWrapper.failure(ErrorResponse.Parse)
+            ).awaitResultResponse { resp, soup ->
+                soup.parseUnknownPostList(resp.request.url.toString())
             }
         }
 
-    override suspend fun newPost(form: NewPostForm): ResultWrapper<TopicPostListDataPage, ErrorResponse> =
+    override suspend fun newPost(form: NewPostForm): Result<TopicPostListDataPage, ErrorResponse> =
         withContext(context.IO) {
             val referer = Values.URL + "/newpost?topic=" + form.topic
             val images =
@@ -126,27 +113,15 @@ class FormSubmissionDataSourceImpl @Inject constructor(
                     }
                 }
 
-            try {
-                val response = api.newPost(
-                    referer = referer,
-                    body = builder.build()
-                )
-                if (response.isSuccessful) {
-                    val url = response.raw().request.url.toString()
-                    val document = response.body()!!
-                    ResultWrapper.success(parseTopicPosts(document, url))
-                } else {
-                    ResultWrapper.failure(ErrorResponse.Network)
-                }
-            } catch (e: IOException) {
-                ResultWrapper.failure(ErrorResponse.Network)
-            } catch (e: Exception) {
-                Timber.e(e)
-                ResultWrapper.failure(ErrorResponse.Parse)
+            api.newPost(
+                referer = referer,
+                body = builder.build()
+            ).awaitResultResponse { resp, result ->
+                parseTopicPosts(result, resp.request.url.toString())
             }
         }
 
-    override suspend fun newTopic(form: NewTopicForm): ResultWrapper<PostListDataPage, ErrorResponse> =
+    override suspend fun newTopic(form: NewTopicForm): Result<PostListDataPage, ErrorResponse> =
         withContext(context.IO) {
             val images =
                 images(
@@ -163,20 +138,11 @@ class FormSubmissionDataSourceImpl @Inject constructor(
                         addPart(it)
                     }
                 }
-            val resp = api.newTopic(
+            api.newTopic(
                 body = builder.build(),
                 referer = Values.URL + "/newtopic?board=" + form.board
-            )
-            if (resp.isSuccessful) {
-                try {
-                    val soup = resp.body()!!
-                    val url = resp.raw().request.url.toString()
-                    ResultWrapper.success(parseTopicPosts(soup, url))
-                } catch (e: ParseException) {
-                    ResultWrapper.failure(ErrorResponse.Parse)
-                }
-            } else {
-                ResultWrapper.failure(ErrorResponse.Network)
+            ).awaitResultResponse { resp, result ->
+                parseTopicPosts(result, resp.request.url.toString())
             }
         }
 
@@ -195,201 +161,161 @@ class FormSubmissionDataSourceImpl @Inject constructor(
                 attachment.redirect,
                 attachment.referer
             )
-            ResultWrapper.success(Unit)
+            Ok(Unit)
         } catch (e: IOException) {
-            ResultWrapper.failure(ErrorResponse.Network)
+            Err(ErrorResponse.Network)
         }
     }
 
-    override suspend fun likePost(post: SimplePost): ResultWrapper<PostListDataPage, ErrorResponse> =
+    override suspend fun likePost(post: SimplePost): Result<PostListDataPage, ErrorResponse> =
         withContext(context.IO) {
             val form = parseLikeShareUrl(post.likeUrl!!)
-            val resp = api.postAction(
+            api.postAction(
                 action = "do_likepost",
                 postId = form.postId,
                 session = form.session,
                 redirect = form.redirect
-            )
-            parsePostListResp(resp)
+            ).awaitResultResponse(::parsePostListResp)
         }
 
-    override suspend fun unLikePost(post: SimplePost): ResultWrapper<PostListDataPage, ErrorResponse> =
+    override suspend fun unLikePost(post: SimplePost): Result<PostListDataPage, ErrorResponse> =
         withContext(context.IO) {
             val form = parseLikeShareUrl(post.likeUrl!!)
-            val resp = api.postAction(
+            api.postAction(
                 action = "do_unlikepost",
                 postId = form.postId,
                 session = form.session,
                 redirect = form.redirect
-            )
-            parsePostListResp(resp)
+            ).awaitResultResponse(::parsePostListResp)
         }
 
 
-    override suspend fun sharePost(post: SimplePost): ResultWrapper<PostListDataPage, ErrorResponse> =
+    override suspend fun sharePost(post: SimplePost): Result<PostListDataPage, ErrorResponse> =
         withContext(context.IO) {
             val form = parseLikeShareUrl(post.shareUrl!!)
-            parsePostListResp(
-                api.postAction(
-                    action = "do_share",
-                    postId = form.postId,
-                    session = form.session,
-                    redirect = form.redirect
-                )
-            )
+            api.postAction(
+                action = "do_share",
+                postId = form.postId,
+                session = form.session,
+                redirect = form.redirect
+            ).awaitResultResponse(::parsePostListResp)
         }
 
-    override suspend fun unSharePost(post: SimplePost): ResultWrapper<PostListDataPage, ErrorResponse> =
+    override suspend fun unSharePost(post: SimplePost): Result<PostListDataPage, ErrorResponse> =
         withContext(context.IO) {
             val form = parseLikeShareUrl(post.shareUrl!!)
-            parsePostListResp(
-                api.postAction(
-                    action = "do_unshare",
-                    postId = form.postId,
-                    session = form.session,
-                    redirect = form.redirect
-                )
-            )
+            api.postAction(
+                action = "do_unshare",
+                postId = form.postId,
+                session = form.session,
+                redirect = form.redirect
+            ).awaitResultResponse(::parsePostListResp)
         }
 
-    override suspend fun reportPost(form: ReportPostForm): ResultWrapper<PostListDataPage, ErrorResponse> =
+    override suspend fun reportPost(form: ReportPostForm): Result<PostListDataPage, ErrorResponse> =
         withContext(context.IO) {
-            parsePostListResp(
-                api.reportPost(
-                    reason = form.reason,
-                    postId = form.postId,
-                    session = form.session,
-                    redirect = form.redirect,
-                    referer = form.referer
-                )
-            )
+            api.reportPost(
+                reason = form.reason,
+                postId = form.postId,
+                session = form.session,
+                redirect = form.redirect,
+                referer = form.referer
+            ).awaitResultResponse(::parsePostListResp)
         }
 
-    override suspend fun followTopic(topicPostListDataPage: TopicPostListDataPage): ResultWrapper<TopicPostListDataPage, ErrorResponse> =
+    override suspend fun followTopic(topicPostListDataPage: TopicPostListDataPage): Result<TopicPostListDataPage, ErrorResponse> =
         followTopic(topicPostListDataPage, true)
 
-    override suspend fun unFollowTopic(topicPostListDataPage: TopicPostListDataPage): ResultWrapper<TopicPostListDataPage, ErrorResponse> =
+    override suspend fun unFollowTopic(topicPostListDataPage: TopicPostListDataPage): Result<TopicPostListDataPage, ErrorResponse> =
         followTopic(topicPostListDataPage, false)
 
-    override suspend fun unFollowTopic(topic: Topic): ResultWrapper<TopicListDataPage, ErrorResponse> =
+    override suspend fun unFollowTopic(topic: Topic): Result<TopicListDataPage, ErrorResponse> =
         withContext(context.IO) {
             val form = parseFollowTopicUrl(topic.followOrUnFollowLink!!)
-            val resp = api.topicAction(
+            api.topicAction(
                 action = "do_unfollowtopic",
                 topicId = form.topic,
                 session = form.session,
                 redirect = form.redirect
-            )
-            parseFollowedTopicListResp(resp)
+            ).awaitResult(::parseFollowedTopicListResp)
         }
 
-    override suspend fun followBoard(boardsDataPage: BoardsDataPage): ResultWrapper<BoardsDataPage, ErrorResponse> =
+    override suspend fun followBoard(boardsDataPage: BoardsDataPage): Result<BoardsDataPage, ErrorResponse> =
         followBoard(boardsDataPage, true)
 
 
-    override suspend fun unFollowBoard(boardsDataPage: BoardsDataPage): ResultWrapper<BoardsDataPage, ErrorResponse> =
+    override suspend fun unFollowBoard(boardsDataPage: BoardsDataPage): Result<BoardsDataPage, ErrorResponse> =
         followBoard(boardsDataPage, false)
 
     override suspend fun followBoard(
         followedBoardsDataPage: FollowedBoardsDataPage,
         board: Board
-    ): ResultWrapper<FollowedBoardsDataPage, ErrorResponse> =
+    ): Result<FollowedBoardsDataPage, ErrorResponse> =
         followBoard(followedBoardsDataPage, board, true)
 
     override suspend fun unFollowBoard(
         followedBoardsDataPage: FollowedBoardsDataPage,
         board: Board
-    ): ResultWrapper<FollowedBoardsDataPage, ErrorResponse> =
+    ): Result<FollowedBoardsDataPage, ErrorResponse> =
         followBoard(followedBoardsDataPage, board, false)
 
     override suspend fun likeProfilePhoto(
         like: Boolean,
         user: User
-    ): ResultWrapper<User.Data, ErrorResponse> = withContext(context.IO) {
+    ): Result<User.Data, ErrorResponse> = withContext(context.IO) {
         val url = user.data?.image?.likeUrl!!
-        api.visit(url).map(
-            {
-                try {
-                    ResultWrapper.success(fetchUserData(it.body))
-                } catch (e: ParseException) {
-
-                    ResultWrapper.failure(ErrorResponse.Parse)
-                }
-            },
-            {
-                ResultWrapper.failure(ErrorResponse.Network)
-            })
+        api.visit(url).awaitResult(::fetchUserData)
     }
 
-    override suspend fun newMail(userForm: MailUserForm): ResultWrapper<User.Data, ErrorResponse> =
+    override suspend fun newMail(userForm: MailUserForm): Result<User.Data, ErrorResponse> =
         withContext(context.IO) {
-            try {
-                val result = api.newMail(
-                    recipientName = userForm.recipientName,
-                    body = userForm.body,
-                    subject = userForm.subject,
-                    session = userForm.session
-                )
-                val body = result.body()
-                if (body != null) {
-                    ResultWrapper.success(fetchUserData(body))
-                } else {
-                    ResultWrapper.failure(ErrorResponse.Network)
-                }
-            } catch (e: ParseException) {
-                ResultWrapper.failure(ErrorResponse.Parse)
+            api.newMail(
+                recipientName = userForm.recipientName,
+                body = userForm.body,
+                subject = userForm.subject,
+                session = userForm.session
+            ).awaitResult(::fetchUserData)
+        }
+
+    override suspend fun newMail(form: MailSuperModsForm): Result<Unit, ErrorResponse> =
+        withContext(context.IO) {
+            api.newMail(
+                session = form.session,
+                subject =
+                form.subject,
+                body = form.body
+            ).awaitResult {
+                // ignore html content for now
+                Ok(Unit)
             }
         }
 
-    override suspend fun newMail(form: MailSuperModsForm): ResultWrapper<Unit, ErrorResponse> =
+    override suspend fun newMail(form: MailBoardModsForm): Result<BoardsDataPage, ErrorResponse> =
         withContext(context.IO) {
-            try {
-                val result =
-                    api.newMail(session = form.session, subject = form.subject, body = form.body)
-                val body = result.body()
-                if (body != null) {
-                    // ignore html content for now
-                    ResultWrapper.success(Unit)
-                } else {
-                    ResultWrapper.failure(ErrorResponse.Network)
-                }
-            } catch (e: ParseException) {
-                ResultWrapper.failure(ErrorResponse.Parse)
-            }
-        }
-
-    override suspend fun newMail(form: MailBoardModsForm): ResultWrapper<BoardsDataPage, ErrorResponse> =
-        withContext(context.IO) {
-            val result = api.newMail(
+            api.newMail(
                 session = form.session,
                 subject = form.subject,
                 body = form.body,
                 board = form.boardNo
-            )
-            parseBoardResp(result)
+            ).awaitResultResponse(::parseBoardResp)
         }
 
     override suspend fun followUser(
         user: User,
         follow: Boolean
-    ): ResultWrapper<User.Data, ErrorResponse> = withContext(context.IO) {
+    ): Result<User.Data, ErrorResponse> = withContext(context.IO) {
         val url = user.data?.followUserUrl
         checkNotNull(url) { "Follow User Url must not be null" }
-        val response = miscApi.visitPage(url)
-        when (response.isSuccessful) {
-            true -> {
-                val body = response.body()!!
-                val data = fetchUserData(body)
-                insertIfNotExists(user, body)
-                ResultWrapper.success(data)
+        miscApi.visitPage(url)
+            .awaitResult {
+                fetchUserData(it)
+                    .onSuccess { _ ->
+                        insertIfNotExists(user, it)
+                    }
             }
-            false -> {
-                ResultWrapper.failure(ErrorResponse.Network)
-            }
-        }
     }
 
-    override suspend fun editProfile(form: EditProfileForm): ResultWrapper<User.Data, ErrorResponse> =
+    override suspend fun editProfile(form: EditProfileForm): Result<User.Data, ErrorResponse> =
         withContext(context.IO) {
             val builder = MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
@@ -423,45 +349,44 @@ class FormSubmissionDataSourceImpl @Inject constructor(
                         addFormDataPart("removeavatar", "on")
                     }
                 }
-            try {
-                ResultWrapper.success(fetchUserData(api.editProfile(builder.build())))
-            } catch (e: IOException) {
-                ResultWrapper.failure(ErrorResponse.Network)
-            }
+            api.editProfile(builder.build())
+                .awaitResult(::fetchUserData)
         }
 
-    override suspend fun dismissMailNotification(form: DismissMailNotificationForm): ResultWrapper<Unit, ErrorResponse> =
+    override suspend fun dismissMailNotification(form: DismissMailNotificationForm): Result<Unit, ErrorResponse> =
         withContext(context.IO) {
             api.dismissMailNotification(
                 session = form.session,
                 redirect = form.redirect,
                 senders = form.senders.map { it.slug }
-            ).onSuccess { Unit }
-                .convert()
+            ).awaitResult()
         }
 
     private suspend fun followTopic(topicPostListDataPage: TopicPostListDataPage, follow: Boolean) =
         withContext(context.IO) {
             val form = parseFollowTopicUrl(topicPostListDataPage.followOrUnFollowTopicUrl!!)
-            val resp = api.topicAction(
+            api.topicAction(
                 action = if (follow) "do_followtopic" else "do_unfollowtopic",
                 topicId = form.topic,
                 session = form.session,
                 redirect = form.redirect
-            )
-            parseTopicResp(resp)
+            ).awaitResultResponse { resp, result ->
+                parseTopicResp(resp, result)
+            }
+
         }
 
     private suspend fun followBoard(boardsDataPage: BoardsDataPage, follow: Boolean) =
         withContext(context.IO) {
             val form = parseFollowBoardUrl(boardsDataPage.followOrUnFollowUrl!!)
-            val resp = api.boardAction(
+            api.boardAction(
                 action = if (follow) "do_followboard" else "do_unfollowboard",
                 boardNo = form.board,
                 session = form.session,
                 redirect = form.redirect
-            )
-            parseBoardResp(resp)
+            ).awaitResultResponse { resp, result ->
+                parseBoardResp(resp, result)
+            }
         }
 
     private suspend fun followBoard(
@@ -477,83 +402,34 @@ class FormSubmissionDataSourceImpl @Inject constructor(
                 )
             }.second
             val form = parseFollowBoardUrl(url)
-            val resp = api.boardAction(
+            api.boardAction(
                 action = if (follow) "do_followboard" else "do_unfollowboard",
                 boardNo = form.board,
                 session = form.session,
                 redirect = form.redirect
-            )
-            parseFollowedBoardResp(resp)
+            ).awaitResultResponse { resp, result ->
+                parseFollowedBoardResp(resp, result)
+            }
+
         }
 
-    private fun parsePostListResp(resp: Response<Document>): ResultWrapper<PostListDataPage, ErrorResponse> {
-        return if (resp.isSuccessful) {
-            val soup = resp.body()!!
-            val url = resp.raw().request.url.toString()
-            try {
-                ResultWrapper.success(parseUnknownPostList(soup, url))
-            } catch (e: ParseException) {
-                ResultWrapper.failure(ErrorResponse.Parse)
-            }
-        } else {
-            ResultWrapper.failure(ErrorResponse.Network)
-        }
-    }
+    private fun parsePostListResp(resp: RawResponse, soup: Document) =
+        soup.parseUnknownPostList(resp.request.url.toString())
 
-    private fun parseTopicResp(resp: Response<Document>): ResultWrapper<TopicPostListDataPage, ErrorResponse> {
-        return if (resp.isSuccessful) {
-            val soup = resp.body()!!
-            val url = resp.raw().request.url.toString()
-            try {
-                ResultWrapper.success(parseTopicPosts(soup, url))
-            } catch (e: ParseException) {
-                ResultWrapper.failure(ErrorResponse.Parse)
-            }
-        } else {
-            ResultWrapper.failure(ErrorResponse.Network)
-        }
-    }
 
-    private fun parseBoardResp(resp: Response<Document>): ResultWrapper<BoardsDataPage, ErrorResponse> {
-        return if (resp.isSuccessful) {
-            val soup = resp.body()!!
-            val url = resp.raw().request.url.toString()
-            try {
-                ResultWrapper.success(parseBoardTopics(soup, url))
-            } catch (e: ParseException) {
-                ResultWrapper.failure(ErrorResponse.Parse)
-            }
-        } else {
-            ResultWrapper.failure(ErrorResponse.Network)
-        }
-    }
+    private fun parseTopicResp(resp: RawResponse, soup: Document) =
+        parseTopicPosts(soup, resp.request.url.toString())
 
-    private fun parseFollowedTopicListResp(resp: Response<Document>): ResultWrapper<TopicListDataPage, ErrorResponse> {
-        return if (resp.isSuccessful) {
-            val soup = resp.body()!!
-            try {
-                ResultWrapper.success(parseFollowedTopics(soup))
-            } catch (e: ParseException) {
-                ResultWrapper.failure(ErrorResponse.Parse)
-            }
-        } else {
-            ResultWrapper.failure(ErrorResponse.Network)
-        }
-    }
 
-    private fun parseFollowedBoardResp(resp: Response<Document>): ResultWrapper<FollowedBoardsDataPage, ErrorResponse> {
-        return if (resp.isSuccessful) {
-            val soup = resp.body()!!
-            val url = resp.raw().request.url.toString()
-            try {
-                ResultWrapper.success(parseFollowedBoards(soup, url))
-            } catch (e: ParseException) {
-                ResultWrapper.failure(ErrorResponse.Parse)
-            }
-        } else {
-            ResultWrapper.failure(ErrorResponse.Network)
-        }
-    }
+    private fun parseBoardResp(resp: RawResponse, soup: Document) =
+        soup.parseBoardTopics(resp.request.url.toString())
+
+    private fun parseFollowedTopicListResp(soup: Document) = soup.parseFollowedTopics()
+
+
+    private fun parseFollowedBoardResp(resp: RawResponse, soup: Document) =
+        soup.parseFollowedBoards(resp.request.url.toString())
+
 
     private fun insertIfNotExists(user: User, soup: Document) {
         db.transaction {
@@ -561,12 +437,12 @@ class FormSubmissionDataSourceImpl @Inject constructor(
             if (db.userDataQueries.find(key).executeAsOneOrNull() == null) {
                 db.userDataQueries.insert(
                     userSlug = key,
-                    data = soup.outerHtml()
+                    data_ = soup.outerHtml()
                 )
             } else {
                 db.userDataQueries.update(
                     userSlug = key,
-                    data = soup.outerHtml()
+                    data_ = soup.outerHtml()
                 )
             }
         }

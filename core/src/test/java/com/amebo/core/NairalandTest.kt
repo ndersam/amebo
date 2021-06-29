@@ -3,7 +3,7 @@ package com.amebo.core
 import com.amebo.core.di.real.DaggerTestCoreComponent
 import com.amebo.core.domain.Featured
 import com.amebo.core.domain.NairalandSessionObservable
-import com.amebo.core.domain.ResultWrapper
+import com.github.michaelbull.result.Ok
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.BeforeClass
@@ -29,7 +29,7 @@ class NairalandTest {
                 val result = runBlocking {
                     nairaland.sources.topicLists.fetch(Featured, page = i, null)
                 }
-                assertThat(result).isInstanceOf(ResultWrapper.Success::class.java)
+                assertThat(result).isInstanceOf(Ok::class.java)
                 Thread.sleep(5_000L)
             } catch (e: Exception) {
                 Timber.e(e)

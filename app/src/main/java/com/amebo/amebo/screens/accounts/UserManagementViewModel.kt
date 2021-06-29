@@ -7,12 +7,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.amebo.amebo.R
 import com.amebo.amebo.common.AvatarGenerator
-import com.amebo.amebo.common.extensions.toResource
 import com.amebo.amebo.common.Event
 import com.amebo.amebo.common.Pref
 import com.amebo.amebo.common.Resource
+import com.amebo.amebo.common.extensions.toResource
 import com.amebo.core.Nairaland
 import com.amebo.core.domain.*
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -100,9 +102,9 @@ class UserManagementViewModel @Inject constructor(
             _displayPhotoEvent.value = Event(Resource.Loading(displayPhoto))
 
             val resource = when (val result = nairaland.sources.accounts.displayPhoto(user)) {
-                is ResultWrapper.Success -> {
+                is Ok -> {
                     try {
-                        displayPhoto = if (result.data is NoDisplayPhoto) { // user has no url?
+                        displayPhoto = if (result.value is NoDisplayPhoto) { // user has no url?
                             DisplayPhotoBitmap(
                                 bitmap = AvatarGenerator.getForUser(
                                     getApplication(),
@@ -110,7 +112,7 @@ class UserManagementViewModel @Inject constructor(
                                 )
                             )
                         } else {
-                            result.data
+                            result.value
                         }
                         Resource.Success(displayPhoto!!)
                     } catch (e: Exception) {
@@ -119,8 +121,8 @@ class UserManagementViewModel @Inject constructor(
                         Resource.Error(cause = ErrorResponse.Unknown("Unable to generate avatar for user"))
                     }
                 }
-                is ResultWrapper.Failure -> {
-                    Resource.Error(cause = result.data, content = displayPhoto)
+                is Err -> {
+                    Resource.Error(cause = result.error, content = displayPhoto)
                 }
             }
             _displayPhotoEvent.value = Event(resource)

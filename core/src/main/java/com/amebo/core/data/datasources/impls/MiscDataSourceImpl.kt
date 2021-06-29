@@ -1,24 +1,26 @@
 package com.amebo.core.data.datasources.impls
 
 import android.net.Uri
-import com.amebo.core.CoreUtils
 import com.amebo.core.Database
 import com.amebo.core.apis.MiscApi
+import com.amebo.core.common.CoreUtils
+import com.amebo.core.common.extensions.awaitResult
 import com.amebo.core.crawler.parseFeedCrawler
 import com.amebo.core.crawler.topicList.parseTopicUrl
 import com.amebo.core.data.CoroutineContextProvider
 import com.amebo.core.data.datasources.MiscDataSource
 import com.amebo.core.domain.*
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
 import kotlinx.coroutines.withContext
-import java.io.IOException
 import java.util.*
 import javax.inject.Inject
 
-class MiscDataSourceImpl @Inject constructor(
-    val user: User?,
-    val database: Database,
-    val api: MiscApi,
-    val context: CoroutineContextProvider
+class MiscDataSourceImpl @Inject internal constructor(
+    private val user: User?,
+    private val database: Database,
+    private val api: MiscApi,
+    private val context: CoroutineContextProvider
 ) :
     MiscDataSource {
     override suspend fun searchHistory(limit: Int): List<String> = withContext(context.IO) {
@@ -191,15 +193,10 @@ class MiscDataSourceImpl @Inject constructor(
         return IntentParseResult.UserResult(User(first))
     }
 
-    override suspend fun feed(): ResultWrapper<List<TopicFeed>, ErrorResponse> =
+    override suspend fun feed(): Result<List<TopicFeed>, ErrorResponse> =
         withContext(context.IO) {
-            try {
-                ResultWrapper.success(parseFeedCrawler(api.fetchFeed()))
-            } catch (e: IOException) {
-                ResultWrapper.failure(ErrorResponse.Network)
-            } catch (e: Exception) {
-                ResultWrapper.failure(ErrorResponse.Unknown(e.toString()))
-            }
+            api.fetchFeed()
+                .awaitResult { Ok(parseFeedCrawler(it)) }
         }
 
     private fun selectBoardById(boardId: Int): Board? {

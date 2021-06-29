@@ -1,8 +1,8 @@
 package com.amebo.core.crawler.auth
 
+import com.amebo.core.common.extensions.RawResponse
 import com.amebo.core.crawler.SessionParser
 import org.jsoup.nodes.Document
-import retrofit2.Response
 import timber.log.Timber
 
 
@@ -14,16 +14,10 @@ sealed class AuthResponse {
     class Unknown(val msg: String): AuthResponse()
 }
 
-internal fun hasLoggedInSuccessfully(res: Response<Document>): AuthResponse {
-    val soup = res.body()
-    if (!res.isSuccessful || soup == null) {
-        return AuthResponse.Failure
-    }
-
-    if (res.raw().request.url.toString() == "https://www.nairaland.com/?x=2178109") {
+internal fun hasLoggedInSuccessfully(res: RawResponse, soup: Document): AuthResponse {
+    if (res.request.url.toString() == "https://www.nairaland.com/?x=2178109") {
         return AuthResponse.SuccessNoRedirect
     }
-
     return parseLoginResponse(soup)
 }
 

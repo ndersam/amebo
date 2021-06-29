@@ -1,6 +1,6 @@
 package com.amebo.core.domain
 
-import com.amebo.core.apis.util.SoupConverterFactory
+import com.amebo.core.apis.SoupConverterFactory
 import com.amebo.core.data.cookies.PersistentCookieJar
 import timber.log.Timber
 import java.lang.ref.WeakReference

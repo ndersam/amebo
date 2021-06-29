@@ -3,14 +3,19 @@ package com.amebo.amebo.screens.newpost.modifypost
 import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.amebo.amebo.data.TestData
-import com.amebo.amebo.di.TestNairalandProvider
 import com.amebo.amebo.common.Event
 import com.amebo.amebo.common.Resource
+import com.amebo.amebo.data.TestData
+import com.amebo.amebo.di.TestNairalandProvider
 import com.amebo.amebo.screens.newpost.FormData
 import com.amebo.amebo.suite.MainCoroutineRule
 import com.amebo.core.Nairaland
-import com.amebo.core.domain.*
+import com.amebo.core.common.Either
+import com.amebo.core.domain.AreYouMuslimDeclarationForm
+import com.amebo.core.domain.ModifyForm
+import com.amebo.core.domain.PostListDataPage
+import com.amebo.core.domain.SimplePost
+import com.github.michaelbull.result.Ok
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -60,7 +65,7 @@ class ModifyPostScreenViewModelTest {
         viewModel.formLoadingEvent.observeForever(observer)
 
         val postCaptor = argumentCaptor<SimplePost>()
-        val formLoadingResult = ResultWrapper.success(ResultWrapper.success(form))
+        val formLoadingResult = Ok(Either.Left(form))
         whenever(nairaland.sources.forms.modifyPost(postCaptor.capture()))
             .thenReturn(formLoadingResult)
 
@@ -99,9 +104,9 @@ class ModifyPostScreenViewModelTest {
         val modifyFormCaptor = argumentCaptor<ModifyForm>()
 
         whenever(nairaland.sources.forms.modifyPost(any()))
-            .thenReturn(ResultWrapper.success(ResultWrapper.success(form)))
+            .thenReturn(Ok(Either.Left(form)))
         whenever(nairaland.sources.submissions.modifyPost(modifyFormCaptor.capture()))
-            .thenReturn(ResultWrapper.success(TestData.newTopicPostList()))
+            .thenReturn(Ok(TestData.newTopicPostList()))
 
         viewModel.initialize(post)
 

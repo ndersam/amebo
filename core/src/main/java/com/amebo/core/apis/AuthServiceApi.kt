@@ -1,13 +1,11 @@
 package com.amebo.core.apis
 
-import com.amebo.core.Values
-import com.amebo.core.domain.ErrorResponse
-import com.haroldadmin.cnradapter.NetworkResponse
+import com.amebo.core.common.Values
 import org.jsoup.nodes.Document
 import retrofit2.Call
 import retrofit2.http.*
 
-interface AuthServiceApi {
+internal interface AuthServiceApi {
     @FormUrlEncoded
     @POST("do_login")
     fun login(
@@ -19,7 +17,7 @@ interface AuthServiceApi {
     ): Call<Document>
 
     @GET("login")
-    suspend fun gotoLogin(): NetworkResponse<Document, ErrorResponse>
+    fun gotoLogin(): Call<Document>
 
 
     @GET

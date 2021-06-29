@@ -1,34 +1,32 @@
 package com.amebo.core.apis
 
-import com.amebo.core.Values
-import com.amebo.core.domain.ErrorResponse
-import com.haroldadmin.cnradapter.NetworkResponse
+import com.amebo.core.common.Values
 import okhttp3.MultipartBody
 import org.jsoup.nodes.Document
-import retrofit2.Response
+import retrofit2.Call
 import retrofit2.http.*
 import java.util.*
 
 
-interface FormSubmissionApi {
+internal interface FormSubmissionApi {
 
     @FormUrlEncoded
     @POST("do_areyoumuslim")
-    suspend fun areYouMuslim(
+    fun areYouMuslim(
         @FieldMap fields: Map<String, String>
-    ): Response<Document>
+    ): Call<Document>
 
     @POST("do_newtopic")
-    suspend fun newTopic(
+    fun newTopic(
         @Body body: MultipartBody,
         @Header("Referer") referer: String
-    ): Response<Document>
+    ): Call<Document>
 
     @POST("do_newpost")
-    suspend fun newPost(
+    fun newPost(
         @Body body: MultipartBody,
         @Header("Referer") referer: String
-    ): Response<Document>
+    ): Call<Document>
 
     /**
      * Retrofit automatically adds "Content-Transfer-Encoding: binaryContent-Type: text/plain; charset=utf-8"
@@ -37,14 +35,14 @@ interface FormSubmissionApi {
      */
     @POST("do_modifypost")
     @Headers("Accept: $ACCEPT")
-    suspend fun modifyPost(
+    fun modifyPost(
         @Body body: MultipartBody,
         @Header("Referer") referer: String
-    ): Response<Document>
+    ): Call<Document>
 
     @FormUrlEncoded
     @POST("do_removeattachment")
-    suspend fun removeAttachment(
+    fun removeAttachment(
         @Field("post") postId: String,
         @Field("attachment") attachment: String,
         @Field("session") session: String,
@@ -52,68 +50,68 @@ interface FormSubmissionApi {
         @Header("referer") referer: String,
         @Header("Accept") accept: String = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
         @Header("Accept-Language") acceptLang: String = "en-US,en;q=0.5"
-    ): Document
+    ): Call<Document>
 
     @GET("{action}")
-    suspend fun postAction(
+    fun postAction(
         @Path("action") action: String,
         @Query("post") postId: String,
         @Query("redirect") redirect: String,
         @Query("session") session: String
-    ): Response<Document>
+    ): Call<Document>
 
     @FormUrlEncoded
     @POST("do_makereport")
-    suspend fun reportPost(
+    fun reportPost(
         @Field("reason") reason: String,
         @Field("post") postId: String,
         @Field("redirect") redirect: String,
         @Field("session") session: String,
         @Header("referer") referer: String,
-    ): Response<Document>
+    ): Call<Document>
 
     @GET("{action}")
-    suspend fun topicAction(
+    fun topicAction(
         @Path("action") action: String,
         @Query("topic") topicId: String,
         @Query("redirect") redirect: String,
         @Query("session") session: String
-    ): Response<Document>
+    ): Call<Document>
 
     @GET("{action}")
-    suspend fun boardAction(
+    fun boardAction(
         @Path("action") action: String,
         @Query("board") boardNo: Int,
         @Query("redirect") redirect: String,
         @Query("session") session: String
-    ): Response<Document>
+    ): Call<Document>
 
     @GET("{action}")
-    suspend fun userFollowAction(
+    fun userFollowAction(
         @Path("action") action: String,
         @Query("member") user: String,
         @Query("redirect") redirect: String,
         @Query("session") session: String
-    ): Document
+    ): Call<Document>
 
 
     @GET("{action}")
-    suspend fun userAvatarAction(
+    fun userAvatarAction(
         @Path("action") action: String,
         @Query("avatar") avatar: String,
         @Query("name") redirect: String,
         @Query("session") session: String
-    ): Document
+    ): Call<Document>
 
     @POST("do_editprofile")
-    suspend fun editProfile(
+    fun editProfile(
         @Body body: MultipartBody
-    ): Document
+    ): Call<Document>
 
 
     @FormUrlEncoded
     @POST("do_sendemail")
-    suspend fun newMail(
+    fun newMail(
         @Field("recipient_name") recipientName: String,
         @Field("subject") subject: String,
         @Field("body") body: String,
@@ -121,38 +119,38 @@ interface FormSubmissionApi {
         @Header("referer") referer: String = Values.URL + "/sendemail/" + recipientName.toLowerCase(
             Locale.ROOT
         )
-    ): Response<Document>
+    ): Call<Document>
 
     @FormUrlEncoded
     @POST("do_mailsupermods")
-    suspend fun newMail(
+    fun newMail(
         @Field("subject") subject: String,
         @Field("body") body: String,
         @Field("session") session: String,
         @Header("referer") referer: String = Values.URL + "/mailsupermods"
-    ): Response<Document>
+    ): Call<Document>
 
     @FormUrlEncoded
     @POST("do_mailmods")
-    suspend fun newMail(
+    fun newMail(
         @Field("subject") subject: String,
         @Field("body") body: String,
         @Field("session") session: String,
         @Field("board") board: Int,
         @Header("referer") referer: String = Values.URL + "/mailmods?board=" + board
-    ): Response<Document>
+    ): Call<Document>
 
     @FormUrlEncoded
     @POST("do_dismiss")
-    suspend fun dismissMailNotification(
+    fun dismissMailNotification(
         @Field("session") session: String,
         @Field("redirect") redirect: String,
         @Field("pmsenders") senders: List<String>
-    ): NetworkResponse<Document, Document>
+    ): Call<Document>
 
 
     @GET
-    suspend fun visit(@Url url: String): NetworkResponse<Document, ErrorResponse>
+    fun visit(@Url url: String): Call<Document>
 
     companion object {
         private const val ACCEPT =

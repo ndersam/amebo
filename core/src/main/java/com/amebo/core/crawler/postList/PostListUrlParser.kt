@@ -1,6 +1,6 @@
 package com.amebo.core.crawler.postList
 
-import com.amebo.core.Values
+import com.amebo.core.common.Values
 import java.util.regex.Pattern
 
 //private val RECENT_URL = Pattern.compile("${Values.URL}/recent(?:/(\\d+))?(?:#(\\d+))?")

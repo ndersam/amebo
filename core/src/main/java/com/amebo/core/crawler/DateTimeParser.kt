@@ -1,7 +1,7 @@
 package com.amebo.core.crawler
 
 import com.amebo.core.BuildConfig
-import com.amebo.core.CoreUtils
+import com.amebo.core.common.CoreUtils
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 

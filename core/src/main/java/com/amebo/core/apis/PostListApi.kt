@@ -1,67 +1,65 @@
 package com.amebo.core.apis
 
-import com.amebo.core.domain.ErrorResponse
-import com.haroldadmin.cnradapter.NetworkResponse
 import org.jsoup.nodes.Document
-import retrofit2.Response
+import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path
 
-interface PostListApi {
+internal interface PostListApi {
 
     @GET("{id}/{slug}/{page}")
-    suspend fun fetchTopicPosts(
+    fun fetchTopicPosts(
         @Path("id") id: String,
         @Path("slug") slug: String,
         @Path("page") page: Int
-    ): NetworkResponse<Document, ErrorResponse>
+    ): Call<Document>
 
     @GET("shared/{page}")
-    suspend fun fetchPostsSharedWithMe(@Path("page") page: Int): NetworkResponse<Document, ErrorResponse>
+    fun fetchPostsSharedWithMe(@Path("page") page: Int): Call<Document>
 
     @GET("likesandshares/0/{page}")
-    suspend fun fetchLikesAndShares(@Path("page") page: Int): NetworkResponse<Document, ErrorResponse>
+    fun fetchLikesAndShares(@Path("page") page: Int): Call<Document>
 
     /**
      * Fetching first page of mentions using this route results in the mentions(MT) notification on
      * https://www.nairaland.com being cleared.
      */
     @GET("mentions")
-    suspend fun fetchMentionsPageOne(): NetworkResponse<Document, ErrorResponse>
+    fun fetchMentionsPageOne(): Call<Document>
 
     @GET("search/{username}/0/0/0/{page}")
-    suspend fun fetchMentions(
+    fun fetchMentions(
         @Path("username") username: String,
         @Path("page") page: Int
-    ): NetworkResponse<Document, ErrorResponse>
+    ): Call<Document>
 
     @GET("recent/{page}")
-    suspend fun fetchRecent(@Path("page") page: Int): NetworkResponse<Document, ErrorResponse>
+    fun fetchRecent(@Path("page") page: Int): Call<Document>
 
     @GET("following/{page}")
-    suspend fun fetchFollowing(@Path("page") page: Int): NetworkResponse<Document, ErrorResponse>
+    fun fetchFollowing(@Path("page") page: Int): Call<Document>
 
     @GET("{user}/posts/{page}")
-    suspend fun fetchUserPosts(
+    fun fetchUserPosts(
         @Path("user") user: String,
         @Path("page") page: Int
-    ): NetworkResponse<Document, ErrorResponse>
+    ): Call<Document>
 
     @GET("search/{query}/{topics_only}/{board}/{images_only}/{page}")
-    suspend fun fetchSearchResults(
+    fun fetchSearchResults(
         @Path("query") query: String,
         @Path("board") board: Int,
         @Path("topics_only") topicsOnly: Int,
         @Path("images_only") imagesOnly: Int,
         @Path("page") page: Int
-    ): NetworkResponse<Document, ErrorResponse>
+    ): Call<Document>
 
     @GET("mylikes/{page}")
-    suspend fun fetchMyLikes(@Path("page") page: Int): NetworkResponse<Document, ErrorResponse>
+    fun fetchMyLikes(@Path("page") page: Int): Call<Document>
 
     @GET("myshares/{page}")
-    suspend fun fetchMyShares(@Path("page") page: Int): NetworkResponse<Document, ErrorResponse>
+    fun fetchMyShares(@Path("page") page: Int): Call<Document>
 
     @GET("post/{postID}")
-    suspend fun fetchPageWithPost(@Path("postID") post: String): Response<Document>
+    fun fetchPageWithPost(@Path("postID") post: String): Call<Document>
 }

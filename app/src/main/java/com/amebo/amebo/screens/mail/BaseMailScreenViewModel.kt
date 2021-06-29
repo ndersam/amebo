@@ -4,12 +4,14 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.amebo.amebo.common.extensions.toResource
 import com.amebo.amebo.common.Event
 import com.amebo.amebo.common.Resource
+import com.amebo.amebo.common.extensions.toResource
 import com.amebo.core.domain.ErrorResponse
 import com.amebo.core.domain.MailForm
-import com.amebo.core.domain.ResultWrapper
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
 import kotlinx.coroutines.launch
 
 abstract class BaseMailScreenViewModel<T : MailForm, U : Any> : ViewModel() {
@@ -93,25 +95,25 @@ abstract class BaseMailScreenViewModel<T : MailForm, U : Any> : ViewModel() {
             lastRequestType = RequestType.FormLoading
 
             when (val result = doLoadForm()) {
-                is ResultWrapper.Success -> {
-                    form = result.data
+                is Ok -> {
+                    form = result.value
                     formData = MailFormData(
-                        body = result.data.body, title = result.data.subject,
-                        editable = result.data.canSendMail
+                        body = result.value.body, title = result.value.subject,
+                        editable = result.value.canSendMail
                     )
                     _formLoadingEvent.value = Event(Resource.Success(formData!!))
                 }
-                is ResultWrapper.Failure -> {
-                    _formLoadingEvent.value = Event(Resource.Error(result.data, formData))
+                is Err -> {
+                    _formLoadingEvent.value = Event(Resource.Error(result.error, formData))
                 }
             }
             notifySubmission()
         }
     }
 
-    protected abstract suspend fun doSubmitForm(): ResultWrapper<U, ErrorResponse>
+    protected abstract suspend fun doSubmitForm(): Result<U, ErrorResponse>
 
-    protected abstract suspend fun doLoadForm(): ResultWrapper<T, ErrorResponse>
+    protected abstract suspend fun doLoadForm(): Result<T, ErrorResponse>
 
     private enum class RequestType {
         FormLoading,

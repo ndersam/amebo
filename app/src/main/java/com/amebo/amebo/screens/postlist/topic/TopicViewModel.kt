@@ -8,7 +8,12 @@ import com.amebo.amebo.common.Event
 import com.amebo.amebo.common.Pref
 import com.amebo.amebo.screens.postlist.PostListScreenViewModel
 import com.amebo.core.Nairaland
-import com.amebo.core.domain.*
+import com.amebo.core.domain.ErrorResponse
+import com.amebo.core.domain.PostListDataPage
+import com.amebo.core.domain.Topic
+import com.amebo.core.domain.TopicPostListDataPage
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -27,10 +32,12 @@ class TopicViewModel @Inject constructor(
     val addViewedTopicEvent: LiveData<Event<Unit>> = _addViewedTopicEvent
 
 
-    override suspend fun onDataPageFetched(result: ResultWrapper<PostListDataPage, ErrorResponse>) {
+    val dataExists get() = dataPage != null
+
+    override suspend fun onDataPageFetched(result: Result<PostListDataPage, ErrorResponse>) {
         super.onDataPageFetched(result)
-        if (result is ResultWrapper.Success) {
-            val dataPage = result.data as TopicPostListDataPage
+        if (result is Ok) {
+            val dataPage = result.value as TopicPostListDataPage
             nairaland.sources.postLists.updateViewedTopic(dataPage.topic)
         }
     }

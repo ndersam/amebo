@@ -17,7 +17,7 @@ import com.amebo.amebo.databinding.LayoutPostActionsBinding
 import com.amebo.amebo.screens.postlist.adapters.PostListAdapterListener
 import com.amebo.amebo.screens.postlist.adapters.image.ImageAdapter
 import com.amebo.amebo.screens.postlist.components.RichPostTextView
-import com.amebo.core.CoreUtils
+import com.amebo.core.common.CoreUtils
 import com.amebo.core.domain.SimplePost
 import com.amebo.core.domain.Topic
 import com.bumptech.glide.RequestManager

@@ -3,14 +3,18 @@ package com.amebo.amebo.screens.signin
 import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.amebo.amebo.di.TestNairalandProvider
 import com.amebo.amebo.common.Event
 import com.amebo.amebo.common.Resource
+import com.amebo.amebo.di.TestNairalandProvider
 import com.amebo.amebo.screens.accounts.UserManagementViewModel
 import com.amebo.amebo.suite.MainCoroutineRule
 import com.amebo.amebo.suite.TestPref
 import com.amebo.core.Nairaland
-import com.amebo.core.domain.*
+import com.amebo.core.domain.NairalandSessionObservable
+import com.amebo.core.domain.RealUserAccount
+import com.amebo.core.domain.User
+import com.amebo.core.domain.UserAccount
+import com.github.michaelbull.result.Ok
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -46,7 +50,7 @@ class UserManagementViewModelTest {
 
     @Test
     fun testLogin(): Unit = runBlocking {
-        whenever(nairaland.auth.login(any(), any())).thenReturn(ResultWrapper.success(Unit))
+        whenever(nairaland.auth.login(any(), any())).thenReturn(Ok(Unit))
         val observer = mock<Observer<Event<Resource<Unit>>>>()
         viewModel.loginEvent.observeForever(observer)
 

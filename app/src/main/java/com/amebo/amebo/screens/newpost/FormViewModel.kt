@@ -11,14 +11,15 @@ import com.amebo.amebo.common.EmojiGetter
 import com.amebo.amebo.common.Event
 import com.amebo.amebo.common.Resource
 import com.amebo.amebo.common.extensions.getBitmapOriginal
-import com.amebo.amebo.common.extensions.map
 import com.amebo.amebo.common.extensions.toResource
 import com.amebo.amebo.screens.imagepicker.ImageItem
 import com.amebo.core.Nairaland
-import com.amebo.core.Values
+import com.amebo.core.common.Either
+import com.amebo.core.common.Values
+import com.amebo.core.common.extensions.openRawAsString
 import com.amebo.core.converter.DocConverter
 import com.amebo.core.domain.*
-import com.amebo.core.extensions.openRawAsString
+import com.github.michaelbull.result.*
 import kotlinx.coroutines.launch
 
 abstract class FormViewModel<T : Form>(val nairaland: Nairaland, application: Application) :
@@ -51,7 +52,8 @@ abstract class FormViewModel<T : Form>(val nairaland: Nairaland, application: Ap
      * Handling Muslim declaration for `Islams for Muslims` board
      */
     private val _muslimDeclarationEvent = MutableLiveData<Event<AreYouMuslimDeclarationForm>>()
-    val muslimDeclarationEvent: LiveData<Event<AreYouMuslimDeclarationForm>> = _muslimDeclarationEvent
+    val muslimDeclarationEvent: LiveData<Event<AreYouMuslimDeclarationForm>> =
+        _muslimDeclarationEvent
 
     /**
      * Form loading
@@ -104,11 +106,16 @@ abstract class FormViewModel<T : Form>(val nairaland: Nairaland, application: Ap
         )
 
         viewModelScope.launch {
-            val resource = doFetchFormData().map(
-                // setSuccess
-                { result ->
-                    when(result){
-                        is ResultWrapper.Success -> {
+            doFetchFormData()
+                .onFailure {
+
+                    isLastRequestFormSubmission = false
+                    _formLoadingEvent.value =
+                        Event(Resource.Error(it, if (form == null) null else formData))
+                }
+                .onSuccess { result ->
+                    val resource = when (result) {
+                        is Either.Left -> {
                             val form = result.data
                             this@FormViewModel.form = form
                             formData.body = form.body
@@ -116,20 +123,15 @@ abstract class FormViewModel<T : Form>(val nairaland: Nairaland, application: Ap
                             Resource.Success(formData)
                         }
                         // if user requires declaration for islam
-                        is ResultWrapper.Failure -> {
+                        is Either.Right -> {
                             _muslimDeclarationEvent.value = Event(result.data)
                             return@launch
                         }
                     }
-
-                },
-                // setError
-                { error ->
-                    Resource.Error(error, if (form == null) null else formData)
+                    isLastRequestFormSubmission = false
+                    _formLoadingEvent.value = Event(resource)
                 }
-            )
-            isLastRequestFormSubmission = false
-            _formLoadingEvent.value = Event(resource)
+
         }
     }
 
@@ -172,12 +174,12 @@ abstract class FormViewModel<T : Form>(val nairaland: Nairaland, application: Ap
 
                 when (val result =
                     nairaland.sources.submissions.removeAttachment(item.attachment)) {
-                    is ResultWrapper.Success -> {
+                    is Ok -> {
                         _existingImageRemovalEvent.value = Event(Resource.Success(content = item))
                     }
-                    is ResultWrapper.Failure -> {
+                    is Err -> {
                         _existingImageRemovalEvent.value = Event(
-                            Resource.Error(cause = result.data, content = item)
+                            Resource.Error(cause = result.error, content = item)
                         )
 
                         /**
@@ -225,21 +227,21 @@ abstract class FormViewModel<T : Form>(val nairaland: Nairaland, application: Ap
     private suspend fun fetchFormDataDuringSubmission(): Boolean {
         if (form != null) return true
         return when (val result = doFetchFormData()) {
-            is ResultWrapper.Success -> {
-                when(val formWrapper = result.data){
-                    is ResultWrapper.Success -> {
+            is Ok -> {
+                when (val formWrapper = result.value) {
+                    is Either.Left -> {
                         this.form = formWrapper.data
                         true
                     }
-                    is ResultWrapper.Failure -> {
+                    is Either.Right -> {
                         _muslimDeclarationEvent.value = Event(formWrapper.data)
                         false
                     }
                 }
             }
-            is ResultWrapper.Failure -> {
+            is Err -> {
                 isLastRequestFormSubmission = true
-                _formSubmissionEvent.value = Event(Resource.Error(result.data, null))
+                _formSubmissionEvent.value = Event(Resource.Error(result.error, null))
                 false
             }
         }
@@ -294,8 +296,8 @@ abstract class FormViewModel<T : Form>(val nairaland: Nairaland, application: Ap
     }
 
 
-    abstract suspend fun doFetchFormData(): ResultWrapper<ResultWrapper<T, AreYouMuslimDeclarationForm>, ErrorResponse>
+    abstract suspend fun doFetchFormData(): Result<Either<T, AreYouMuslimDeclarationForm>, ErrorResponse>
 
-    abstract suspend fun doSubmitFormData(form: T): ResultWrapper<PostListDataPage, ErrorResponse>
+    abstract suspend fun doSubmitFormData(form: T): Result<PostListDataPage, ErrorResponse>
 
 }

@@ -13,9 +13,9 @@ import com.amebo.amebo.common.Resource
 import com.amebo.amebo.common.extensions.*
 import com.amebo.amebo.common.fragments.BaseFragment
 import com.amebo.amebo.databinding.ReportPostScreenBinding
+import com.amebo.core.common.extensions.openRawAsString
 import com.amebo.core.domain.PostListDataPage
 import com.amebo.core.domain.SimplePost
-import com.amebo.core.extensions.openRawAsString
 
 class ReportPostScreen : BaseFragment(R.layout.report_post_screen) {
 

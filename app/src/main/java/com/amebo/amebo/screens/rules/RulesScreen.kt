@@ -14,7 +14,7 @@ import com.amebo.amebo.common.extensions.resize
 import com.amebo.amebo.common.extensions.viewBinding
 import com.amebo.amebo.databinding.FragmentRulesScreenBinding
 import com.amebo.amebo.di.Injectable
-import com.amebo.core.extensions.openRawAsString
+import com.amebo.core.common.extensions.openRawAsString
 import javax.inject.Inject
 
 

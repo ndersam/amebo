@@ -5,7 +5,7 @@ import android.graphics.drawable.Drawable
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import com.amebo.amebo.R
-import com.amebo.core.Values
+import com.amebo.core.common.Values
 import java.util.regex.Pattern
 
 

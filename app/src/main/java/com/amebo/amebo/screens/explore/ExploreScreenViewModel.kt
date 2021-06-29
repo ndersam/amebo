@@ -11,7 +11,7 @@ import com.amebo.amebo.common.Resource
 import com.amebo.amebo.common.extensions.toResource
 import com.amebo.core.Nairaland
 import com.amebo.core.domain.Board
-import com.amebo.core.domain.ResultWrapper
+import com.github.michaelbull.result.Ok
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -60,8 +60,8 @@ class ExploreScreenViewModel @Inject constructor(
                 Resource.Loading(_exploreData.value?.topicListData?.followed)
             )
             val resp = nairaland.sources.boards.fetchFollowedBoards()
-            if (resp is ResultWrapper.Success) {
-                nairaland.sources.boards.updateFollowedBoards(pref.userName!!, resp.data)
+            if (resp is Ok) {
+                nairaland.sources.boards.updateFollowedBoards(pref.userName!!, resp.value)
             }
             _fetchedFollowedBoardsEvent.value = Event(resp.toResource(existing))
         }

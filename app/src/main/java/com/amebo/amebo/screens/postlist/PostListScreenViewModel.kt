@@ -12,8 +12,10 @@ import com.amebo.amebo.common.Pref
 import com.amebo.amebo.common.Resource
 import com.amebo.amebo.common.extensions.toResource
 import com.amebo.core.Nairaland
-import com.amebo.core.Values
+import com.amebo.core.common.Values
 import com.amebo.core.domain.*
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlin.math.max
@@ -67,9 +69,9 @@ abstract class PostListScreenViewModel<T : PostList>(
             }
         }
 
-    open suspend fun onDataPageFetched(result: ResultWrapper<PostListDataPage, ErrorResponse>) {
-        if (result is ResultWrapper.Success) {
-            manager.update(result.data)
+    open suspend fun onDataPageFetched(result: Result<PostListDataPage, ErrorResponse>) {
+        if (result is Ok) {
+            manager.update(result.value)
             postMeta()
         }
         // post value to observer
@@ -116,9 +118,9 @@ abstract class PostListScreenViewModel<T : PostList>(
         }
     }
 
-    protected fun setResult(result: ResultWrapper<PostListDataPage, ErrorResponse>) {
-        if (result is ResultWrapper.Success) {
-            manager.update(result.data)
+    protected fun setResult(result: Result<PostListDataPage, ErrorResponse>) {
+        if (result is Ok) {
+            manager.update(result.value)
         }
         _dataEvent.value = Event(result.toResource(manager.dataPage))
         postMeta()
@@ -185,8 +187,8 @@ abstract class PostListScreenViewModel<T : PostList>(
                 nairaland.sources.submissions.likePost(post)
             else
                 nairaland.sources.submissions.unLikePost(post)
-            if (result is ResultWrapper.Success) {
-                manager.update(result.data)
+            if (result is Ok) {
+                manager.update(result.value)
             }
             _dataEvent.value = Event(result.toResource(manager.dataPage))
         }
@@ -198,8 +200,8 @@ abstract class PostListScreenViewModel<T : PostList>(
                 nairaland.sources.submissions.sharePost(post)
             else
                 nairaland.sources.submissions.unSharePost(post)
-            if (result is ResultWrapper.Success) {
-                manager.update(result.data)
+            if (result is Ok) {
+                manager.update(result.value)
             }
             _dataEvent.value = Event(result.toResource(manager.dataPage))
         }

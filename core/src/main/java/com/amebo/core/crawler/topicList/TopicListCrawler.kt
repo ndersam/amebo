@@ -9,7 +9,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
-import java.net.URL
+import java.net.URI
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
@@ -390,8 +390,8 @@ internal fun parseTopicUrlOrThrow(url: String): Result<TopicUrlParseResult, Erro
  */
 internal fun parseTopicUrl(url: String, find: Boolean = true): TopicUrlParseResult? {
     if (!url.startsWith('/')) {
-        val url = URL(url)
-        val domain = if (url.host.startsWith("www.")) url.host.substring(4) else url.host
+        val uri = URI(url)
+        val domain = if (uri.host.startsWith("www.")) uri.host.substring(4) else uri.host
         if (!domain.equals("nairaland.com", true)) {
             return null
         }

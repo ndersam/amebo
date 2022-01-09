@@ -44,16 +44,22 @@ fun fetchUserData(
 
     val userData = User.Data()
     val imageBuilder = UserImageBuilder()
-    soup.select("table").forEach { table ->
-        if (!table.hasAttr("id") && table.hasAttr("summary")) {
-            if (table.attr("summary") == "friends" && table.select("tbody tr").size == 2) {
-                table.select("tbody tr td a").forEach { anchor ->
-                    userData.following.add(User(anchor.text()))
-                }
-            }
-        } else {
-            parseUserData(userData, table, imageBuilder)
+    val tables = soup.select("table")
+
+    tables.firstOrNull { table ->
+        table.hasAttr("summary")
+                && table.attr("summary") == "friends"
+                && table.select("tbody tr").size == 2
+    }?.let { table ->
+        table.select("tbody tr td a").forEach { anchor ->
+            userData.following.add(User(anchor.text()))
         }
+    }
+
+    if (tables.size == 4) {
+        parseUserData(userData, tables[1], imageBuilder)
+    } else if (tables.size == 5) {
+        parseUserData(userData, tables[2], imageBuilder)
     }
     userData.image = imageBuilder.build()
     return Ok(userData)
@@ -65,7 +71,7 @@ private fun parseUserData(
     data: User.Data,
     table: Element,
     imageBuilder: UserImageBuilder
-) : Result<Unit, ErrorResponse> {
+): Result<Unit, ErrorResponse> {
 
     val tRows = table.select("tbody tr td")
     // User Profile Information
@@ -90,7 +96,7 @@ private fun parseUserData(
             .toInt() // text is of form "View All 1054 Topics"
 
         data.latestTopics.addAll(
-            when(val result = parseOtherTopics(tRows)) {
+            when (val result = parseOtherTopics(tRows)) {
                 is Ok -> result.value
                 is Err -> return result
             }

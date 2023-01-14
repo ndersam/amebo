@@ -364,8 +364,8 @@
     <string name="x_ago">%s ago</string>
     <string name="page_x_of_x">Page %s of %s</string>
     <string name="page_x">Page %d</string>
-    <string name="privacy_policy_web_page">https://ndersam.github.io/amebo/privacy.html</string>
-    <string name="licences_web_page">https://ndersam.github.io/amebo/licences.html</string>
+    <string name="privacy_policy_web_page">https://genuine-seahorse-334f0e.netlify.app/amebo/privacy.html</string>
+    <string name="licences_web_page">https://genuine-seahorse-334f0e.netlify.app/amebo/licences.html</string>
     <string name="accept">Accept</string>
     <string name="spent_online">Spent Online</string>
     <string name="joined_x_date">Joined %s</string>

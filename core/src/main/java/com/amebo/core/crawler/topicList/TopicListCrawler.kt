@@ -39,7 +39,7 @@ private val OLD_TOPIC_FULL_RE =
 private val TOPIC_NO_TITLE_RE = Pattern.compile("/(\\d+)([^/]*)")
 private val TOPIC_NO_TITLE_FULL_RE = Pattern.compile("${Values.URL}/(\\d+)([^/]*)")
 private val BY_AUTHOR_RE = Pattern.compile("by\\s+(\\w+)\\.")
-private val FEATURED_ITEM_TOPIC = Pattern.compile("(<a.+?)<br>")
+private val FEATURED_ITEM_TOPIC = Pattern.compile("(<a.+?)\\s+<hr>")
 private val FOLLOW_URL = Pattern.compile("board=(\\d+)")
 private val REGULAR_ITEM_BOARD_VIEWERS =
     Pattern.compile("Viewing this board:\\s+(.*)and\\s+(\\d+)\\s+guest\\(s\\)")

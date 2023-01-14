@@ -3,7 +3,6 @@ package com.amebo.amebo.screens.accounts.edit
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
-import androidx.activity.invoke
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.setFragmentResultListener
@@ -149,7 +148,7 @@ class EditAccountScreen : BaseFragment(R.layout.fragment_edit_account_screen),
         viewModel.editProfileFormData?.yim = text
     }
 
-    override fun selectImage() = getContent("image/*")
+    override fun selectImage() = getContent.launch("image/*")
 
 
     override fun removeImage() {

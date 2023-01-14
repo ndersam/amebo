@@ -1,6 +1,6 @@
 package com.amebo.core.di
 
-import com.amebo.core.Database
+import com.amebo.core.data.local.Database
 import com.amebo.core.data.cookies.InMemoryCookieJar
 import com.amebo.core.data.cookies.PersistentCookieJar
 import com.amebo.core.domain.NairalandSessionObservable

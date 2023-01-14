@@ -5,7 +5,7 @@ CREATE TABLE recentBoard(
 );
 
 selectNRecent:
-SELECT board.* FROM board JOIN recentBoard ON recentBoard.board_slug = board.slug ORDER BY recentBoard.timestamp  DESC LIMIT ?;
+SELECT board.* FROM board JOIN recentBoard ON recentBoard.board_slug = board.slug ORDER BY recentBoard.timestamp  DESC LIMIT :count;
 
 insert:
 REPLACE INTO recentBoard(board_slug, timestamp) VALUES(?, ?);

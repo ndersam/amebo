@@ -6,10 +6,10 @@ CREATE TABLE cookie(
 );
 
 select:
-SELECT * FROM cookie WHERE account_slug = ?;
+SELECT * FROM cookie WHERE account_slug = :accountSlug;
 
 insert:
 REPLACE INTO cookie(account_slug, cookie) VALUES(?, ?);
 
 deleteThis:
-DELETE FROM cookie WHERE account_slug = ?;
+DELETE FROM cookie WHERE account_slug = :accountSlug;

@@ -42,6 +42,7 @@ class ModifyPostScreenViewModel @Inject constructor(
                     }
                     imageCountEventInternal.value = Event(existingImages.size)
                 }
+                is Either.Right -> {}
             }
         }
         return result

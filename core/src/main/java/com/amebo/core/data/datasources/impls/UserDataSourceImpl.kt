@@ -1,6 +1,6 @@
 package com.amebo.core.data.datasources.impls
 
-import com.amebo.core.Database
+import com.amebo.core.data.local.Database
 import com.amebo.core.apis.UserApi
 import com.amebo.core.common.CoreUtils
 import com.amebo.core.common.extensions.awaitResult

@@ -1,7 +1,7 @@
 package com.amebo.core.auth
 
 import android.annotation.SuppressLint
-import com.amebo.core.Database
+import com.amebo.core.data.local.Database
 import com.amebo.core.domain.ErrorResponse
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.map

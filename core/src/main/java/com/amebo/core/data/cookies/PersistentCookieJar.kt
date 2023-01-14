@@ -1,6 +1,6 @@
 package com.amebo.core.data.cookies
 
-import com.amebo.core.Database
+import com.amebo.core.data.local.Database
 import com.amebo.core.domain.NairalandSessionObservable
 import okhttp3.Cookie
 import okhttp3.CookieJar

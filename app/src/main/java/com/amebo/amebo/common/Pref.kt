@@ -122,7 +122,7 @@ interface Pref {
                 .registerOnSharedPreferenceChangeListener(listener)
         }
 
-        fun unsubscribe(context: Context?) {
+        fun unsubscribe(context: Context) {
             PreferenceManager.getDefaultSharedPreferences(context)
                 .unregisterOnSharedPreferenceChangeListener(listener)
         }

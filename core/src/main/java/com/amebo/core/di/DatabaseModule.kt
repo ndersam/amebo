@@ -3,7 +3,7 @@ package com.amebo.core.di
 import android.content.Context
 import com.amebo.amebo.data.local.Cookie
 import com.amebo.amebo.data.local.UserAccountData
-import com.amebo.core.Database
+import com.amebo.core.data.local.Database
 import com.amebo.core.data.cookies.CookieStore
 import com.amebo.core.domain.User
 import com.squareup.sqldelight.ColumnAdapter

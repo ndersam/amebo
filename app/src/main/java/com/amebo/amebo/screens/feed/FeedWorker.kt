@@ -64,6 +64,8 @@ class FeedWorker(
             ).setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
+
+        // TODO: Add permission check
         NotificationManagerCompat.from(applicationContext)
             .notify(NOTIFICATION_ID, builder.build())
     }
@@ -106,7 +108,7 @@ class FeedWorker(
         private const val UNIQUE_WORK_NAME = "com.amebo.amebo.features.feed.FeedWorker"
 
         fun schedule(context: App) {
-            WorkManager.initialize(context, context.workerConfiguration)
+//            WorkManager.initialize(context, context.workerConfiguration)
             val request = PeriodicWorkRequestBuilder<FeedWorker>(
                 1, TimeUnit.HOURS,
                 15, TimeUnit.MINUTES

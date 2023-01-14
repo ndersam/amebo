@@ -81,6 +81,7 @@ class EditAccountScreenViewModel @Inject constructor(
                 _displayPhotoEvent.value = Event(Resource.Success(photo))
                 return
             }
+            null -> {}
         }
 
         val user = user ?: return

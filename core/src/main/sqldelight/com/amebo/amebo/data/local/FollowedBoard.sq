@@ -13,13 +13,13 @@ select:
 SELECT * FROM  followedBoard WHERE user_slug = ?  AND board_slug = ?;
 
 selectAll:
-SELECT board.*, isFavourite FROM board JOIN followedBoard  ON board.slug = followedBoard.board_slug AND followedBoard.user_slug = ? ORDER BY board.name;
+SELECT board.*, isFavourite FROM board JOIN followedBoard  ON board.slug = followedBoard.board_slug AND followedBoard.user_slug = :userSlug ORDER BY board.name;
 
 insert:
 REPLACE INTO followedBoard(board_slug, user_slug, isFavourite) VALUES(?, ?, ?);
 
 deleteAllByAccount:
-DELETE FROM followedBoard WHERE user_slug = ?;
+DELETE FROM followedBoard WHERE user_slug = :userSlug;
 
 deleteThis:
 DELETE FROM followedBoard WHERE user_slug = ? AND board_slug = ?;

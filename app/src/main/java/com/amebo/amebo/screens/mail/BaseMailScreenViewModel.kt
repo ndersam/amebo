@@ -73,6 +73,7 @@ abstract class BaseMailScreenViewModel<T : MailForm, U : Any> : ViewModel() {
         when (lastRequestType) {
             RequestType.FormLoading -> loadForm()
             RequestType.FormSubmission -> submit()
+            null -> {}
         }
     }
 

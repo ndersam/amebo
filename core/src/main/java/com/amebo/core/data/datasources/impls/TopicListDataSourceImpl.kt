@@ -1,7 +1,7 @@
 package com.amebo.core.data.datasources.impls
 
 import androidx.annotation.RestrictTo
-import com.amebo.core.Database
+import com.amebo.core.data.local.Database
 import com.amebo.core.apis.TopicListApi
 import com.amebo.core.common.extensions.awaitResult
 import com.amebo.core.crawler.topicList.*

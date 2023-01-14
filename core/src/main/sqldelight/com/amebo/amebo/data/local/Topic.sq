@@ -10,7 +10,7 @@ selectAllIds:
 SELECT topic_id FROM topic;
 
 selectById:
-SELECT topic_id FROM topic WHERE topic_id = ?;
+SELECT topic_id FROM topic WHERE topic_id = :topicId;
 
 updateTitle:
 UPDATE topic SET title = ? WHERE topic_id = ?;
@@ -22,4 +22,4 @@ deleteAll:
 DELETE FROM topic;
 
 deleteThis:
-DELETE FROM topic WHERE topic_id = ?;
+DELETE FROM topic WHERE topic_id = :topicId;

@@ -5,7 +5,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.transition.Transition
 import android.transition.TransitionInflater
-import androidx.activity.invoke
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.LayoutRes
 import androidx.core.os.bundleOf
@@ -76,7 +75,7 @@ abstract class BasePhotoViewerScreen(@LayoutRes layoutRes: Int) : BaseFragment(l
         if (requireContext().hasMediaAccess) {
             doSaveImage()
         } else {
-            getPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            getPermission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
         }
     }
 

@@ -69,7 +69,7 @@ class SettingsScreen : BaseFragment(R.layout.settings_screen) {
             inflater: LayoutInflater,
             container: ViewGroup?,
             savedInstanceState: Bundle?
-        ): View? {
+        ): View {
             val view = super.onCreateView(inflater, container, savedInstanceState)
             router = routerFactory.create(requireParentFragment())
             return view

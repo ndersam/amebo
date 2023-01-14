@@ -17,10 +17,10 @@ insert:
 INSERT INTO board(name, slug, id) VALUES(?,?,?);
 
 select:
-SELECT * FROM board WHERE slug = ?;
+SELECT * FROM board WHERE slug = :slug;
 
 findLike:
-SELECT * FROM board WHERE name LIKE ?;
+SELECT * FROM board WHERE name LIKE :name;
 
 selectById:
-SELECT * FROM board WHERE id = ?;
+SELECT * FROM board WHERE id = :id;

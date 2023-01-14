@@ -22,7 +22,7 @@ class BottomSheetPreference : Preference {
 
 
     constructor(
-        context: Context?,
+        context: Context,
         attrs: AttributeSet?,
         defStyleAttr: Int,
         defStyleRes: Int
@@ -30,7 +30,7 @@ class BottomSheetPreference : Preference {
         initialize(attrs)
     }
 
-    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
         context,
         attrs,
         defStyleAttr
@@ -38,11 +38,11 @@ class BottomSheetPreference : Preference {
         initialize(attrs)
     }
 
-    constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs) {
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
         initialize(attrs)
     }
 
-    constructor(context: Context?) : super(context) {
+    constructor(context: Context) : super(context) {
         initialize(null)
     }
 
@@ -76,8 +76,8 @@ class BottomSheetPreference : Preference {
         }
     }
 
-    override fun onGetDefaultValue(a: TypedArray?, index: Int): Int {
-        return a?.getInt(index, -1)!!
+    override fun onGetDefaultValue(a: TypedArray, index: Int): Int {
+        return a.getInt(index, -1)
     }
 
     override fun onSetInitialValue(defaultValue: Any?) {
@@ -85,9 +85,9 @@ class BottomSheetPreference : Preference {
         selectedIndex = entryValues.indexOfFirst { value == it }
     }
 
-    override fun onBindViewHolder(holder: PreferenceViewHolder?) {
+    override fun onBindViewHolder(holder: PreferenceViewHolder) {
         super.onBindViewHolder(holder)
-        view = holder!!.itemView as ViewGroup
+        view = holder.itemView as ViewGroup
         setSelectedEntryText()
     }
 

@@ -1,6 +1,6 @@
 package com.amebo.core.di.mocks
 
-import com.amebo.core.Database
+import com.amebo.core.data.local.Database
 import com.nhaarman.mockitokotlin2.mock
 import dagger.Module
 import dagger.Provides

@@ -39,6 +39,7 @@ class AltAdapter(private val listener: Listener) : RecyclerView.Adapter<AltAdapt
             is State.Error -> holder.setError(state.cause)
             is State.Loading -> holder.setLoading()
             is State.Empty -> holder.setEmpty()
+            null -> {}
         }
     }
 

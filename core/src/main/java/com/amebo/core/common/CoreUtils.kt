@@ -1,7 +1,7 @@
 package com.amebo.core.common
 
 import android.net.Uri
-import com.amebo.core.Database
+import com.amebo.core.data.local.Database
 import com.amebo.core.crawler.topicList.parseTopicUrl
 import com.amebo.core.domain.Board
 import com.amebo.core.domain.Topic

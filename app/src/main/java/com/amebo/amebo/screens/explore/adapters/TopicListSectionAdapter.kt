@@ -69,6 +69,7 @@ class TopicListSectionAdapter(
                 val vh = holder as TitleVH
                 vh.bind(vh.itemView.context.getString(item.title))
             }
+            Item.NoBoardsItem -> {}
         }
     }
 

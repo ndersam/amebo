@@ -4,7 +4,6 @@ import android.Manifest
 import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
-import androidx.activity.invoke
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.recyclerview.widget.GridLayoutManager
 import com.amebo.amebo.R
@@ -50,7 +49,7 @@ class ImagePickerScreen : BaseFragment(R.layout.image_picker_screen), GalleryAda
     private fun checkPermission(setPendingRequest: Boolean = false): Boolean {
         if (requireContext().hasMediaAccess.not()) {
             pendingPickImage = setPendingRequest
-            getPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            getPermission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
             return false
         }
         return true
@@ -189,7 +188,7 @@ class ImagePickerScreen : BaseFragment(R.layout.image_picker_screen), GalleryAda
         snackBar?.dismiss()
         if (checkPermission(true)) {
             if (canAddMoreImages) {
-                getContent("image/*")
+                getContent.launch("image/*")
             } else {
                 Snackbar.make(
                     binding.root,

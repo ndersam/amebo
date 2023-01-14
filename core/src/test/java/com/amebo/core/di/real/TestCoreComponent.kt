@@ -2,7 +2,7 @@ package com.amebo.core.di.real
 
 import com.amebo.amebo.data.local.Cookie
 import com.amebo.amebo.data.local.UserAccountData
-import com.amebo.core.Database
+import com.amebo.core.data.local.Database
 import com.amebo.core.Nairaland
 import com.amebo.core.auth.AuthService
 import com.amebo.core.auth.Authenticator
